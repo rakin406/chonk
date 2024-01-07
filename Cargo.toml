@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Rakin Rahman <rakinrahman406@gmail.com>"]
 description = "The Chonk programming language"
 readme = "README.md"
+license = "Apache-2.0"
 keywords = ["chonk", "programming", "language"]
 categories = ["command-line-utilities"]
 edition = "2021"
