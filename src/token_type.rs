@@ -17,11 +17,16 @@ enum TokenType {
     // One or two character tokens
     Equal,
     EqualTo,
+    Not,
     NotEqualTo,
     GreaterThan,
     LessThan,
     GreaterThanOrEqualTo,
     LessThanOrEqualTo,
+
+    // Membership operators
+    In,
+    NotIn,
 
     // Literals
     Identifier,
@@ -29,7 +34,20 @@ enum TokenType {
     Number,
 
     // Keywords
+    Null,
+    True,
+    False,
+    If,
+    Elif,
+    Else,
     And,
     Or,
-    Not,
+    While,
+    For,
+    Break,
+    Continue,
+    Return,
+    Echo,
+
+    EOF,
 }
