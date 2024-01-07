@@ -1,4 +1,4 @@
-enum TokenType {
+pub enum TokenType {
     // Single-character tokens
     LeftParen,
     RightParen,
