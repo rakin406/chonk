@@ -1,3 +1,4 @@
+/// All the token types in Chonk language.
 pub enum TokenType {
     // Single-character tokens
     LeftParen,
