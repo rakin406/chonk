@@ -10,4 +10,3 @@ categories = ["command-line-utilities"]
 edition = "2021"
 
 [dependencies]
-nom = "7.1.3"
