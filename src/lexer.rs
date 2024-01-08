@@ -67,12 +67,7 @@ impl Scannable for Lexer {
             self.scan_token();
         }
 
-        self.tokens.push(Token {
-            token_type: TokenType::EOF,
-            lexeme: "",
-            literal: None,
-            line: self.line,
-        });
+        self.tokens.push(Token(TokenType::EOF, "", None, self.line));
         &self.tokens
     }
 
@@ -138,17 +133,21 @@ impl Scannable for Lexer {
                 LessThan
             }),
 
-            '&' => if self.has_match('&') {
-                self.add_token(And);
-            } else {
-                panic!("Line {}: Missing ampersand", self.line);
-            },
+            '&' => {
+                if self.has_match('&') {
+                    self.add_token(And);
+                } else {
+                    panic!("Line {}: Missing ampersand", self.line);
+                }
+            }
 
-            '|' => if self.has_match('|') {
-                self.add_token(Or);
-            } else {
-                panic!("Line {}: Missing vertical bar", self.line);
-            },
+            '|' => {
+                if self.has_match('|') {
+                    self.add_token(Or);
+                } else {
+                    panic!("Line {}: Missing vertical bar", self.line);
+                }
+            }
 
             '#' => {
                 // A comment goes until the end of the line
@@ -254,7 +253,9 @@ impl Scannable for Lexer {
         if self.is_at_end() {
             return '\0';
         }
-        // TODO: Return character from source.
+        // NOTE: I read that using unwrap() function is bad. I might remove it
+        // later.
+        self.source.chars().nth(self.current).unwrap()
     }
 
     fn peek_next(&self) -> char {
