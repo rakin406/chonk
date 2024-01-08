@@ -26,10 +26,14 @@ pub trait Scannable {
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
 
-    /// Return the next character in the source code.
+    /// Consume and return the next character in the source code.
     fn advance(&self) -> char;
 
-    /// Check if current character is what we're looking for.
+    /// Similar to advance(), but doesn't consume the character. This is called
+    /// "lookahead".
+    fn peek(&self) -> char;
+
+    /// Consume the current character if it's what we're looking for.
     fn has_match(&self, expected: char) -> bool;
 }
 
@@ -90,6 +94,13 @@ impl Scannable for Lexer {
                 LessThan
             }),
 
+            '#' => {
+                // A comment goes until the end of the line
+                while self.peek() != '\n' && !self.is_at_end() {
+                    self.advance();
+                }
+            }
+
             _ => eprintln!("Line {}: Unexpected character", self.line),
         }
     }
@@ -105,6 +116,13 @@ impl Scannable for Lexer {
 
     fn advance(&self) -> char {
         self.current += 1;
+        // TODO: Return character from source.
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() {
+            return '\0';
+        }
         // TODO: Return character from source.
     }
 
