@@ -135,14 +135,14 @@ impl Scannable for Lexer {
         }
 
         if self.is_at_end() {
-            eprintln!("Line {}: Unterminated string", self.line)
+            panic!("Line {}: Unterminated string", self.line)
         }
 
         // The closing quote
         self.advance();
 
         // TODO: Trim the surrounding quotes
-        self.add_token();
+        // self.add_token_with_literal(TokenType::String);
     }
 
     fn is_at_end(&self) -> bool {
