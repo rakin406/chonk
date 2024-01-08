@@ -251,15 +251,16 @@ impl Scannable for Lexer {
 
     fn advance(&self) -> char {
         self.current += 1;
-        // TODO: Return character from source.
+        // NOTE: I read that using unwrap() function is bad. I might remove it
+        // later.
+        self.source.chars().nth(self.current - 1).unwrap()
     }
 
     fn peek(&self) -> char {
         if self.is_at_end() {
             return '\0';
         }
-        // NOTE: I read that using unwrap() function is bad. I might remove it
-        // later.
+        // NOTE: I might remove unwrap() later.
         self.source.chars().nth(self.current).unwrap()
     }
 
