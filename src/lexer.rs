@@ -11,48 +11,8 @@ pub struct Lexer {
     line: usize,
 }
 
-pub trait Scannable {
-    fn new(&mut self, source: String);
-
-    /// Add tokens until character ends.
-    fn scan_tokens(&mut self) -> &Vec<Token>;
-
-    /// Add token type for the next character.
-    fn scan_token(&mut self);
-
-    /// Create a new token.
-    fn add_token(&self, token_type: TokenType);
-
-    /// Create a new token with literal.
-    fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>);
-
-    /// Add string literal token.
-    fn add_string(&mut self);
-
-    /// Add number literal token.
-    fn add_number(&mut self);
-
-    /// Add identifier token.
-    fn add_identifier(&mut self);
-
-    /// Check if current character is the last in the source code.
-    fn is_at_end(&self) -> bool;
-
-    /// Consume the current character if it's what we're looking for.
-    fn has_match(&mut self, expected: char) -> bool;
-
-    /// Consume and return the next character in the source code.
-    fn advance(&mut self) -> char;
-
-    /// Similar to advance(), but doesn't consume the character. This is called
-    /// "lookahead".
-    fn peek(&self) -> char;
-
-    /// Similar to peek(), but checks out the next character instead.
-    fn peek_next(&self) -> char;
-}
-
-impl Scannable for Lexer {
+impl Lexer {
+    /// Create a new Lexer.
     fn new(&mut self, source: String) {
         self.source = source;
         self.start = 0;
@@ -60,6 +20,7 @@ impl Scannable for Lexer {
         self.line = 1;
     }
 
+    /// Add tokens until character ends.
     fn scan_tokens(&mut self) -> &Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
@@ -76,6 +37,7 @@ impl Scannable for Lexer {
         &self.tokens
     }
 
+    /// Add token type for the next character.
     fn scan_token(&mut self) {
         use TokenType::*;
 
@@ -178,15 +140,18 @@ impl Scannable for Lexer {
         }
     }
 
+    /// Create a new token.
     fn add_token(&self, token_type: TokenType) {
         self.add_token_with_literal(token_type, None);
     }
 
+    /// Create a new token with literal.
     fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
         // TODO: Take substring from source.
         let text = "";
     }
 
+    /// Add string literal token.
     fn add_string(&mut self) {
         // TODO: Match double quote too. Maybe add a quote parameter?
         while self.peek() != '\'' && !self.is_at_end() {
@@ -207,6 +172,7 @@ impl Scannable for Lexer {
         // self.add_token_with_literal(TokenType::String);
     }
 
+    /// Add number literal token.
     fn add_number(&mut self) {
         while self.peek().is_numeric() {
             self.advance();
@@ -226,6 +192,7 @@ impl Scannable for Lexer {
         // self.add_token_with_literal(TokenType::Number);
     }
 
+    /// Add identifier token.
     fn add_identifier(&mut self) {
         let c: char = self.peek();
         while c.is_alphanumeric() || c == '_' {
@@ -235,10 +202,12 @@ impl Scannable for Lexer {
         self.add_token(TokenType::Identifier);
     }
 
+    /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
 
+    /// Consume the current character if it's what we're looking for.
     fn has_match(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
@@ -249,6 +218,7 @@ impl Scannable for Lexer {
         true
     }
 
+    /// Consume and return the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
         // NOTE: I read that using unwrap() function is bad. I might remove it
@@ -256,6 +226,8 @@ impl Scannable for Lexer {
         self.source.chars().nth(self.current - 1).unwrap()
     }
 
+    /// Similar to advance(), but doesn't consume the character. This is called
+    /// "lookahead".
     fn peek(&self) -> char {
         if self.is_at_end() {
             return '\0';
@@ -263,6 +235,7 @@ impl Scannable for Lexer {
         self.source.chars().nth(self.current).unwrap()
     }
 
+    /// Similar to peek(), but checks out the next character instead.
     fn peek_next(&self) -> char {
         if (self.current + 1) >= self.source.len() {
             return '\0';
