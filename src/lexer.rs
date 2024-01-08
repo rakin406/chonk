@@ -29,6 +29,9 @@ pub trait Scannable {
     /// Add string literal tokens.
     fn add_string(&self);
 
+    /// Add number literal tokens.
+    fn add_number(&self);
+
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
 
@@ -41,6 +44,9 @@ pub trait Scannable {
     /// Similar to advance(), but doesn't consume the character. This is called
     /// "lookahead".
     fn peek(&self) -> char;
+
+    /// Similar to peek(), but checks out the next character instead.
+    fn peek_next(&self) -> char;
 }
 
 impl Scannable for Lexer {
@@ -112,7 +118,13 @@ impl Scannable for Lexer {
             '\t' => {}
             '\n' => self.line += 1,
 
-            _ => eprintln!("Line {}: Unexpected character", self.line),
+            _ => {
+                if c.is_numeric() {
+                    // TODO: Handle digits.
+                } else {
+                    eprintln!("Line {}: Unexpected character", self.line);
+                }
+            }
         }
     }
 
@@ -145,6 +157,26 @@ impl Scannable for Lexer {
         // self.add_token_with_literal(TokenType::String);
     }
 
+    fn add_number(&self) {
+        while self.peek().is_numeric() {
+            self.advance();
+        }
+
+        // Look for a fractional part
+        // TODO: Use "peekNext()" method here.
+        if self.peek() == '.' {
+            // Consume the dot
+            self.advance();
+
+            while self.peek().is_numeric() {
+                self.advance();
+            }
+        }
+
+        // TODO: Parse the number literal.
+        // self.add_token_with_literal(TokenType::Number);
+    }
+
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
@@ -169,5 +201,12 @@ impl Scannable for Lexer {
             return '\0';
         }
         // TODO: Return character from source.
+    }
+
+    fn peek_next(&self) -> char {
+        if (self.current + 1) >= self.source.len() {
+            return '\0';
+        }
+        // TODO: Return next character from source.
     }
 }
