@@ -10,6 +10,8 @@ pub const KEYWORDS: HashMap<&str, TokenType> = HashMap::from([
     ("if", TokenType::If),
     ("elif", TokenType::Elif),
     ("else", TokenType::Else),
+    ("case", TokenType::Case),
+    ("default", TokenType::Default),
     ("in", TokenType::In),
     ("!in", TokenType::NotIn),
     ("while", TokenType::While),

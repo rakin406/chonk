@@ -52,6 +52,8 @@ pub enum TokenType {
     If,
     Elif,
     Else,
+    Case,
+    Default,
     In,
     NotIn,
     While,
