@@ -9,25 +9,36 @@ pub enum TokenType {
     RightBrace,
     Comma,
     Dot,
-    Minus,
+
+    // Arithmetic operators
     Plus,
-    Slash,
+    PlusPlus,
+    Minus,
+    MinusMinus,
     Asterisk,
+    Slash,
     Percent,
 
-    // One or two character tokens
+    // Assignment operators
     Equal,
+    PlusEqual,
+    MinusEqual,
+    AsteriskEqual,
+    SlashEqual,
+    PercentEqual,
+
+    // Comparison operators
     EqualTo,
-    Not,
     NotEqualTo,
     GreaterThan,
     LessThan,
     GreaterThanOrEqualTo,
     LessThanOrEqualTo,
 
-    // Membership operators
-    In,
-    NotIn,
+    // Logical operators
+    And,
+    Or,
+    Not,
 
     // Literals
     Identifier,
@@ -41,8 +52,8 @@ pub enum TokenType {
     If,
     Elif,
     Else,
-    And,
-    Or,
+    In,
+    NotIn,
     While,
     For,
     Break,
