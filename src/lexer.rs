@@ -28,6 +28,9 @@ pub trait Scannable {
 
     /// Return the next character in the source code.
     fn advance(&self) -> char;
+
+    /// Check if current character is what we're looking for.
+    fn has_match(&self, expected: char) -> bool;
 }
 
 impl Scannable for Lexer {
@@ -72,6 +75,20 @@ impl Scannable for Lexer {
             '/' => self.add_token(Slash),
             '*' => self.add_token(Asterisk),
             '%' => self.add_token(Percent),
+            '=' => self.add_token(if self.has_match('=') { EqualTo } else { Equal }),
+            '!' => self.add_token(if self.has_match('=') { NotEqualTo } else { Not }),
+
+            '>' => self.add_token(if self.has_match('=') {
+                GreaterThanOrEqualTo
+            } else {
+                GreaterThan
+            }),
+
+            '<' => self.add_token(if self.has_match('=') {
+                LessThanOrEqualTo
+            } else {
+                LessThan
+            }),
 
             _ => eprintln!("Line {}: Unexpected character", self.line),
         }
@@ -89,5 +106,15 @@ impl Scannable for Lexer {
     fn advance(&self) -> char {
         self.current += 1;
         // TODO: Return character from source.
+    }
+
+    fn has_match(&self, expected: char) -> bool {
+        if self.is_at_end() {
+            return false;
+        }
+        // TODO: Check if current and expected character matches.
+
+        self.current += 1;
+        true
     }
 }
