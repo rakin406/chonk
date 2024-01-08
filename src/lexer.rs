@@ -26,15 +26,15 @@ pub trait Scannable {
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
 
+    /// Consume the current character if it's what we're looking for.
+    fn has_match(&self, expected: char) -> bool;
+
     /// Consume and return the next character in the source code.
     fn advance(&self) -> char;
 
     /// Similar to advance(), but doesn't consume the character. This is called
     /// "lookahead".
     fn peek(&self) -> char;
-
-    /// Consume the current character if it's what we're looking for.
-    fn has_match(&self, expected: char) -> bool;
 }
 
 impl Scannable for Lexer {
@@ -119,6 +119,16 @@ impl Scannable for Lexer {
         self.current >= self.source.len()
     }
 
+    fn has_match(&self, expected: char) -> bool {
+        if self.is_at_end() {
+            return false;
+        }
+        // TODO: Check if current and expected character matches.
+
+        self.current += 1;
+        true
+    }
+
     fn advance(&self) -> char {
         self.current += 1;
         // TODO: Return character from source.
@@ -129,15 +139,5 @@ impl Scannable for Lexer {
             return '\0';
         }
         // TODO: Return character from source.
-    }
-
-    fn has_match(&self, expected: char) -> bool {
-        if self.is_at_end() {
-            return false;
-        }
-        // TODO: Check if current and expected character matches.
-
-        self.current += 1;
-        true
     }
 }
