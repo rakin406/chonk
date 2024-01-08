@@ -1,4 +1,4 @@
-use std::ptr::null;
+use std::any::Any;
 
 use crate::token::Token;
 use crate::token_type::TokenType;
@@ -22,6 +22,12 @@ pub trait Scannable {
 
     /// Create a new token.
     fn add_token(&self, token_type: TokenType);
+
+    /// Create a new token with literal.
+    fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>);
+
+    /// Add string literal tokens.
+    fn add_string(&self);
 
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
@@ -54,8 +60,8 @@ impl Scannable for Lexer {
 
         self.tokens.push(Token {
             token_type: TokenType::EOF,
-            data_type: None,
             lexeme: "",
+            literal: None,
             line: self.line,
         });
         &self.tokens
@@ -111,8 +117,32 @@ impl Scannable for Lexer {
     }
 
     fn add_token(&self, token_type: TokenType) {
+        self.add_token_with_literal(token_type, None);
+    }
+
+    fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
         // TODO: Take substring from source.
         let text = "";
+    }
+
+    fn add_string(&self) {
+        // TODO: Match double quote too. Maybe add a quote parameter?
+        while self.peek() != '\'' && !self.is_at_end() {
+            if self.peek() == '\n' {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            eprintln!("Line {}: Unterminated string", self.line)
+        }
+
+        // The closing quote
+        self.advance();
+
+        // TODO: Trim the surrounding quotes
+        self.add_token();
     }
 
     fn is_at_end(&self) -> bool {
