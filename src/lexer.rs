@@ -260,7 +260,6 @@ impl Scannable for Lexer {
         if self.is_at_end() {
             return '\0';
         }
-        // NOTE: I might remove unwrap() later.
         self.source.chars().nth(self.current).unwrap()
     }
 
@@ -268,6 +267,6 @@ impl Scannable for Lexer {
         if (self.current + 1) >= self.source.len() {
             return '\0';
         }
-        // TODO: Return next character from source.
+        self.source.chars().nth(self.current + 1).unwrap()
     }
 }
