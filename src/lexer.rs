@@ -89,14 +89,43 @@ impl Scannable for Lexer {
             '}' => self.add_token(RightBrace),
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
-            '-' => self.add_token(Minus),
-            '+' => self.add_token(Plus),
-            '/' => self.add_token(Slash),
-            '*' => self.add_token(Asterisk),
-            '%' => self.add_token(Percent),
+
+            '+' => self.add_token(if self.has_match('+') {
+                PlusPlus
+            } else if self.has_match('=') {
+                PlusEqual
+            } else {
+                Plus
+            }),
+
+            '-' => self.add_token(if self.has_match('-') {
+                MinusMinus
+            } else if self.has_match('=') {
+                MinusEqual
+            } else {
+                Minus
+            }),
+
+            '*' => self.add_token(if self.has_match('=') {
+                AsteriskEqual
+            } else {
+                Asterisk
+            }),
+
+            '/' => self.add_token(if self.has_match('=') {
+                SlashEqual
+            } else {
+                Slash
+            }),
+
+            '%' => self.add_token(if self.has_match('=') {
+                PercentEqual
+            } else {
+                Percent
+            }),
+
             '=' => self.add_token(if self.has_match('=') { EqualTo } else { Equal }),
             '!' => self.add_token(if self.has_match('=') { NotEqualTo } else { Not }),
-
             '>' => self.add_token(if self.has_match('=') {
                 GreaterThanOrEqualTo
             } else {
@@ -108,6 +137,18 @@ impl Scannable for Lexer {
             } else {
                 LessThan
             }),
+
+            '&' => if self.has_match('&') {
+                self.add_token(And);
+            } else {
+                panic!("Line {}: Missing ampersand", self.line);
+            },
+
+            '|' => if self.has_match('|') {
+                self.add_token(Or);
+            } else {
+                panic!("Line {}: Missing vertical bar", self.line);
+            },
 
             '#' => {
                 // A comment goes until the end of the line
@@ -152,7 +193,7 @@ impl Scannable for Lexer {
         }
 
         if self.is_at_end() {
-            panic!("Line {}: Unterminated string", self.line)
+            panic!("Line {}: Unterminated string", self.line);
         }
 
         // The closing quote
