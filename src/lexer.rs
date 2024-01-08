@@ -26,11 +26,14 @@ pub trait Scannable {
     /// Create a new token with literal.
     fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>);
 
-    /// Add string literal tokens.
+    /// Add string literal token.
     fn add_string(&self);
 
-    /// Add number literal tokens.
+    /// Add number literal token.
     fn add_number(&self);
+
+    /// Add identifier token.
+    fn add_identifier(&self);
 
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
@@ -120,7 +123,9 @@ impl Scannable for Lexer {
 
             _ => {
                 if c.is_numeric() {
-                    // TODO: Handle digits.
+                    self.add_number();
+                } else if c.is_alphabetic() || c == '_' {
+                    self.add_identifier();
                 } else {
                     eprintln!("Line {}: Unexpected character", self.line);
                 }
@@ -174,6 +179,15 @@ impl Scannable for Lexer {
 
         // TODO: Parse the number literal.
         // self.add_token_with_literal(TokenType::Number);
+    }
+
+    fn add_identifier(&self) {
+        let c: char = self.peek();
+        while c.is_alphanumeric() || c == '_' {
+            self.advance();
+        }
+
+        self.add_token(TokenType::Identifier);
     }
 
     fn is_at_end(&self) -> bool {
