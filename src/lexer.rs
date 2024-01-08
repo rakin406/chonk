@@ -163,8 +163,7 @@ impl Scannable for Lexer {
         }
 
         // Look for a fractional part
-        // TODO: Use "peekNext()" method here.
-        if self.peek() == '.' {
+        if self.peek() == '.' && self.peek_next().is_numeric() {
             // Consume the dot
             self.advance();
 
