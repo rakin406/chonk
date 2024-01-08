@@ -101,6 +101,11 @@ impl Scannable for Lexer {
                 }
             }
 
+            ' ' => {}
+            '\r' => {}
+            '\t' => {}
+            '\n' => self.line += 1,
+
             _ => eprintln!("Line {}: Unexpected character", self.line),
         }
     }
