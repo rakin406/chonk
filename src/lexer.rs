@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use crate::token::Token;
 use crate::token_type::TokenType;
 
@@ -38,9 +40,17 @@ impl Scannable for Lexer {
 
     fn scan_tokens(&self) -> &Vec<Token> {
         while !self.is_at_end() {
-            // TODO: Implement scan_token() method and use it here.
+            // We are at the beginning of the next lexeme
+            self.start = self.current;
+            self.scan_token();
         }
 
+        self.tokens.push(Token {
+            token_type: TokenType::EOF,
+            data_type: None,
+            lexeme: "",
+            line: self.line,
+        });
         &self.tokens
     }
 
