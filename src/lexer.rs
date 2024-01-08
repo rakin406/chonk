@@ -15,10 +15,10 @@ pub trait Scannable {
     fn new(&mut self, source: String);
 
     /// Add tokens until character ends.
-    fn scan_tokens(&self) -> &Vec<Token>;
+    fn scan_tokens(&mut self) -> &Vec<Token>;
 
     /// Add token type for the next character.
-    fn scan_token(&self);
+    fn scan_token(&mut self);
 
     /// Create a new token.
     fn add_token(&self, token_type: TokenType);
@@ -27,22 +27,22 @@ pub trait Scannable {
     fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>);
 
     /// Add string literal token.
-    fn add_string(&self);
+    fn add_string(&mut self);
 
     /// Add number literal token.
-    fn add_number(&self);
+    fn add_number(&mut self);
 
     /// Add identifier token.
-    fn add_identifier(&self);
+    fn add_identifier(&mut self);
 
     /// Check if current character is the last in the source code.
     fn is_at_end(&self) -> bool;
 
     /// Consume the current character if it's what we're looking for.
-    fn has_match(&self, expected: char) -> bool;
+    fn has_match(&mut self, expected: char) -> bool;
 
     /// Consume and return the next character in the source code.
-    fn advance(&self) -> char;
+    fn advance(&mut self) -> char;
 
     /// Similar to advance(), but doesn't consume the character. This is called
     /// "lookahead".
@@ -60,7 +60,7 @@ impl Scannable for Lexer {
         self.line = 1;
     }
 
-    fn scan_tokens(&self) -> &Vec<Token> {
+    fn scan_tokens(&mut self) -> &Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
@@ -76,7 +76,7 @@ impl Scannable for Lexer {
         &self.tokens
     }
 
-    fn scan_token(&self) {
+    fn scan_token(&mut self) {
         use TokenType::*;
 
         let c: char = self.advance();
@@ -187,7 +187,7 @@ impl Scannable for Lexer {
         let text = "";
     }
 
-    fn add_string(&self) {
+    fn add_string(&mut self) {
         // TODO: Match double quote too. Maybe add a quote parameter?
         while self.peek() != '\'' && !self.is_at_end() {
             if self.peek() == '\n' {
@@ -207,7 +207,7 @@ impl Scannable for Lexer {
         // self.add_token_with_literal(TokenType::String);
     }
 
-    fn add_number(&self) {
+    fn add_number(&mut self) {
         while self.peek().is_numeric() {
             self.advance();
         }
@@ -226,7 +226,7 @@ impl Scannable for Lexer {
         // self.add_token_with_literal(TokenType::Number);
     }
 
-    fn add_identifier(&self) {
+    fn add_identifier(&mut self) {
         let c: char = self.peek();
         while c.is_alphanumeric() || c == '_' {
             self.advance();
@@ -239,7 +239,7 @@ impl Scannable for Lexer {
         self.current >= self.source.len()
     }
 
-    fn has_match(&self, expected: char) -> bool {
+    fn has_match(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -249,7 +249,7 @@ impl Scannable for Lexer {
         true
     }
 
-    fn advance(&self) -> char {
+    fn advance(&mut self) -> char {
         self.current += 1;
         // NOTE: I read that using unwrap() function is bad. I might remove it
         // later.
