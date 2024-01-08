@@ -13,7 +13,7 @@ pub struct Lexer {
 
 impl Lexer {
     /// Create a new Lexer.
-    fn new(&mut self, source: String) {
+    pub fn new(&mut self, source: String) {
         self.source = source;
         self.start = 0;
         self.current = 0;
@@ -21,7 +21,7 @@ impl Lexer {
     }
 
     /// Add tokens until character ends.
-    fn scan_tokens(&mut self) -> &Vec<Token> {
+    pub fn scan_tokens(&mut self) -> &Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
@@ -52,56 +52,56 @@ impl Lexer {
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
 
-            '+' => self.add_token(if self.has_match('+') {
+            '+' => self.add_token(if self.match_char('+') {
                 PlusPlus
-            } else if self.has_match('=') {
+            } else if self.match_char('=') {
                 PlusEqual
             } else {
                 Plus
             }),
 
-            '-' => self.add_token(if self.has_match('-') {
+            '-' => self.add_token(if self.match_char('-') {
                 MinusMinus
-            } else if self.has_match('=') {
+            } else if self.match_char('=') {
                 MinusEqual
             } else {
                 Minus
             }),
 
-            '*' => self.add_token(if self.has_match('=') {
+            '*' => self.add_token(if self.match_char('=') {
                 AsteriskEqual
             } else {
                 Asterisk
             }),
 
-            '/' => self.add_token(if self.has_match('=') {
+            '/' => self.add_token(if self.match_char('=') {
                 SlashEqual
             } else {
                 Slash
             }),
 
-            '%' => self.add_token(if self.has_match('=') {
+            '%' => self.add_token(if self.match_char('=') {
                 PercentEqual
             } else {
                 Percent
             }),
 
-            '=' => self.add_token(if self.has_match('=') { EqualTo } else { Equal }),
-            '!' => self.add_token(if self.has_match('=') { NotEqualTo } else { Not }),
-            '>' => self.add_token(if self.has_match('=') {
+            '=' => self.add_token(if self.match_char('=') { EqualTo } else { Equal }),
+            '!' => self.add_token(if self.match_char('=') { NotEqualTo } else { Not }),
+            '>' => self.add_token(if self.match_char('=') {
                 GreaterThanOrEqualTo
             } else {
                 GreaterThan
             }),
 
-            '<' => self.add_token(if self.has_match('=') {
+            '<' => self.add_token(if self.match_char('=') {
                 LessThanOrEqualTo
             } else {
                 LessThan
             }),
 
             '&' => {
-                if self.has_match('&') {
+                if self.match_char('&') {
                     self.add_token(And);
                 } else {
                     panic!("Line {}: Missing ampersand", self.line);
@@ -109,7 +109,7 @@ impl Lexer {
             }
 
             '|' => {
-                if self.has_match('|') {
+                if self.match_char('|') {
                     self.add_token(Or);
                 } else {
                     panic!("Line {}: Missing vertical bar", self.line);
@@ -208,7 +208,7 @@ impl Lexer {
     }
 
     /// Consume the current character if it's what we're looking for.
-    fn has_match(&mut self, expected: char) -> bool {
+    fn match_char(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
         }
