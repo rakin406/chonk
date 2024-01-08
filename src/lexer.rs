@@ -67,7 +67,12 @@ impl Scannable for Lexer {
             self.scan_token();
         }
 
-        self.tokens.push(Token(TokenType::EOF, "", None, self.line));
+        self.tokens.push(Token {
+            token_type: TokenType::EOF,
+            lexeme: "",
+            literal: None,
+            line: self.line,
+        });
         &self.tokens
     }
 
