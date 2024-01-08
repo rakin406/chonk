@@ -62,6 +62,8 @@ impl Scannable for Lexer {
             '/' => self.add_token(Slash),
             '*' => self.add_token(Asterisk),
             '%' => self.add_token(Percent),
+
+            _ => eprintln!("Line {}: Unexpected character", self.line),
         }
     }
 
