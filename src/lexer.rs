@@ -205,7 +205,6 @@ impl Lexer {
             TokenType::Number,
             Some(Box::new(
                 // NOTE: I might have to use unwrap() after parse.
-                // WARNING: Not sure if it takes start and current too.
                 self.source[self.start..self.current].parse::<f64>(),
             )),
         );
