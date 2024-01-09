@@ -157,8 +157,8 @@ impl Lexer {
 
     /// Add string literal token.
     fn add_string(&mut self) {
-        // TODO: Match double quote too. Maybe add a quote parameter?
-        while self.peek() != '\'' && !self.is_at_end() {
+        // TODO: Match single quote too. Maybe add a quote parameter?
+        while self.peek() != '"' && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
             }
@@ -172,8 +172,9 @@ impl Lexer {
         // The closing quote
         self.advance();
 
-        // TODO: Trim the surrounding quotes
-        // self.add_token_with_literal(TokenType::String);
+        // Trim the surrounding quotes
+        let value = self.source[(self.start + 1)..(self.current - 1)].to_string();
+        self.add_token_with_literal(TokenType::String, Some(Box::new(value)));
     }
 
     /// Add number literal token.
