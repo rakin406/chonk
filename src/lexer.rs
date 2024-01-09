@@ -132,6 +132,8 @@ impl Lexer {
             '\t' => {}
             '\n' => self.line += 1,
 
+            '"' => self.add_string(),
+
             _ => {
                 if c.is_numeric() {
                     self.add_number();
