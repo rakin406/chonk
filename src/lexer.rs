@@ -198,7 +198,7 @@ impl Lexer {
             lexeme: text,
             literal,
             line: self.line,
-            // column: ,
+            column: self.column,
         });
     }
 
