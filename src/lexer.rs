@@ -221,7 +221,7 @@ impl Lexer {
 
         // Trim the surrounding quotes
         let value = self.source[(self.start + 1)..(self.current - 1)].to_string();
-        self.add_token_with_literal(TokenType::String, Some(value));
+        self.add_token_with_literal(TokenType::String, Some(Literal::String(value)));
     }
 
     /// Add number literal token.
@@ -240,13 +240,8 @@ impl Lexer {
             }
         }
 
-        self.add_token_with_literal(
-            TokenType::Number,
-            Some(
-                // NOTE: I might have to use unwrap() after parse.
-                self.source[self.start..self.current].parse::<f64>(),
-            ),
-        );
+        let value: f64 = self.source[self.start..self.current].parse().unwrap();
+        self.add_token_with_literal(TokenType::Number, Some(Literal::Number(value)));
     }
 
     /// Add identifier token.
