@@ -179,10 +179,11 @@ impl Lexer {
                 }
             }
 
-            ' ' => {}
-            '\r' => {}
-            '\t' => {}
-            '\n' => self.line += 1,
+            ' ' | '\r' | '\t' => {}
+            '\n' => {
+                self.line += 1;
+                self.column = 0;
+            }
 
             '"' => self.add_string(),
 
