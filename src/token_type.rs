@@ -1,5 +1,5 @@
 /// All the token types in Chonk language.
-#[derive(Copy, Clone)]
+#[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
     // Single-character tokens
     LeftParen,
