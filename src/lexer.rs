@@ -218,14 +218,12 @@ impl Lexer {
             self.advance();
         }
 
-        let text = self.source[self.start..self.current].to_string();
+        let text = &self.source[self.start..self.current];
         let token_type = KEYWORDS.get(&text);
         match token_type {
-            // FIX: add_token(): expected TokenType, found &TokenType.
-            Some(v) => self.add_token(v),
+            Some(value) => self.add_token(*value),
             None => self.add_token(TokenType::Identifier),
         }
-        // self.add_token(TokenType::Identifier);
     }
 
     /// Check if current character is the last in the source code.
