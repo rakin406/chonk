@@ -3,7 +3,7 @@ use phf::phf_map;
 use crate::token_type::TokenType;
 
 /// All the reserved words and it's token type.
-pub const KEYWORDS: phf::Map<&str, TokenType> = phf_map! {
+pub static KEYWORDS: phf::Map<&'static str, TokenType> = phf_map! {
     "null" => TokenType::Null,
     "true" => TokenType::True,
     "false" => TokenType::False,
