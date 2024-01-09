@@ -12,8 +12,9 @@ pub const KEYWORDS: phf::Map<&str, TokenType> = phf_map! {
     "else" => TokenType::Else,
     "case" => TokenType::Case,
     "default" => TokenType::Default,
-    "in" => TokenType::In,
-    "!in" => TokenType::NotIn,
+    // TODO: Use these later.
+    // "in" => TokenType::In,
+    // "!in" => TokenType::NotIn,
     "while" => TokenType::While,
     "for" => TokenType::For,
     "break" => TokenType::Break,
