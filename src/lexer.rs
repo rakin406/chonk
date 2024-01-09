@@ -147,7 +147,7 @@ impl Lexer {
     }
 
     /// Create a new token.
-    fn add_token(&self, token_type: TokenType) {
+    fn add_token(&mut self, token_type: TokenType) {
         self.add_token_with_literal(token_type, None);
     }
 
