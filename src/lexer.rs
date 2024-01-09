@@ -152,7 +152,7 @@ impl Lexer {
     }
 
     /// Create a new token with literal.
-    fn add_token_with_literal(&self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
+    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
         let text = self.source[self.start..self.current].to_string();
         self.tokens.push(Token {
             token_type,
