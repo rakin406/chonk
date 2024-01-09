@@ -257,7 +257,7 @@ impl Lexer {
         }
 
         let text = &self.source[self.start..self.current];
-        let token_type = KEYWORDS.get(&text);
+        let token_type = self.keywords.get(text);
         match token_type {
             Some(value) => self.add_token(*value),
             None => self.add_token(TokenType::Identifier),
