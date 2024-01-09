@@ -1,24 +1,61 @@
-use std::any::Any;
+use std::collections::HashMap;
 
-use crate::keywords::KEYWORDS;
-use crate::token::Token;
+use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
-pub struct Lexer {
+// TODO: Add `keywords` hashmap field here.
+struct Lexer {
     source: String,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
     line: usize,
+    column: i64,
+    keywords: HashMap<String, TokenType>,
+}
+
+impl Default for Lexer {
+    fn default() -> Self {
+        Self {
+            source: String::new(),
+            tokens: Vec::new(),
+            start: 0,
+            current: 0,
+            line: 1,
+            column: -1,
+            keywords: HashMap::from([
+                ("null", TokenType::Null),
+                ("true", TokenType::True),
+                ("false", TokenType::False),
+                ("if", TokenType::If),
+                ("elif", TokenType::Elif),
+                ("else", TokenType::Else),
+                ("case", TokenType::Case),
+                ("default", TokenType::Default),
+                // TODO: Use these later.
+                // ("in", TokenType::In),
+                // ("!in", TokenType::NotIn),
+                ("while", TokenType::While),
+                ("for", TokenType::For),
+                ("break", TokenType::Break),
+                ("continue", TokenType::Continue),
+                ("return", TokenType::Return),
+                ("echo", TokenType::Echo),
+            ])
+            .into_iter()
+            .map(|(key, value)| (String::from(key), value))
+            .collect(),
+        }
+    }
 }
 
 impl Lexer {
     /// Create a new Lexer.
-    pub fn new(&mut self, source: String) {
-        self.source = source;
-        self.start = 0;
-        self.current = 0;
-        self.line = 1;
+    pub fn new(source: String) -> Self {
+        Self {
+            source,
+            ..Default::default()
+        }
     }
 
     /// Add tokens until character ends.
@@ -34,6 +71,7 @@ impl Lexer {
             lexeme: "".to_string(),
             literal: None,
             line: self.line,
+            // column: ,
         });
         &self.tokens
     }
@@ -153,13 +191,14 @@ impl Lexer {
     }
 
     /// Create a new token with literal.
-    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
+    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
         let text = self.source[self.start..self.current].to_string();
         self.tokens.push(Token {
             token_type,
             lexeme: text,
             literal,
             line: self.line,
+            // column: ,
         });
     }
 
@@ -182,7 +221,7 @@ impl Lexer {
 
         // Trim the surrounding quotes
         let value = self.source[(self.start + 1)..(self.current - 1)].to_string();
-        self.add_token_with_literal(TokenType::String, Some(Box::new(value)));
+        self.add_token_with_literal(TokenType::String, Some(value));
     }
 
     /// Add number literal token.
@@ -203,10 +242,10 @@ impl Lexer {
 
         self.add_token_with_literal(
             TokenType::Number,
-            Some(Box::new(
+            Some(
                 // NOTE: I might have to use unwrap() after parse.
                 self.source[self.start..self.current].parse::<f64>(),
-            )),
+            ),
         );
     }
 
