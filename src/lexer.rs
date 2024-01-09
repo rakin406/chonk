@@ -275,6 +275,7 @@ impl Lexer {
         }
 
         self.current += 1;
+        self.column += 1;
         true
     }
 
