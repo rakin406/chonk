@@ -4,7 +4,7 @@ use crate::token::Token;
 use crate::token_type::TokenType;
 
 pub struct Lexer {
-    source: String,
+    source: &'static str,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
@@ -13,7 +13,7 @@ pub struct Lexer {
 
 impl Lexer {
     /// Create a new Lexer.
-    pub fn new(&mut self, source: String) {
+    pub fn new(&mut self, source: &str) {
         self.source = source;
         self.start = 0;
         self.current = 0;
@@ -193,7 +193,7 @@ impl Lexer {
         }
 
         // TODO: Parse the number literal.
-        // self.add_token_with_literal(TokenType::Number);
+        self.add_token_with_literal(TokenType::Number);
     }
 
     /// Add identifier token.
