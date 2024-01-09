@@ -87,7 +87,11 @@ impl Lexer {
             }),
 
             '=' => self.add_token(if self.match_char('=') { EqualTo } else { Equal }),
-            '!' => self.add_token(if self.match_char('=') { NotEqualTo } else { Not }),
+            '!' => self.add_token(if self.match_char('=') {
+                NotEqualTo
+            } else {
+                Not
+            }),
             '>' => self.add_token(if self.match_char('=') {
                 GreaterThanOrEqualTo
             } else {
@@ -212,7 +216,10 @@ impl Lexer {
         if self.is_at_end() {
             return false;
         }
-        // TODO: Check if current and expected character matches.
+
+        if self.source.chars().nth(self.current).unwrap() != expected {
+            return false;
+        }
 
         self.current += 1;
         true
