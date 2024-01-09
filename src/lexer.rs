@@ -91,57 +91,71 @@ impl Lexer {
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
 
-            '+' => self.add_token(if self.match_char('+') {
-                PlusPlus
-            } else if self.match_char('=') {
-                PlusEqual
-            } else {
-                Plus
-            }),
+            '+' => {
+                let matches_plus = self.match_char('+');
+                let matches_equal = self.match_char('=');
 
-            '-' => self.add_token(if self.match_char('-') {
-                MinusMinus
-            } else if self.match_char('=') {
-                MinusEqual
-            } else {
-                Minus
-            }),
+                self.add_token(if matches_plus {
+                    PlusPlus
+                } else if matches_equal {
+                    PlusEqual
+                } else {
+                    Plus
+                })
+            }
+            '-' => {
+                let matches_minus = self.match_char('-');
+                let matches_equal = self.match_char('=');
 
-            '*' => self.add_token(if self.match_char('=') {
-                AsteriskEqual
-            } else {
-                Asterisk
-            }),
+                self.add_token(if matches_minus {
+                    MinusMinus
+                } else if matches_equal {
+                    MinusEqual
+                } else {
+                    Minus
+                })
+            }
+            '*' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal {
+                    AsteriskEqual
+                } else {
+                    Asterisk
+                })
+            }
+            '/' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal { SlashEqual } else { Slash })
+            }
+            '%' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal { PercentEqual } else { Percent })
+            }
 
-            '/' => self.add_token(if self.match_char('=') {
-                SlashEqual
-            } else {
-                Slash
-            }),
-
-            '%' => self.add_token(if self.match_char('=') {
-                PercentEqual
-            } else {
-                Percent
-            }),
-
-            '=' => self.add_token(if self.match_char('=') { EqualTo } else { Equal }),
-            '!' => self.add_token(if self.match_char('=') {
-                NotEqualTo
-            } else {
-                Not
-            }),
-            '>' => self.add_token(if self.match_char('=') {
-                GreaterThanOrEqualTo
-            } else {
-                GreaterThan
-            }),
-
-            '<' => self.add_token(if self.match_char('=') {
-                LessThanOrEqualTo
-            } else {
-                LessThan
-            }),
+            '=' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal { EqualTo } else { Equal })
+            }
+            '!' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal { NotEqualTo } else { Not })
+            }
+            '>' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal {
+                    GreaterThanOrEqualTo
+                } else {
+                    GreaterThan
+                })
+            }
+            '<' => {
+                let matches_equal = self.match_char('=');
+                self.add_token(if matches_equal {
+                    LessThanOrEqualTo
+                } else {
+                    LessThan
+                })
+            }
 
             '&' => {
                 if self.match_char('&') {
@@ -150,7 +164,6 @@ impl Lexer {
                     panic!("Line {}: Missing ampersand", self.line);
                 }
             }
-
             '|' => {
                 if self.match_char('|') {
                     self.add_token(Or);
