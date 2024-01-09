@@ -1,5 +1,6 @@
 use std::any::Any;
 
+use crate::keywords::KEYWORDS;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
@@ -217,7 +218,14 @@ impl Lexer {
             self.advance();
         }
 
-        self.add_token(TokenType::Identifier);
+        let text = self.source[self.start..self.current].to_string();
+        let token_type = KEYWORDS.get(&text);
+        match token_type {
+            // FIX: add_token(): expected TokenType, found &TokenType.
+            Some(v) => self.add_token(v),
+            None => self.add_token(TokenType::Identifier),
+        }
+        // self.add_token(TokenType::Identifier);
     }
 
     /// Check if current character is the last in the source code.
