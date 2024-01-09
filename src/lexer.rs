@@ -30,7 +30,7 @@ impl Lexer {
 
         self.tokens.push(Token {
             token_type: TokenType::EOF,
-            lexeme: "",
+            lexeme: "".to_string(),
             literal: None,
             line: self.line,
         });
