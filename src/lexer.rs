@@ -68,10 +68,10 @@ impl Lexer {
 
         self.tokens.push(Token {
             token_type: TokenType::EOF,
-            lexeme: "".to_string(),
+            lexeme: String::new(),
             literal: None,
             line: self.line,
-            // column: ,
+            column: self.column,
         });
         &self.tokens
     }
