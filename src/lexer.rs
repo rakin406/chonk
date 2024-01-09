@@ -286,6 +286,8 @@ impl Lexer {
     /// Consume and return the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
+        self.column += 1;
+
         // NOTE: I read that using unwrap() function is bad. I might remove it
         // later.
         self.source.chars().nth(self.current - 1).unwrap()
