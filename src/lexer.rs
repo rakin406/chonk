@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
-// TODO: Add `keywords` hashmap field here.
 struct Lexer {
     source: String,
     tokens: Vec<Token>,
