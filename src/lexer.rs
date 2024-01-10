@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
-struct Lexer {
+pub struct Lexer {
     source: String,
     tokens: Vec<Token>,
     start: usize,
