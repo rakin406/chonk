@@ -8,10 +8,11 @@ mod token_type;
 #[command(version)]
 struct Args {
     /// Path of the script file to run
+    #[arg(required(false))]
     file: String,
 }
 
 fn main() {
     let args = Args::parse();
-    println!("Hello {}!", args.file)
+    println!("The filename is {}", args.file);
 }
