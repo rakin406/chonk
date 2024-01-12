@@ -16,8 +16,12 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
-    println!("The filename is {}", args.file);
+    let args = Args::try_parse();
+    match args {
+        Ok(value) => run_file(value.file),
+        // TODO: Print header information before prompt.
+        Err(_) => run_prompt(),
+    }
 }
 
 /// Read a source file and execute it.
