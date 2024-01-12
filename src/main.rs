@@ -1,7 +1,7 @@
 use std::fs;
-use std::io::{self, Write};
 
 use clap::Parser;
+use rustyline::{DefaultEditor, Result};
 
 mod lexer;
 mod token;
@@ -15,10 +15,10 @@ struct Args {
     file: String,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Args::try_parse();
     match args {
-        Ok(value) => run_file(value.file),
+        Ok(value) => Ok(run_file(value.file)),
         // TODO: Print header information before prompt.
         Err(_) => run_prompt(),
     }
@@ -31,17 +31,12 @@ fn run_file(path: String) {
 }
 
 /// Run the interpreter interactively.
-fn run_prompt() {
-    let mut running = true;
-
-    while running {
-        let mut line = String::new();
-        print!(">> ");
-        io::stdout().flush().unwrap();
-        io::stdin().read_line(&mut line).unwrap();
-
+fn run_prompt() -> Result<()> {
+    let mut rl = DefaultEditor::new()?;
+    loop {
+        let line = rl.readline(">> ")?;
         if line.trim().is_empty() {
-            running = false;
+            continue;
         }
 
         run(line);
