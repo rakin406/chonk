@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::{self, Write};
 
 use clap::Parser;
@@ -17,6 +18,12 @@ struct Args {
 fn main() {
     let args = Args::parse();
     println!("The filename is {}", args.file);
+}
+
+/// Read a source file and execute it.
+fn run_file(path: String) {
+    let contents = fs::read_to_string(path).expect("Unable to read file");
+    run(contents);
 }
 
 /// Run the interpreter interactively.
