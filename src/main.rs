@@ -2,7 +2,7 @@ use std::fs;
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
-use rustyline::{Cmd, DefaultEditor, KeyEvent, Result};
+use rustyline::{DefaultEditor, Result};
 
 mod lexer;
 mod token;
@@ -34,6 +34,7 @@ fn run_file(path: String) {
 /// Run the interpreter interactively.
 fn run_prompt() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
+
     Ok(loop {
         let readline = rl.readline(">> ");
         match readline {
@@ -42,7 +43,8 @@ fn run_prompt() -> Result<()> {
                     continue;
                 }
 
-                run(line);
+                run(line.clone());
+                let _ = rl.add_history_entry(line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 break;
