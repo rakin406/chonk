@@ -1,7 +1,6 @@
 use std::fs;
 
-use clap::Command;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
@@ -13,19 +12,27 @@ mod token_type;
 #[command(version)]
 struct Args {
     /// Path of the script file to run
-    #[arg(required(false))]
-    file: String,
+    file: Option<String>,
 }
 
-fn main() -> Result<()> {
-    let args = Args::try_parse();
-    match args {
-        // FIX: Program automatically running REPL.
-        Ok(value) => Ok(if !value.file.is_empty() {
-            run_file(value.file);
-        }),
+fn main() {
+    let args = Args::parse();
+
+    if args.is_empty() {
         // TODO: Print header information before prompt.
-        Err(_) => run_prompt(),
+        run_prompt().unwrap();
+    } else {
+        match args.file {
+            Some(file) => run_file(file),
+            None => {}
+        }
+    }
+}
+
+impl Args {
+    /// Returns `true` if the `Option` fields are `None` value.
+    fn is_empty(&self) -> bool {
+        self.file.is_none()
     }
 }
 
