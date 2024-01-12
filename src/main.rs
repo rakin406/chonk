@@ -1,7 +1,8 @@
 use std::fs;
 
 use clap::Parser;
-use rustyline::{DefaultEditor, Result};
+use rustyline::error::ReadlineError;
+use rustyline::{Cmd, DefaultEditor, KeyEvent, Result};
 
 mod lexer;
 mod token;
@@ -33,14 +34,25 @@ fn run_file(path: String) {
 /// Run the interpreter interactively.
 fn run_prompt() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
-    loop {
-        let line = rl.readline(">> ")?;
-        if line.trim().is_empty() {
-            continue;
-        }
+    Ok(loop {
+        let readline = rl.readline(">> ");
+        match readline {
+            Ok(line) => {
+                if line.trim().is_empty() {
+                    continue;
+                }
 
-        run(line);
-    }
+                run(line);
+            }
+            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
+                break;
+            }
+            Err(error) => {
+                eprintln!("Error: {error:?}");
+                break;
+            }
+        }
+    })
 }
 
 /// Run `chonk` code.
