@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 use clap::Parser;
 
 mod lexer;
@@ -15,6 +17,24 @@ struct Args {
 fn main() {
     let args = Args::parse();
     println!("The filename is {}", args.file);
+}
+
+/// Run the interpreter interactively.
+fn run_prompt() {
+    let mut running = true;
+
+    while running {
+        let mut line = String::new();
+        print!(">> ");
+        io::stdout().flush().unwrap();
+        io::stdin().read_line(&mut line).unwrap();
+
+        if line.trim().is_empty() {
+            running = false;
+        }
+
+        run(line);
+    }
 }
 
 /// Run `chonk` code.
