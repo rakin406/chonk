@@ -64,5 +64,5 @@ pub enum TokenType {
     Return,
     Echo,
 
-    EOF,
+    Eof,
 }
