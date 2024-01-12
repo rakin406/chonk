@@ -4,19 +4,13 @@ use clap::{Parser, Subcommand};
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
+mod cli;
 mod lexer;
 mod token;
 mod token_type;
 
-#[derive(Parser)]
-#[command(version)]
-struct Args {
-    /// Path of the script file to run
-    file: Option<String>,
-}
-
 fn main() {
-    let args = Args::parse();
+    let args = cli::Cli::parse();
 
     if args.is_empty() {
         // TODO: Print header information before prompt.
@@ -26,13 +20,6 @@ fn main() {
             Some(file) => run_file(file),
             None => {}
         }
-    }
-}
-
-impl Args {
-    /// Returns `true` if the `Option` fields are `None` value.
-    fn is_empty(&self) -> bool {
-        self.file.is_none()
     }
 }
 
