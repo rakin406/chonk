@@ -1,5 +1,6 @@
 use std::fs;
 
+use clap::Command;
 use clap::Parser;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
@@ -19,7 +20,10 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::try_parse();
     match args {
-        Ok(value) => Ok(run_file(value.file)),
+        // FIX: Program automatically running REPL.
+        Ok(value) => Ok(if !value.file.is_empty() {
+            run_file(value.file);
+        }),
         // TODO: Print header information before prompt.
         Err(_) => run_prompt(),
     }
@@ -38,8 +42,9 @@ fn run_prompt() -> Result<()> {
     Ok(loop {
         let readline = rl.readline(">> ");
         match readline {
-            Ok(line) => {
-                if line.trim().is_empty() {
+            Ok(mut line) => {
+                line = line.trim().to_string();
+                if line.is_empty() {
                     continue;
                 }
 
