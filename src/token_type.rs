@@ -1,4 +1,4 @@
-/// All the token types in Chonk language.
+/// All the token types in `Chonk` language.
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
     // Single-character tokens

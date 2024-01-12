@@ -49,7 +49,7 @@ impl Default for Lexer {
 }
 
 impl Lexer {
-    /// Create a new Lexer.
+    /// Creates a new `Lexer`.
     pub fn new(source: String) -> Self {
         Self {
             source,
@@ -57,7 +57,7 @@ impl Lexer {
         }
     }
 
-    /// Add tokens until character ends.
+    /// Adds tokens until character ends.
     pub fn scan_tokens(&mut self) -> &Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
@@ -75,7 +75,7 @@ impl Lexer {
         &self.tokens
     }
 
-    /// Add token type for the next character.
+    /// Adds token type for the next character.
     fn scan_token(&mut self) {
         use TokenType::*;
 
@@ -198,12 +198,12 @@ impl Lexer {
         }
     }
 
-    /// Create a new token.
+    /// Creates a new token.
     fn add_token(&mut self, token_type: TokenType) {
         self.add_token_with_literal(token_type, None);
     }
 
-    /// Create a new token with literal.
+    /// Creates a new token with literal.
     fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
         let text = self.source[self.start..self.current].to_string();
         self.tokens.push(Token {
@@ -215,7 +215,7 @@ impl Lexer {
         });
     }
 
-    /// Add string literal token.
+    /// Adds string literal token.
     fn add_string(&mut self) {
         // TODO: Match single quote too. Maybe add a quote parameter?
         while self.peek() != '"' && !self.is_at_end() {
@@ -237,7 +237,7 @@ impl Lexer {
         self.add_token_with_literal(TokenType::String, Some(Literal::String(value)));
     }
 
-    /// Add number literal token.
+    /// Adds number literal token.
     fn add_number(&mut self) {
         while self.peek().is_numeric() {
             self.advance();
@@ -257,7 +257,7 @@ impl Lexer {
         self.add_token_with_literal(TokenType::Number, Some(Literal::Number(value)));
     }
 
-    /// Add identifier token.
+    /// Adds identifier token.
     fn add_identifier(&mut self) {
         let c: char = self.peek();
         while c.is_alphanumeric() || c == '_' {
@@ -272,12 +272,12 @@ impl Lexer {
         }
     }
 
-    /// Check if current character is the last in the source code.
+    /// Returns `true` if current character is the last in the source code.
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
 
-    /// Consume the current character if it's what we're looking for.
+    /// Consumes the current character if it's what we're looking for.
     fn match_char(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
@@ -292,7 +292,7 @@ impl Lexer {
         true
     }
 
-    /// Consume and return the next character in the source code.
+    /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
         self.column += 1;
@@ -302,7 +302,7 @@ impl Lexer {
         self.source.chars().nth(self.current - 1).unwrap()
     }
 
-    /// Similar to advance(), but doesn't consume the character. This is called
+    /// Similar to `advance()`, but doesn't consume the character. This is called
     /// "lookahead".
     fn peek(&self) -> char {
         if self.is_at_end() {
@@ -311,7 +311,7 @@ impl Lexer {
         self.source.chars().nth(self.current).unwrap()
     }
 
-    /// Similar to peek(), but checks out the next character instead.
+    /// Similar to `peek()`, but checks out the next character instead.
     fn peek_next(&self) -> char {
         if (self.current + 1) >= self.source.len() {
             return '\0';

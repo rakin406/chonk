@@ -36,13 +36,13 @@ impl Args {
     }
 }
 
-/// Read a source file and execute it.
+/// Reads a source file and executes it.
 fn run_file(path: String) {
     let contents = fs::read_to_string(path).expect("Unable to read file");
     run(contents);
 }
 
-/// Run the interpreter interactively.
+/// Runs the interpreter interactively.
 fn run_prompt() -> Result<()> {
     let mut rl = DefaultEditor::new()?;
 
@@ -69,7 +69,7 @@ fn run_prompt() -> Result<()> {
     })
 }
 
-/// Run `chonk` code.
+/// Runs `Chonk` code.
 fn run(source: String) {
     let mut lexer = lexer::Lexer::new(source);
     let tokens = lexer.scan_tokens();
