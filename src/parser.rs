@@ -30,6 +30,7 @@ impl Parser {
         self.equality()
     }
 
+    // TODO: Add missing documentation.
     fn equality(&self) -> Expr {
         use TokenType::*;
 

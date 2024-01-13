@@ -1,8 +1,8 @@
 ### Todo
 - Finish lexer #feat
-- Create parser #feat
-- Create REPL #feat
-  - Create commands
+- Finish parser #feat
+- Finish REPL #feat
+  - Create `help` command that describes all the commands
 - Update readme #docs
   - Finish `Built With` section
   - Finish `Getting Started` section
