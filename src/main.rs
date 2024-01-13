@@ -5,6 +5,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
 mod cli;
+mod expr;
 mod lexer;
 mod token;
 mod token_type;
@@ -88,10 +89,10 @@ fn run(source: String) {
     }
 }
 
-fn error(line: usize, message: &str) {
-    report(line, "", message);
-}
-
-fn report(line: usize, location: &str, message: &str) {
-    eprintln!("[line {}] Error{}: {}", line, location, message);
-}
+// fn error(line: usize, message: &str) {
+//     report(line, "", message);
+// }
+//
+// fn report(line: usize, location: &str, message: &str) {
+//     eprintln!("[line {}] Error{}: {}", line, location, message);
+// }
