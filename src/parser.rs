@@ -95,5 +95,8 @@ impl Parser {
         self.tokens[self.current]
     }
 
-    fn previous(&self) -> Token {}
+    /// Returns the last consumed token.
+    fn previous(&self) -> Token {
+        self.tokens[self.current - 1]
+    }
 }
