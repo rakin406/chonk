@@ -69,7 +69,13 @@ impl Parser {
         false
     }
 
-    fn has_type(&self, token_type: TokenType) -> bool {}
+    /// Returns `true` if the current token is of the given type.
+    fn has_type(&self, token_type: TokenType) -> bool {
+        if self.is_at_end() {
+            return false;
+        }
+        self.peek().token_type == token_type
+    }
 
     fn is_at_end(&self) -> bool {}
 
