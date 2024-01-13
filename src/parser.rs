@@ -79,7 +79,13 @@ impl Parser {
 
     fn is_at_end(&self) -> bool {}
 
-    fn advance(&self) -> Token {}
+    /// Consumes the current token and returns it.
+    fn advance(&mut self) -> Token {
+        if !self.is_at_end() {
+            self.current += 1;
+        }
+        self.previous()
+    }
 
     fn peek(&self) -> Token {}
 
