@@ -80,11 +80,18 @@ fn run_prompt() -> Result<()> {
 
 /// Runs `Chonk` code.
 fn run(source: String) {
-    let mut lexer = lexer::Lexer::new(source);
-    let tokens = lexer.scan_tokens();
+    let tokens = lexer::scan_tokens(source);
 
     // NOTE: For now, just print the tokens.
     for token in tokens.iter() {
         println!("{:#?}", token);
     }
+}
+
+fn error(line: usize, message: &str) {
+    report(line, "", message);
+}
+
+fn report(line: usize, location: &str, message: &str) {
+    eprintln!("[line {}] Error{}: {}", line, location, message);
 }
