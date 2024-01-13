@@ -1,6 +1,6 @@
 use std::fs;
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
@@ -29,10 +29,22 @@ fn run_file(path: String) {
     run(contents);
 }
 
+// TODO: Refactor this function cuz it's getting too damn big.
 /// Runs the interpreter interactively.
 fn run_prompt() -> Result<()> {
     let mut running = true;
     let mut rl = DefaultEditor::new()?;
+
+    let version = env!("CARGO_PKG_VERSION");
+    let repl_template = format!(
+        "\
+        Welcome to Chonk {}.\n\
+        Type \".help\" for more information.\
+        ",
+        version
+    );
+
+    println!("{}", repl_template);
 
     Ok(while running {
         let readline = rl.readline(">> ");
@@ -44,7 +56,7 @@ fn run_prompt() -> Result<()> {
                 }
 
                 // Terminate program on exit command
-                if line == "exit" {
+                if line == ".exit" {
                     running = false;
                     continue;
                 }
