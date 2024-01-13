@@ -204,7 +204,7 @@ impl Lexer {
             '"' => self.add_string(),
 
             _ => {
-                if c.is_numeric() {
+                if c.is_ascii_digit() {
                     self.add_number();
                 } else if c.is_alphabetic() || c == '_' {
                     self.add_identifier();
