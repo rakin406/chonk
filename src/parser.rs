@@ -77,6 +77,7 @@ impl Parser {
         self.peek().token_type == token_type
     }
 
+    /// Returns `true` if there is no more tokens to parse.
     fn is_at_end(&self) -> bool {
         self.peek().token_type == TokenType::Eof
     }
