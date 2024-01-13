@@ -1,3 +1,4 @@
+use crate::expr::Expr;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
@@ -22,5 +23,44 @@ impl Parser {
             tokens,
             ..Default::default()
         }
+    }
+
+    fn expression(&self) -> Expr {
+    }
+
+    fn equality(&self) -> Expr {
+    }
+
+    fn comparison(&self) -> Expr {
+    }
+
+    fn term(&self) -> Expr {
+    }
+
+    fn factor(&self) -> Expr {
+    }
+
+    fn unary(&self) -> Expr {
+    }
+
+    fn primary(&self) -> Expr {
+    }
+
+    fn match_types(&self, types: TokenType) -> bool {
+    }
+
+    fn has_type(&self, token_type: TokenType) -> bool {
+    }
+
+    fn is_at_end(&self) -> bool {
+    }
+
+    fn advance(&self) -> Token {
+    }
+
+    fn peek(&self) -> Token {
+    }
+
+    fn previous(&self) -> Token {
     }
 }

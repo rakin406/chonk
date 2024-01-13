@@ -1,6 +1,6 @@
 use crate::token::Token;
 
-struct Expr {
+pub struct Expr {
     binary: Box<Binary>,
 }
 
