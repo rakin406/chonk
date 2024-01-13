@@ -3,9 +3,17 @@ use std::collections::HashMap;
 use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
-pub struct Lexer {
+#[derive(Debug)]
+pub struct Error {
+    pub what: String,
+    pub line: usize,
+    pub column: i64,
+}
+
+struct Lexer {
     source: String,
     tokens: Vec<Token>,
+    error: Option<Error>,
     start: usize,
     current: usize,
     line: usize,
@@ -13,11 +21,24 @@ pub struct Lexer {
     keywords: HashMap<String, TokenType>,
 }
 
+/// Scans tokens from source and returns it, otherwise returns error.
+pub fn scan_tokens(source: String) -> Result<Vec<Token>, Error> {
+    let mut lexer = Lexer::default();
+
+    lexer.scan_tokens(source);
+
+    match lexer.error {
+        Some(error) => Err(error),
+        None => Ok(lexer.tokens),
+    }
+}
+
 impl Default for Lexer {
     fn default() -> Self {
         Self {
             source: String::new(),
             tokens: Vec::new(),
+            error: None,
             start: 0,
             current: 0,
             line: 1,
@@ -49,30 +70,26 @@ impl Default for Lexer {
 }
 
 impl Lexer {
-    /// Creates a new `Lexer`.
-    pub fn new(source: String) -> Self {
-        Self {
-            source,
-            ..Default::default()
-        }
-    }
+    /// Adds tokens from source until character ends.
+    fn scan_tokens(&mut self, source: String) {
+        self.source = source;
 
-    /// Adds tokens until character ends.
-    pub fn scan_tokens(&mut self) -> &Vec<Token> {
-        while !self.is_at_end() {
+        while !self.done() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
             self.scan_token();
         }
 
-        self.tokens.push(Token {
-            token_type: TokenType::Eof,
-            lexeme: String::new(),
-            literal: None,
-            line: self.line,
-            column: self.column,
-        });
-        &self.tokens
+        match self.error {
+            Some(_) => {}
+            None => self.tokens.push(Token {
+                token_type: TokenType::Eof,
+                lexeme: String::new(),
+                literal: None,
+                line: self.line,
+                column: self.column,
+            }),
+        }
     }
 
     /// Adds token type for the next character.
@@ -275,6 +292,11 @@ impl Lexer {
     /// Returns `true` if current character is the last in the source code.
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
+    }
+
+    /// Similar to `is_at_end()`, but checks if there's any error as well.
+    fn done(&self) -> bool {
+        self.error.is_some() || self.is_at_end()
     }
 
     /// Consumes the current character if it's what we're looking for.
