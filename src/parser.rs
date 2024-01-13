@@ -25,7 +25,9 @@ impl Parser {
         }
     }
 
+    /// Expands to the `equality` rule.
     fn expression(&self) -> Expr {
+        self.equality()
     }
 
     fn equality(&self) -> Expr {
