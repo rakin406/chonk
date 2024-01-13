@@ -77,7 +77,9 @@ impl Parser {
         self.peek().token_type == token_type
     }
 
-    fn is_at_end(&self) -> bool {}
+    fn is_at_end(&self) -> bool {
+        self.peek().token_type == TokenType::Eof
+    }
 
     /// Consumes the current token and returns it.
     fn advance(&mut self) -> Token {
