@@ -47,6 +47,8 @@ fn run_prompt() -> Result<()> {
 
     println!("{}", repl_template);
 
+    // TODO: Create a template for `help` command.
+
     Ok(while running {
         let readline = rl.readline(">> ");
         match readline {
