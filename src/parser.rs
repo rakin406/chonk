@@ -90,7 +90,10 @@ impl Parser {
         self.previous()
     }
 
-    fn peek(&self) -> Token {}
+    /// Returns the current token which is yet to consume.
+    fn peek(&self) -> Token {
+        self.tokens[self.current]
+    }
 
     fn previous(&self) -> Token {}
 }
