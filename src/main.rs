@@ -2,7 +2,7 @@ use std::fs;
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor, Result};
+use rustyline::DefaultEditor;
 
 mod cli;
 mod expr;
@@ -16,8 +16,7 @@ fn main() {
     let args = cli::Cli::parse();
 
     if args.is_empty() {
-        // TODO: Print header information before prompt.
-        run_prompt().unwrap();
+        run_prompt();
     } else {
         match args.file {
             Some(file) => run_file(file),
@@ -34,9 +33,9 @@ fn run_file(path: String) {
 
 // TODO: Refactor this function cuz it's getting too damn big.
 /// Runs the interpreter interactively.
-fn run_prompt() -> Result<()> {
+fn run_prompt() {
     let mut running = true;
-    let mut rl = DefaultEditor::new()?;
+    let mut rl = DefaultEditor::new().unwrap();
 
     let repl_template = format!(
         "\
@@ -50,7 +49,7 @@ fn run_prompt() -> Result<()> {
 
     // TODO: Create a template for `help` command.
 
-    Ok(while running {
+    while running {
         let readline = rl.readline(">> ");
         match readline {
             Ok(mut line) => {
@@ -66,7 +65,7 @@ fn run_prompt() -> Result<()> {
                 }
 
                 run(line.clone());
-                let _ = rl.add_history_entry(line);
+                rl.add_history_entry(line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
@@ -76,7 +75,7 @@ fn run_prompt() -> Result<()> {
                 running = false;
             }
         }
-    })
+    }
 }
 
 /// Runs `Chonk` code.
