@@ -42,7 +42,7 @@ impl Default for Lexer {
             start: 0,
             current: 0,
             line: 1,
-            column: -1,
+            column: 0,
             keywords: HashMap::from([
                 ("null", TokenType::Null),
                 ("true", TokenType::True),
