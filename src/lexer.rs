@@ -209,7 +209,11 @@ impl Lexer {
                 } else if c.is_alphabetic() || c == '_' {
                     self.add_identifier();
                 } else {
-                    eprintln!("Line {}: Unexpected character", self.line);
+                    self.error = Some(Error {
+                        what: format!("Unexpected character: {c}"),
+                        line: self.line,
+                        column: self.column,
+                    });
                 }
             }
         }
