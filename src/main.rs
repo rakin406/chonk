@@ -9,6 +9,8 @@ mod lexer;
 mod token;
 mod token_type;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     let args = cli::Cli::parse();
 
@@ -35,13 +37,12 @@ fn run_prompt() -> Result<()> {
     let mut running = true;
     let mut rl = DefaultEditor::new()?;
 
-    let version = env!("CARGO_PKG_VERSION");
     let repl_template = format!(
         "\
         Welcome to Chonk {}.\n\
         Type \".help\" for more information.\
         ",
-        version
+        VERSION
     );
 
     println!("{}", repl_template);
