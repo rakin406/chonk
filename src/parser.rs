@@ -56,7 +56,18 @@ impl Parser {
 
     fn primary(&self) -> Expr {}
 
-    fn match_types(&self, types: Vec<TokenType>) -> bool {}
+    /// Returns `true` if the current token has any of the given types. If so,
+    /// it consumes the token.
+    fn match_types(&self, types: Vec<TokenType>) -> bool {
+        for token_type in types.iter() {
+            if self.has_type(*token_type) {
+                self.advance();
+                return true;
+            }
+        }
+
+        false
+    }
 
     fn has_type(&self, token_type: TokenType) -> bool {}
 
