@@ -37,6 +37,7 @@ fn run_prompt() {
     let mut running = true;
     let mut rl = DefaultEditor::new().unwrap();
 
+    // NOTE: I should probably move this to somewhere else...
     let repl_template = format!(
         "\
         Welcome to Chonk {}.\n\
@@ -44,10 +45,23 @@ fn run_prompt() {
         ",
         VERSION
     );
-
     println!("{}", repl_template);
 
     // TODO: Create a template for `help` command.
+
+    let mut history_path = String::new();
+    match home::home_dir() {
+        Some(path) => {
+            history_path = format!("{}/.chonk_history", path.to_str().unwrap());
+        }
+        None => {}
+    }
+
+    // Load REPL history
+    match rl.load_history(&history_path) {
+        Ok(_) => {}
+        Err(_) => {}
+    }
 
     while running {
         let readline = rl.readline(">> ");
@@ -58,14 +72,17 @@ fn run_prompt() {
                     continue;
                 }
 
+                // Save REPL history
+                rl.add_history_entry(&line).unwrap();
+                rl.save_history(&history_path).unwrap();
+
                 // Terminate program on exit command
                 if line == ".exit" {
                     running = false;
                     continue;
                 }
 
-                run(line.clone());
-                rl.add_history_entry(line);
+                run(line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
