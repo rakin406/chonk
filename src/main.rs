@@ -7,6 +7,7 @@ use rustyline::DefaultEditor;
 mod cli;
 mod expr;
 mod lexer;
+mod parser;
 mod token;
 mod token_type;
 
