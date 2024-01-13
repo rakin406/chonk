@@ -31,9 +31,10 @@ fn run_file(path: String) {
 
 /// Runs the interpreter interactively.
 fn run_prompt() -> Result<()> {
+    let mut running = true;
     let mut rl = DefaultEditor::new()?;
 
-    Ok(loop {
+    Ok(while running {
         let readline = rl.readline(">> ");
         match readline {
             Ok(mut line) => {
@@ -42,15 +43,21 @@ fn run_prompt() -> Result<()> {
                     continue;
                 }
 
+                // Terminate program on exit command
+                if line == "exit" {
+                    running = false;
+                    continue;
+                }
+
                 run(line.clone());
                 let _ = rl.add_history_entry(line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
-                break;
+                running = false;
             }
             Err(error) => {
                 eprintln!("Error: {error:?}");
-                break;
+                running = false;
             }
         }
     })
