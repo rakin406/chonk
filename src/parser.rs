@@ -47,7 +47,27 @@ impl Parser {
         expr
     }
 
-    fn comparison(&self) -> Expr {}
+    /// Matches an equality operator.
+    fn comparison(&self) -> Expr {
+        use TokenType::*;
+
+        let mut expr = self.term();
+
+        while self.match_types(Vec::from([
+            GreaterThan,
+            GreaterThanOrEqualTo,
+            LessThan,
+            LessThanOrEqualTo,
+        ])) {
+            let operator: Token = self.previous();
+            let right: Expr = self.term();
+            expr = Expr {
+                binary: Box::new(Binary::new(expr, operator, right)),
+            };
+        }
+
+        expr
+    }
 
     fn term(&self) -> Expr {}
 
