@@ -127,7 +127,9 @@ impl Lexer {
                 }
             }
             '*' => {
-                if self.match_char('=') {
+                if self.match_char('*') {
+                    self.add_token(Exponent);
+                } else if self.match_char('=') {
                     self.add_token(AsteriskEqual);
                 } else {
                     self.add_token(Asterisk);

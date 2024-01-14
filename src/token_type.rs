@@ -19,6 +19,7 @@ pub enum TokenType {
     Asterisk,
     Slash,
     Percent,
+    Exponent,
 
     // Assignment operators
     Equal,
