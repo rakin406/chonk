@@ -1,16 +1,16 @@
 use crate::token::Token;
 
 pub struct Expr {
-    pub binary: Box<Binary>,
+    pub binary: Box<BinaryOp>,
 }
 
-pub struct Binary {
+pub struct BinaryOp {
     left: Expr,
     operator: Token,
     right: Expr,
 }
 
-impl Binary {
+impl BinaryOp {
     /// Creates a new `Binary`.
     pub fn new(left: Expr, operator: Token, right: Expr) -> Self {
         Self {
