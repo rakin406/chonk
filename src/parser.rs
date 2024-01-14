@@ -57,7 +57,11 @@ impl Parser {
         self.parse_binary_ops(Vec::from([Minus, Plus]), &|| self.factor())
     }
 
-    fn factor(&self) -> Expr {}
+    // TODO: Add missing documentation.
+    fn factor(&self) -> Expr {
+        use TokenType::*;
+        self.parse_binary_ops(Vec::from([Slash, Asterisk]), &|| self.unary())
+    }
 
     fn unary(&self) -> Expr {}
 
