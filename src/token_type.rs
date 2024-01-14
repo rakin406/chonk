@@ -41,6 +41,16 @@ pub enum TokenType {
     Or,
     Not,
 
+    // Bitwise operators
+    // NOTE: I was thinking about changing these names to And, Or etc. but there
+    // are collisions with the logical operators, unfortunately :(
+    Ampersand,   // AND
+    VerticalBar, // OR
+    Caret,       // XOR
+    Tilde,       // NOT
+    LeftShift,
+    RightShift,
+
     // Literals
     Identifier,
     String,

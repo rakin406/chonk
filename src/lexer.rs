@@ -164,14 +164,18 @@ impl Lexer {
             }
 
             '>' => {
-                if self.match_char('=') {
+                if self.match_char('>') {
+                    self.add_token(RightShift);
+                } else if self.match_char('=') {
                     self.add_token(GreaterThanOrEqualTo);
                 } else {
                     self.add_token(GreaterThan);
                 }
             }
             '<' => {
-                if self.match_char('=') {
+                if self.match_char('<') {
+                    self.add_token(LeftShift);
+                } else if self.match_char('=') {
                     self.add_token(LessThanOrEqualTo);
                 } else {
                     self.add_token(LessThan);
