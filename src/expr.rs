@@ -1,6 +1,8 @@
+use std::any::Any;
+
 use crate::token::Token;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Expr {
     Binary {
         left: Box<Expr>,
@@ -11,4 +13,5 @@ pub enum Expr {
         operator: Token,
         right: Box<Expr>,
     },
+    Literal(Option<Box<dyn Any>>),
 }
