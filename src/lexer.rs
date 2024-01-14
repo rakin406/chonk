@@ -109,85 +109,91 @@ impl Lexer {
             '.' => self.add_token(Dot),
 
             '+' => {
-                let matches_plus = self.match_char('+');
-                let matches_equal = self.match_char('=');
-
-                self.add_token(if matches_plus {
-                    PlusPlus
-                } else if matches_equal {
-                    PlusEqual
+                if self.match_char('+') {
+                    self.add_token(PlusPlus);
+                } else if self.match_char('=') {
+                    self.add_token(PlusEqual);
                 } else {
-                    Plus
-                })
+                    self.add_token(Plus);
+                }
             }
             '-' => {
-                let matches_minus = self.match_char('-');
-                let matches_equal = self.match_char('=');
-
-                self.add_token(if matches_minus {
-                    MinusMinus
-                } else if matches_equal {
-                    MinusEqual
+                if self.match_char('-') {
+                    self.add_token(MinusMinus);
+                } else if self.match_char('=') {
+                    self.add_token(MinusEqual);
                 } else {
-                    Minus
-                })
+                    self.add_token(Minus);
+                }
             }
             '*' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal {
-                    AsteriskEqual
+                if self.match_char('=') {
+                    self.add_token(AsteriskEqual);
                 } else {
-                    Asterisk
-                })
+                    self.add_token(Asterisk);
+                }
             }
             '/' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal { SlashEqual } else { Slash })
+                if self.match_char('=') {
+                    self.add_token(SlashEqual);
+                } else {
+                    self.add_token(Slash);
+                }
             }
             '%' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal { PercentEqual } else { Percent })
+                if self.match_char('=') {
+                    self.add_token(PercentEqual);
+                } else {
+                    self.add_token(Percent);
+                }
             }
 
             '=' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal { EqualTo } else { Equal })
+                if self.match_char('=') {
+                    self.add_token(EqualTo);
+                } else {
+                    self.add_token(Equal);
+                }
             }
             '!' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal { NotEqualTo } else { Not })
-            }
-            '>' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal {
-                    GreaterThanOrEqualTo
+                if self.match_char('=') {
+                    self.add_token(NotEqualTo);
                 } else {
-                    GreaterThan
-                })
+                    self.add_token(Not);
+                }
+            }
+
+            '>' => {
+                if self.match_char('=') {
+                    self.add_token(GreaterThanOrEqualTo);
+                } else {
+                    self.add_token(GreaterThan);
+                }
             }
             '<' => {
-                let matches_equal = self.match_char('=');
-                self.add_token(if matches_equal {
-                    LessThanOrEqualTo
+                if self.match_char('=') {
+                    self.add_token(LessThanOrEqualTo);
                 } else {
-                    LessThan
-                })
+                    self.add_token(LessThan);
+                }
             }
 
             '&' => {
                 if self.match_char('&') {
                     self.add_token(And);
                 } else {
-                    self.generate_error("Missing ampersand");
+                    self.add_token(Ampersand);
                 }
             }
             '|' => {
                 if self.match_char('|') {
                     self.add_token(Or);
                 } else {
-                    self.generate_error("Missing vertical bar");
+                    self.add_token(VerticalBar);
                 }
             }
+            '^' => self.add_token(Caret),
+            '~' => self.add_token(Tilde),
 
             '#' => {
                 // A comment goes until the end of the line
