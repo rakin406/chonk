@@ -42,10 +42,10 @@ impl Parser {
 
         self.parse_binary_ops(
             Vec::from([
-                GreaterThan,
-                GreaterThanOrEqualTo,
-                LessThan,
-                LessThanOrEqualTo,
+                Greater,
+                GreaterEqual,
+                Less,
+                LessEqual,
             ]),
             &|| self.term(),
         )
@@ -54,20 +54,20 @@ impl Parser {
     // TODO: Add missing documentation.
     fn term(&self) -> Expr {
         use TokenType::*;
-        self.parse_binary_ops(Vec::from([Minus, Plus]), &|| self.factor())
+        self.parse_binary_ops(Vec::from([Sub, Add]), &|| self.factor())
     }
 
     // TODO: Add missing documentation.
     fn factor(&self) -> Expr {
         use TokenType::*;
-        self.parse_binary_ops(Vec::from([Slash, Asterisk]), &|| self.unary())
+        self.parse_binary_ops(Vec::from([Div, Mult]), &|| self.unary())
     }
 
     // TODO: Add missing documentation.
     fn unary(&self) -> Expr {
         use TokenType::*;
 
-        if self.match_types(Vec::from([Not, Minus])) {
+        if self.match_types(Vec::from([Not, Sub])) {
             let operator: Token = self.previous();
             // TODO: Avoid recursion.
             let right: Expr = self.unary();
@@ -163,6 +163,14 @@ impl Parser {
             self.current += 1;
         }
         self.previous()
+    }
+
+    /// Checks to see if the next token is of the expected type and consumes it.
+    fn consume(&self, token_type: TokenType, message: String) -> Token {
+        if self.has_type(token_type) {
+            return self.advance();
+        }
+        // TODO: "Throw" error here.
     }
 
     /// Returns the current token which is yet to consume.

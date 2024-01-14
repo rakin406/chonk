@@ -12,31 +12,31 @@ pub enum TokenType {
     Dot,
 
     // Arithmetic operators
-    Plus,
-    PlusPlus,
-    Minus,
-    MinusMinus,
-    Asterisk,
-    Slash,
-    Percent,
-    Exponent,
+    Add,
+    Sub,
+    Mult,
+    Div,
+    Mod,
+    Power,
+    Increment,
+    Decrement,
 
     // Assignment operators
     Equal,
-    PlusEqual,
-    MinusEqual,
-    AsteriskEqual,
-    SlashEqual,
-    PercentEqual,
-    // TODO: Add bitwise assignment operators.
+    AddEqual,
+    SubEqual,
+    MultEqual,
+    DivEqual,
+    ModEqual,
+    // TODO: Add bitwise assignment operators and power operator.
 
     // Comparison operators
     EqualTo,
     NotEqualTo,
-    GreaterThan,
-    LessThan,
-    GreaterThanOrEqualTo,
-    LessThanOrEqualTo,
+    Greater,
+    Less,
+    GreaterEqual,
+    LessEqual,
 
     // Logical operators
     And,
@@ -44,12 +44,10 @@ pub enum TokenType {
     Not,
 
     // Bitwise operators
-    // NOTE: I was thinking about changing these names to And, Or etc. but there
-    // are collisions with the logical operators, unfortunately :(
-    Ampersand,   // AND
-    VerticalBar, // OR
-    Caret,       // XOR
-    Tilde,       // NOT
+    BitAnd,
+    BitOr,
+    BitXor,
+    BitNot,
     LeftShift,
     RightShift,
 
