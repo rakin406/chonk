@@ -1,4 +1,4 @@
-use crate::expr::{BinaryOp, Expr};
+use crate::expr::Expr;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
@@ -86,9 +86,11 @@ impl Parser {
         while self.match_types(types) {
             let operator: Token = self.previous();
             let right: Expr = handle();
-            expr = Expr {
-                binary: Box::new(BinaryOp::new(expr, operator, right)),
-            };
+            expr = Expr::Binary {
+                left: Box::new(expr),
+                operator,
+                right: Box::new(right),
+            }
         }
 
         expr
