@@ -70,7 +70,10 @@ impl Parser {
         if self.match_types(Vec::from([Not, Minus])) {
             let operator: Token = self.previous();
             let right: Expr = self.unary();
-            // TODO:Return unary expr.
+            return Expr::Unary {
+                operator,
+                right: Box::new(right),
+            };
         }
 
         self.primary()
@@ -90,7 +93,7 @@ impl Parser {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),
-            }
+            };
         }
 
         expr
