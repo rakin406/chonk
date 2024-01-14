@@ -28,6 +28,7 @@ pub enum TokenType {
     AsteriskEqual,
     SlashEqual,
     PercentEqual,
+    // TODO: Add bitwise assignment operators.
 
     // Comparison operators
     EqualTo,
