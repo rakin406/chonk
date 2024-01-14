@@ -69,6 +69,7 @@ impl Parser {
 
         if self.match_types(Vec::from([Not, Minus])) {
             let operator: Token = self.previous();
+            // TODO: Avoid recursion.
             let right: Expr = self.unary();
             return Expr::Unary {
                 operator,
