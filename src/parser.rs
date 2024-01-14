@@ -81,7 +81,10 @@ impl Parser {
     }
 
     fn primary(&self) -> Expr {
-        if self.match_types(Vec::from([TokenType::True])) {}
+        // TODO: Finish this.
+        if self.match_type(TokenType::True) {}
+        if self.match_type(TokenType::False) {}
+        if self.match_type(TokenType::Null) {}
     }
 
     /// Parses the binary operators from a list of token types and returns the
