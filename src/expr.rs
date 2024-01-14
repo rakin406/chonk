@@ -4,6 +4,8 @@ use crate::token::Token;
 
 #[derive(Debug)]
 pub enum Expr {
+    Grouping(Box<Expr>),
+    Literal(Option<Box<dyn Any>>),
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -13,5 +15,4 @@ pub enum Expr {
         operator: Token,
         right: Box<Expr>,
     },
-    Literal(Option<Box<dyn Any>>),
 }

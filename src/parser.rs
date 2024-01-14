@@ -80,11 +80,27 @@ impl Parser {
         self.primary()
     }
 
+    // TODO: Finish this.
     fn primary(&self) -> Expr {
-        // TODO: Finish this.
-        if self.match_type(TokenType::True) {}
-        if self.match_type(TokenType::False) {}
-        if self.match_type(TokenType::Null) {}
+        if self.match_type(TokenType::True) {
+            return Expr::Literal(Some(Box::new(true)));
+        }
+        if self.match_type(TokenType::False) {
+            return Expr::Literal(Some(Box::new(false)));
+        }
+        if self.match_type(TokenType::Null) {
+            return Expr::Literal(Some(Box::new(None)));
+        }
+
+        if self.match_types(Vec::from([TokenType::Number, TokenType::String])) {
+            return Expr::Literal(Some(Box::new(self.previous().literal)));
+        }
+
+        if self.match_type(TokenType::LeftParen) {
+            let expr = self.expression();
+            // TODO: Create and use consume() method.
+            return Expr::Grouping(Box::new(expr));
+        }
     }
 
     /// Parses the binary operators from a list of token types and returns the
