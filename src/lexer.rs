@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
-#[derive(Debug)]
-pub struct Error {
+#[derive(Debug, Clone)]
+pub struct LexError {
     pub what: String,
     pub line: usize,
     pub column: i64,
@@ -14,7 +14,7 @@ pub struct Error {
 struct Lexer {
     source: String,
     tokens: Vec<Token>,
-    error: Option<Error>,
+    error: Option<LexError>,
     start: usize,
     current: usize,
     line: usize,
@@ -23,7 +23,7 @@ struct Lexer {
 }
 
 /// Scans tokens from source and returns it, otherwise returns error.
-pub fn scan_tokens(source: String) -> Result<Vec<Token>, Error> {
+pub fn scan_tokens(source: String) -> Result<Vec<Token>, LexError> {
     let mut lexer = Lexer::default();
 
     lexer.scan_tokens(source);
@@ -302,7 +302,7 @@ impl Lexer {
 
     /// Generates an error with the given `message`.
     fn generate_error(&mut self, message: &str) {
-        self.error = Some(Error {
+        self.error = Some(LexError {
             what: message.to_string(),
             line: self.line,
             column: self.column,
