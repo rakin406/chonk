@@ -51,7 +51,11 @@ impl Parser {
         )
     }
 
-    fn term(&self) -> Expr {}
+    // TODO: Add missing documentation.
+    fn term(&self) -> Expr {
+        use TokenType::*;
+        self.parse_binary_ops(Vec::from([Minus, Plus]), &|| self.factor())
+    }
 
     fn factor(&self) -> Expr {}
 
