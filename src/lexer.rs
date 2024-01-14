@@ -178,14 +178,14 @@ impl Lexer {
                 if self.match_char('&') {
                     self.add_token(And);
                 } else {
-                    panic!("Line {}: Missing ampersand", self.line);
+                    self.generate_error("Missing ampersand");
                 }
             }
             '|' => {
                 if self.match_char('|') {
                     self.add_token(Or);
                 } else {
-                    panic!("Line {}: Missing vertical bar", self.line);
+                    self.generate_error("Missing vertical bar");
                 }
             }
 
@@ -210,11 +210,7 @@ impl Lexer {
                 } else if c.is_alphabetic() || c == '_' {
                     self.add_identifier();
                 } else {
-                    self.error = Some(Error {
-                        what: format!("Unexpected character: {c}"),
-                        line: self.line,
-                        column: self.column,
-                    });
+                    self.generate_error(&format!("Unexpected character: {c}"));
                 }
             }
         }
@@ -292,6 +288,15 @@ impl Lexer {
             Some(value) => self.add_token(*value),
             None => self.add_token(TokenType::Identifier),
         }
+    }
+
+    /// Generates an error with the given `message`.
+    fn generate_error(&mut self, message: &str) {
+        self.error = Some(Error {
+            what: message.to_string(),
+            line: self.line,
+            column: self.column,
+        });
     }
 
     /// Returns `true` if current character is the last in the source code.
