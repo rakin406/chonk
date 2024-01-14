@@ -33,40 +33,22 @@ impl Parser {
     // TODO: Add missing documentation.
     fn equality(&self) -> Expr {
         use TokenType::*;
-
-        let mut expr = self.comparison();
-
-        while self.match_types(Vec::from([NotEqualTo, EqualTo])) {
-            let operator: Token = self.previous();
-            let right: Expr = self.comparison();
-            expr = Expr {
-                binary: Box::new(Binary::new(expr, operator, right)),
-            };
-        }
-
-        expr
+        self.parse_binary_ops(Vec::from([NotEqualTo, EqualTo]), &|| self.comparison())
     }
 
     /// Matches an equality operator.
     fn comparison(&self) -> Expr {
         use TokenType::*;
 
-        let mut expr = self.term();
-
-        while self.match_types(Vec::from([
-            GreaterThan,
-            GreaterThanOrEqualTo,
-            LessThan,
-            LessThanOrEqualTo,
-        ])) {
-            let operator: Token = self.previous();
-            let right: Expr = self.term();
-            expr = Expr {
-                binary: Box::new(Binary::new(expr, operator, right)),
-            };
-        }
-
-        expr
+        self.parse_binary_ops(
+            Vec::from([
+                GreaterThan,
+                GreaterThanOrEqualTo,
+                LessThan,
+                LessThanOrEqualTo,
+            ]),
+            &|| self.term(),
+        )
     }
 
     fn term(&self) -> Expr {}
@@ -76,6 +58,22 @@ impl Parser {
     fn unary(&self) -> Expr {}
 
     fn primary(&self) -> Expr {}
+
+    /// Parses the binary operators from a list of token types and returns the
+    /// expression.
+    fn parse_binary_ops(&self, types: Vec<TokenType>, handle: &dyn Fn() -> Expr) -> Expr {
+        let mut expr = handle();
+
+        while self.match_types(types) {
+            let operator: Token = self.previous();
+            let right: Expr = handle();
+            expr = Expr {
+                binary: Box::new(Binary::new(expr, operator, right)),
+            };
+        }
+
+        expr
+    }
 
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
