@@ -80,7 +80,9 @@ impl Parser {
         self.primary()
     }
 
-    fn primary(&self) -> Expr {}
+    fn primary(&self) -> Expr {
+        if self.match_types(Vec::from([TokenType::True])) {}
+    }
 
     /// Parses the binary operators from a list of token types and returns the
     /// expression.
@@ -100,12 +102,22 @@ impl Parser {
         expr
     }
 
+    /// Returns `true` if the current token has the given type. If so, it
+    /// consumes the token.
+    fn match_type(&self, token_type: TokenType) -> bool {
+        if self.has_type(token_type) {
+            self.advance();
+            return true;
+        }
+
+        false
+    }
+
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
     fn match_types(&self, types: Vec<TokenType>) -> bool {
         for token_type in types.iter() {
-            if self.has_type(*token_type) {
-                self.advance();
+            if self.match_type(*token_type) {
                 return true;
             }
         }
