@@ -63,7 +63,18 @@ impl Parser {
         self.parse_binary_ops(Vec::from([Slash, Asterisk]), &|| self.unary())
     }
 
-    fn unary(&self) -> Expr {}
+    // TODO: Add missing documentation.
+    fn unary(&self) -> Expr {
+        use TokenType::*;
+
+        if self.match_types(Vec::from([Not, Minus])) {
+            let operator: Token = self.previous();
+            let right: Expr = self.unary();
+            // TODO:Return unary expr.
+        }
+
+        self.primary()
+    }
 
     fn primary(&self) -> Expr {}
 
