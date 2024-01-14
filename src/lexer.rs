@@ -244,7 +244,7 @@ impl Lexer {
         }
 
         if self.is_at_end() {
-            panic!("Line {}: Unterminated string", self.line);
+            self.generate_error("Unterminated string");
         }
 
         // The closing quote
