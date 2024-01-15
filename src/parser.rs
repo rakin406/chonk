@@ -40,15 +40,9 @@ impl Parser {
     fn comparison(&self) -> Expr {
         use TokenType::*;
 
-        self.parse_binary_ops(
-            Vec::from([
-                Greater,
-                GreaterEqual,
-                Less,
-                LessEqual,
-            ]),
-            &|| self.term(),
-        )
+        self.parse_binary_ops(Vec::from([Greater, GreaterEqual, Less, LessEqual]), &|| {
+            self.term()
+        })
     }
 
     // TODO: Add missing documentation.
@@ -60,7 +54,7 @@ impl Parser {
     // TODO: Add missing documentation.
     fn factor(&self) -> Expr {
         use TokenType::*;
-        self.parse_binary_ops(Vec::from([Div, Mult]), &|| self.unary())
+        self.parse_binary_ops(Vec::from([Mod, Div, Mult]), &|| self.unary())
     }
 
     // TODO: Add missing documentation.
