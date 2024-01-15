@@ -71,9 +71,9 @@ impl Parser {
             let operator: Token = self.previous();
             // TODO: Avoid recursion.
             let right: Expr = self.unary();
-            return Expr::Unary {
+            return Expr::UnaryOp {
                 operator,
-                right: Box::new(right),
+                operand: Box::new(right),
             };
         }
 
@@ -111,7 +111,7 @@ impl Parser {
         while self.match_types(types) {
             let operator: Token = self.previous();
             let right: Expr = handle();
-            expr = Expr::Binary {
+            expr = Expr::BinaryOp {
                 left: Box::new(expr),
                 operator,
                 right: Box::new(right),

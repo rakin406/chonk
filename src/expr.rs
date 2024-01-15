@@ -2,17 +2,19 @@ use std::any::Any;
 
 use crate::token::Token;
 
+// TODO: Add more operators.
+
 #[derive(Debug)]
 pub enum Expr {
     Grouping(Box<Expr>),
     Literal(Option<Box<dyn Any>>),
-    Binary {
+    BinaryOp {
         left: Box<Expr>,
         operator: Token,
         right: Box<Expr>,
     },
-    Unary {
+    UnaryOp {
         operator: Token,
-        right: Box<Expr>,
+        operand: Box<Expr>,
     },
 }
