@@ -16,12 +16,35 @@ impl Default for Parser {
     }
 }
 
+// TODO: I think I need to write an error() method.
 impl Parser {
     /// Creates a new `Parser`.
     fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens,
             ..Default::default()
+        }
+    }
+
+    /// Discards tokens until it finds a statement boundary.
+    fn synchronize(&self) {
+        self.advance();
+
+        while !self.is_at_end() {
+            if self.previous().token_type == TokenType::Newline {
+                break;
+            }
+
+            match self.peek().token_type {
+                TokenType::While
+                | TokenType::For
+                | TokenType::If
+                | TokenType::Echo
+                | TokenType::Return => break,
+                _ => {}
+            }
+
+            self.advance();
         }
     }
 
