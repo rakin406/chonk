@@ -2,6 +2,13 @@ use crate::expr::Expr;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
+#[derive(Debug, Clone)]
+pub struct ParseError {
+    pub what: String,
+    pub line: usize,
+    pub column: i64,
+}
+
 struct Parser {
     tokens: Vec<Token>,
     current: usize,
