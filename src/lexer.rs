@@ -5,32 +5,20 @@ use crate::error_reporter::ErrorReporter;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
-#[derive(Debug, Clone)]
-pub struct LexError {
-    pub what: String,
-    pub line: usize,
-}
-
 struct Lexer {
     source: String,
     tokens: Vec<Token>,
-    error: Option<LexError>,
     start: usize,
     current: usize,
     line: usize,
     keywords: HashMap<String, TokenType>,
 }
 
-/// Scans tokens from source and returns it, otherwise returns error.
-pub fn scan_tokens(source: String) -> Result<Vec<Token>, LexError> {
+/// Scans tokens from source and returns it.
+pub fn scan_tokens(source: String) -> Vec<Token> {
     let mut lexer = Lexer::default();
-
     lexer.scan_tokens(source);
-
-    match lexer.error {
-        Some(error) => Err(error),
-        None => Ok(lexer.tokens),
-    }
+    lexer.tokens
 }
 
 impl Default for Lexer {
@@ -38,7 +26,6 @@ impl Default for Lexer {
         Self {
             source: String::new(),
             tokens: Vec::new(),
-            error: None,
             start: 0,
             current: 0,
             line: 1,
