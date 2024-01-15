@@ -1,3 +1,4 @@
+use crate::error_reporter::ErrorReporter;
 use crate::expr::Expr;
 use crate::token::Token;
 use crate::token_type::TokenType;
@@ -210,3 +211,5 @@ impl Parser {
         self.tokens[self.current - 1]
     }
 }
+
+impl ErrorReporter for Parser {}
