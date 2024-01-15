@@ -210,6 +210,7 @@ impl Lexer {
 
             ' ' | '\r' | '\t' => {}
             '\n' => {
+                self.add_token(Newline);
                 self.line += 1;
                 self.column = 0;
             }

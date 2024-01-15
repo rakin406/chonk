@@ -10,6 +10,7 @@ pub enum TokenType {
     RightBrace,
     Comma,
     Dot,
+    Newline,
 
     // Arithmetic operators
     Add,
