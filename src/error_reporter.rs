@@ -2,12 +2,12 @@ use crate::token::Token;
 use crate::token_type::TokenType;
 
 pub trait ErrorReporter {
-    // TODO: Add missing documentation.
+    /// Reports an error.
     fn error(&self, line: usize, message: &str) {
         self.report(line, "", message);
     }
 
-    // TODO: Add missing documentation.
+    /// Reports a token error.
     fn token_error(&self, token: Token, message: &str) {
         if token.token_type == TokenType::Eof {
             self.report(token.line, " at end", message);
@@ -16,8 +16,7 @@ pub trait ErrorReporter {
         }
     }
 
-    // NOTE: I should probably reduce the amount of parameters here.
-    // TODO: Add missing documentation.
+    /// Pretty prints an error with the given information.
     fn report(&self, line: usize, location: &str, message: &str) {
         eprintln!("[line {}] Error{}: {}", line, location, message);
     }
