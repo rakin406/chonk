@@ -75,5 +75,6 @@ pub enum TokenType {
     Return,
     Echo,
 
+    Error,
     Eof,
 }
