@@ -3,6 +3,10 @@ use crate::expr::Expr;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
+// FIX: `parse_binary_ops()` and the callback methods aren't working together
+// because there can only be one mutable reference. Perhaps I should move all
+// the operation methods out of the "class". Damn it, I hate Rust sometimes!
+
 #[derive(Debug, Clone)]
 struct ParseError;
 
@@ -31,7 +35,7 @@ impl Parser {
     }
 
     /// Discards tokens until it finds a statement boundary.
-    fn synchronize(&self) {
+    fn synchronize(&mut self) {
         self.advance();
 
         while !self.is_at_end() {
@@ -61,18 +65,18 @@ impl Parser {
     }
 
     /// Expands to the `equality` rule.
-    fn expression(&self) -> Expr {
+    fn expression(&mut self) -> Expr {
         self.equality()
     }
 
     // TODO: Add missing documentation.
-    fn equality(&self) -> Expr {
+    fn equality(&mut self) -> Expr {
         use TokenType::*;
         self.parse_binary_ops(Vec::from([NotEqualTo, EqualTo]), &|| self.comparison())
     }
 
     /// Matches an equality operator.
-    fn comparison(&self) -> Expr {
+    fn comparison(&mut self) -> Expr {
         use TokenType::*;
 
         self.parse_binary_ops(Vec::from([Greater, GreaterEqual, Less, LessEqual]), &|| {
@@ -81,19 +85,19 @@ impl Parser {
     }
 
     // TODO: Add missing documentation.
-    fn term(&self) -> Expr {
+    fn term(&mut self) -> Expr {
         use TokenType::*;
         self.parse_binary_ops(Vec::from([Sub, Add]), &|| self.factor())
     }
 
     // TODO: Add missing documentation.
-    fn factor(&self) -> Expr {
+    fn factor(&mut self) -> Expr {
         use TokenType::*;
         self.parse_binary_ops(Vec::from([Mod, Div, Mult]), &|| self.unary())
     }
 
     // TODO: Add missing documentation.
-    fn unary(&self) -> Expr {
+    fn unary(&mut self) -> Expr {
         use TokenType::*;
 
         if self.match_types(Vec::from([Not, Sub])) {
@@ -110,7 +114,7 @@ impl Parser {
     }
 
     // TODO: Add missing documentation.
-    fn primary(&self) -> Result<Expr, ParseError> {
+    fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
             return Ok(Expr::Literal(Some(Box::new(true))));
         }
@@ -136,10 +140,13 @@ impl Parser {
 
     /// Parses the binary operators from a list of token types and returns the
     /// expression.
-    fn parse_binary_ops(&self, types: Vec<TokenType>, handle: &dyn Fn() -> Expr) -> Expr {
+    fn parse_binary_ops<F>(&mut self, types: Vec<TokenType>, mut handle: F) -> Expr
+    where
+        F: FnMut() -> Expr,
+    {
         let mut expr = handle();
 
-        while self.match_types(types) {
+        while self.match_types(types.to_owned()) {
             let operator: Token = self.previous();
             let right: Expr = handle();
             expr = Expr::BinaryOp {
@@ -154,7 +161,7 @@ impl Parser {
 
     /// Returns `true` if the current token has the given type. If so, it
     /// consumes the token.
-    fn match_type(&self, token_type: TokenType) -> bool {
+    fn match_type(&mut self, token_type: TokenType) -> bool {
         if self.has_type(token_type) {
             self.advance();
             return true;
@@ -165,7 +172,7 @@ impl Parser {
 
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
-    fn match_types(&self, types: Vec<TokenType>) -> bool {
+    fn match_types(&mut self, types: Vec<TokenType>) -> bool {
         for token_type in types.iter() {
             if self.match_type(*token_type) {
                 return true;
@@ -197,7 +204,7 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&self, token_type: TokenType, message: &str) -> Result<Token, ParseError> {
+    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<Token, ParseError> {
         if self.has_type(token_type) {
             return Ok(self.advance());
         }
