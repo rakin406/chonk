@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::collections::HashMap;
 
+use crate::error_reporter::ErrorReporter;
 use crate::token::Token;
 use crate::token_type::TokenType;
 
@@ -219,7 +220,7 @@ impl Lexer {
                 } else if c.is_alphabetic() || c == '_' {
                     self.add_identifier();
                 } else {
-                    self.generate_error(&format!("Unexpected character: {c}"));
+                    self.error(self.line, &format!("Unexpected character: \'{c}\'"));
                 }
             }
         }
@@ -248,7 +249,7 @@ impl Lexer {
         }
 
         if self.is_at_end() {
-            self.generate_error("Unterminated string");
+            self.error(self.line, "Unterminated string");
         }
 
         // The closing quote
@@ -292,14 +293,6 @@ impl Lexer {
             Some(value) => self.add_token(*value),
             None => self.add_token(TokenType::Identifier),
         }
-    }
-
-    /// Generates an error with the given `message`.
-    fn generate_error(&mut self, message: &str) {
-        self.error = Some(LexError {
-            what: message.to_string(),
-            line: self.line,
-        });
     }
 
     /// Returns `true` if current character is the last in the source code.
@@ -352,3 +345,5 @@ impl Lexer {
         self.source.chars().nth(self.current + 1).unwrap()
     }
 }
+
+impl ErrorReporter for Lexer {}
