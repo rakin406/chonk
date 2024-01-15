@@ -206,6 +206,10 @@ impl Lexer {
                 self.add_token(Newline);
                 self.line += 1;
             }
+            '\\' => {
+                self.add_token(Backslash);
+                self.line += 1;
+            }
 
             '"' => self.add_string(),
 
