@@ -116,9 +116,11 @@ impl Parser {
 
         if self.match_type(TokenType::LeftParen) {
             let expr = self.expression();
-            // TODO: Create and use consume() method.
+            self.consume(TokenType::RightParen, "Expected \')\' after expression");
             return Expr::Grouping(Box::new(expr));
         }
+
+        // TODO: Return error here.
     }
 
     /// Parses the binary operators from a list of token types and returns the
@@ -184,7 +186,7 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&self, token_type: TokenType, message: String) -> Token {
+    fn consume(&self, token_type: TokenType, message: &str) -> Token {
         if self.has_type(token_type) {
             return self.advance();
         }
