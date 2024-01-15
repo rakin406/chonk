@@ -37,8 +37,9 @@ impl Parser {
         self.advance();
 
         while !self.is_at_end() {
-            if self.previous().token_type == TokenType::Newline {
-                break;
+            match self.previous().token_type {
+                TokenType::Newline | TokenType::Backslash => break,
+                _ => {}
             }
 
             match self.peek().token_type {
