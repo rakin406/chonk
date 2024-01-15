@@ -8,7 +8,6 @@ pub struct Token {
     pub lexeme: String,
     pub literal: Option<Box<dyn Any>>,
     pub line: usize,
-    pub column: i64,
 }
 
 impl Token {
@@ -18,14 +17,12 @@ impl Token {
         lexeme: String,
         literal: Option<Box<dyn Any>>,
         line: usize,
-        column: i64,
     ) -> Self {
         Self {
             token_type,
             lexeme,
             literal,
             line,
-            column,
         }
     }
 

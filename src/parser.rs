@@ -6,7 +6,6 @@ use crate::token_type::TokenType;
 pub struct ParseError {
     pub what: String,
     pub line: usize,
-    pub column: i64,
 }
 
 struct Parser {

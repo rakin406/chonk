@@ -8,7 +8,6 @@ use crate::token_type::TokenType;
 pub struct LexError {
     pub what: String,
     pub line: usize,
-    pub column: i64,
 }
 
 struct Lexer {
@@ -18,7 +17,6 @@ struct Lexer {
     start: usize,
     current: usize,
     line: usize,
-    column: i64,
     keywords: HashMap<String, TokenType>,
 }
 
@@ -43,7 +41,6 @@ impl Default for Lexer {
             start: 0,
             current: 0,
             line: 1,
-            column: 0,
             keywords: HashMap::from([
                 ("null", TokenType::Null),
                 ("true", TokenType::True),
@@ -83,13 +80,9 @@ impl Lexer {
 
         match self.error {
             Some(_) => {}
-            None => self.tokens.push(Token::new(
-                TokenType::Eof,
-                String::new(),
-                None,
-                self.line,
-                self.column,
-            )),
+            None => self
+                .tokens
+                .push(Token::new(TokenType::Eof, String::new(), None, self.line)),
         }
     }
 
@@ -212,7 +205,6 @@ impl Lexer {
             '\n' => {
                 self.add_token(Newline);
                 self.line += 1;
-                self.column = 0;
             }
 
             '"' => self.add_string(),
@@ -237,13 +229,8 @@ impl Lexer {
     /// Creates a new token with literal.
     fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
         let text = self.source[self.start..self.current].to_string();
-        self.tokens.push(Token::new(
-            token_type,
-            text,
-            literal,
-            self.line,
-            self.column,
-        ));
+        self.tokens
+            .push(Token::new(token_type, text, literal, self.line));
     }
 
     /// Adds string literal token.
@@ -308,7 +295,6 @@ impl Lexer {
         self.error = Some(LexError {
             what: message.to_string(),
             line: self.line,
-            column: self.column,
         });
     }
 
@@ -333,14 +319,12 @@ impl Lexer {
         }
 
         self.current += 1;
-        self.column += 1;
         true
     }
 
     /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.column += 1;
 
         // NOTE: I read that using unwrap() function is bad. I might remove it
         // later.

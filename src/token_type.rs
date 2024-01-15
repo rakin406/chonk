@@ -11,6 +11,7 @@ pub enum TokenType {
     Comma,
     Dot,
     Newline,
+    Backslash,
 
     // Arithmetic operators
     Add,
