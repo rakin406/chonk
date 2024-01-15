@@ -36,6 +36,7 @@ impl Parser {
             }
 
             match self.peek().token_type {
+                // TODO: Add function and variable here.
                 TokenType::While
                 | TokenType::For
                 | TokenType::If
