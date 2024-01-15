@@ -60,18 +60,14 @@ impl Lexer {
     fn scan_tokens(&mut self, source: String) {
         self.source = source;
 
-        while !self.done() {
+        while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
             self.scan_token();
         }
 
-        match self.error {
-            Some(_) => {}
-            None => self
-                .tokens
-                .push(Token::new(TokenType::Eof, String::new(), None, self.line)),
-        }
+        self.tokens
+            .push(Token::new(TokenType::Eof, String::new(), None, self.line));
     }
 
     /// Adds token type for the next character.
@@ -285,11 +281,6 @@ impl Lexer {
     /// Returns `true` if current character is the last in the source code.
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
-    }
-
-    /// Similar to `is_at_end()`, but checks if there's any error as well.
-    fn done(&self) -> bool {
-        self.error.is_some() || self.is_at_end()
     }
 
     /// Consumes the current character if it's what we're looking for.
