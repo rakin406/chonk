@@ -4,10 +4,7 @@ use crate::token::Token;
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
-pub struct ParseError {
-    pub what: String,
-    pub line: usize,
-}
+struct ParseError;
 
 struct Parser {
     tokens: Vec<Token>,
@@ -55,6 +52,12 @@ impl Parser {
 
             self.advance();
         }
+    }
+
+    /// Reports a parsing error.
+    fn parsing_error(&self, token: Token, message: &str) -> ParseError {
+        self.token_error(token, message);
+        ParseError
     }
 
     /// Expands to the `equality` rule.
@@ -106,29 +109,29 @@ impl Parser {
         self.primary()
     }
 
-    // TODO: Finish this.
-    fn primary(&self) -> Expr {
+    // TODO: Add missing documentation.
+    fn primary(&self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
-            return Expr::Literal(Some(Box::new(true)));
+            return Ok(Expr::Literal(Some(Box::new(true))));
         }
         if self.match_type(TokenType::False) {
-            return Expr::Literal(Some(Box::new(false)));
+            return Ok(Expr::Literal(Some(Box::new(false))));
         }
         if self.match_type(TokenType::Null) {
-            return Expr::Literal(Some(Box::new(None)));
+            return Ok(Expr::Literal(None));
         }
 
         if self.match_types(Vec::from([TokenType::Number, TokenType::String])) {
-            return Expr::Literal(Some(Box::new(self.previous().literal)));
+            return Ok(Expr::Literal(Some(Box::new(self.previous().literal))));
         }
 
         if self.match_type(TokenType::LeftParen) {
             let expr = self.expression();
             self.consume(TokenType::RightParen, "Expected \')\' after expression");
-            return Expr::Grouping(Box::new(expr));
+            return Ok(Expr::Grouping(Box::new(expr)));
         }
 
-        // TODO: Return error here.
+        Err(self.parsing_error(self.peek(), "Expected expression"))
     }
 
     /// Parses the binary operators from a list of token types and returns the
@@ -194,11 +197,12 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&self, token_type: TokenType, message: &str) -> Token {
+    fn consume(&self, token_type: TokenType, message: &str) -> Result<Token, ParseError> {
         if self.has_type(token_type) {
-            return self.advance();
+            return Ok(self.advance());
         }
-        // TODO: "Throw" error here.
+
+        Err(self.parsing_error(self.peek(), message))
     }
 
     /// Returns the current token which is yet to consume.
