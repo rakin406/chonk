@@ -106,7 +106,7 @@ impl Parser {
             };
         }
 
-        self.primary()
+        self.primary().unwrap()
     }
 
     // TODO: Add missing documentation.
