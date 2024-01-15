@@ -73,7 +73,7 @@ impl Parser {
             let right: Expr = self.unary();
             return Expr::UnaryOp {
                 operator,
-                operand: Box::new(right),
+                right: Box::new(right),
             };
         }
 

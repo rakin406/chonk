@@ -15,6 +15,6 @@ pub enum Expr {
     },
     UnaryOp {
         operator: Token,
-        operand: Box<Expr>,
+        right: Box<Expr>,
     },
 }
