@@ -6,19 +6,13 @@ use crate::token_type::TokenType;
 #[derive(Debug, Clone)]
 struct ParseError;
 
+#[derive(Default)]
 struct Parser {
     tokens: Vec<Token>,
     current: usize,
 }
 
-impl Default for Parser {
-    fn default() -> Self {
-        Self {
-            tokens: Vec::new(),
-            current: 0,
-        }
-    }
-}
+pub fn parse() -> Expr {}
 
 impl Parser {
     /// Creates a new `Parser`.
@@ -27,6 +21,11 @@ impl Parser {
             tokens,
             ..Default::default()
         }
+    }
+
+    // TODO: Add missing documentation.
+    pub fn parse(&mut self) -> Expr {
+        self.expression()
     }
 
     /// Discards tokens until it finds a statement boundary.
@@ -190,7 +189,7 @@ impl Parser {
 
         if self.match_type(TokenType::LeftParen) {
             let expr = self.expression();
-            self.consume(TokenType::RightParen, "Expected \')\' after expression");
+            let _ = self.consume(TokenType::RightParen, "Expected \')\' after expression");
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 
