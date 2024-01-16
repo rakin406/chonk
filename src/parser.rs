@@ -12,7 +12,11 @@ struct Parser {
     current: usize,
 }
 
-pub fn parse() -> Expr {}
+/// Parses tokens and returns expression.
+pub fn parse(tokens: Vec<Token>) -> Expr {
+    let mut parser = Parser::new(tokens);
+    parser.parse()
+}
 
 impl Parser {
     /// Creates a new `Parser`.
@@ -23,8 +27,8 @@ impl Parser {
         }
     }
 
-    // TODO: Add missing documentation.
-    pub fn parse(&mut self) -> Expr {
+    /// Parses tokens and returns expression.
+    fn parse(&mut self) -> Expr {
         self.expression()
     }
 
