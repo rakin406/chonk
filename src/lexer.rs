@@ -307,8 +307,7 @@ impl Lexer {
     fn advance(&mut self) -> char {
         self.current += 1;
 
-        // NOTE: I read that using unwrap() function is bad. I might remove it
-        // later.
+        // FIX: called `Option::unwrap()` on a `None` value
         self.source.chars().nth(self.current - 1).unwrap()
     }
 
