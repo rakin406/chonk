@@ -1,8 +1,7 @@
-use std::any::Any;
 use std::collections::HashMap;
 
 use crate::error_reporter::ErrorReporter;
-use crate::token::Token;
+use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
 struct Lexer {
@@ -211,11 +210,11 @@ impl Lexer {
 
     /// Creates a new token.
     fn add_token(&mut self, token_type: TokenType) {
-        self.add_token_with_literal(token_type, None);
+        self.add_token_literal(token_type, None);
     }
 
     /// Creates a new token with literal.
-    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<Box<dyn Any>>) {
+    fn add_token_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
         let text = self.source[self.start..self.current].to_string();
         self.tokens
             .push(Token::new(token_type, text, literal, self.line));
@@ -240,7 +239,7 @@ impl Lexer {
 
         // Trim the surrounding quotes
         let value = self.source[(self.start + 1)..(self.current - 1)].to_string();
-        self.add_token_with_literal(TokenType::String, Some(Box::new(value)));
+        self.add_token_literal(TokenType::String, Some(Literal::String(value)));
     }
 
     /// Adds number literal token.
@@ -260,7 +259,7 @@ impl Lexer {
         }
 
         let value: f64 = self.source[self.start..self.current].parse().unwrap();
-        self.add_token_with_literal(TokenType::Number, Some(Box::new(value)));
+        self.add_token_literal(TokenType::Number, Some(Literal::Number(value)));
     }
 
     /// Adds identifier token.

@@ -1,12 +1,17 @@
-use std::any::Any;
-
 use crate::token_type::TokenType;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub enum Literal {
+    Identifier(String),
+    String(String),
+    Number(f64),
+}
+
+#[derive(Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: Option<Box<dyn Any>>,
+    pub literal: Option<Literal>,
     pub line: usize,
 }
 
@@ -15,7 +20,7 @@ impl Token {
     pub fn new(
         token_type: TokenType,
         lexeme: String,
-        literal: Option<Box<dyn Any>>,
+        literal: Option<Literal>,
         line: usize,
     ) -> Self {
         Self {
