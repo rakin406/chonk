@@ -15,9 +15,8 @@ struct Lexer {
 
 /// Scans tokens from source and returns it.
 pub fn scan_tokens(source: String) -> Vec<Token> {
-    let mut lexer = Lexer::default();
-    lexer.scan_tokens(source);
-    lexer.tokens
+    let mut lexer = Lexer::new(source);
+    lexer.scan_tokens()
 }
 
 impl Default for Lexer {
@@ -55,10 +54,16 @@ impl Default for Lexer {
 }
 
 impl Lexer {
-    /// Adds tokens from source until character ends.
-    fn scan_tokens(&mut self, source: String) {
-        self.source = source;
+    /// Creates a new `Lexer`.
+    fn new(source: String) -> Self {
+        Self {
+            source,
+            ..Default::default()
+        }
+    }
 
+    /// Adds tokens from source until character ends.
+    fn scan_tokens(&mut self) -> Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
@@ -67,6 +72,8 @@ impl Lexer {
 
         self.tokens
             .push(Token::new(TokenType::Eof, String::new(), None, self.line));
+
+        self.tokens.clone()
     }
 
     /// Adds token type for the next character.
