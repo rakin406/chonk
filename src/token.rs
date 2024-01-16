@@ -28,11 +28,6 @@ impl Token {
 
     /// Returns the `Token` as a `String` format.
     pub fn to_string(&self) -> String {
-        format!(
-            "{:#?} {} {:#?}",
-            self.token_type,
-            self.lexeme,
-            self.literal.unwrap()
-        )
+        format!("{:#?} {} {:#?}", self.token_type, self.lexeme, self.literal)
     }
 }
