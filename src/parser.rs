@@ -1,6 +1,6 @@
 use crate::error_reporter::ErrorReporter;
 use crate::expr::Expr;
-use crate::token::Token;
+use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
@@ -160,17 +160,18 @@ impl Parser {
     // TODO: Add missing documentation.
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
-            return Ok(Expr::Literal(Some(Box::new(true))));
+            return Ok(Expr::Literal(Literal::Boolean(true)));
         }
         if self.match_type(TokenType::False) {
-            return Ok(Expr::Literal(Some(Box::new(false))));
+            return Ok(Expr::Literal(Literal::Boolean(false)));
         }
         if self.match_type(TokenType::Null) {
-            return Ok(Expr::Literal(None));
+            return Ok(Expr::Literal(Literal::Null));
         }
 
+        // TODO: Specify `Literal` variant.
         if self.match_types(Vec::from([TokenType::Number, TokenType::String])) {
-            return Ok(Expr::Literal(Some(Box::new(self.previous().literal))));
+            return Ok(Expr::Literal(self.previous().literal.unwrap()));
         }
 
         if self.match_type(TokenType::LeftParen) {
