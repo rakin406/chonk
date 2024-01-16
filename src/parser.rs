@@ -71,7 +71,7 @@ impl Parser {
         let mut expr = self.comparison();
 
         while self.match_types(Vec::from([NotEqualTo, EqualTo])) {
-            let operator: Token = self.previous();
+            let operator: Token = self.previous().clone();
             let right: Expr = self.comparison();
             expr = Expr::BinaryOp {
                 left: Box::new(expr),
@@ -90,7 +90,7 @@ impl Parser {
         let mut expr = self.term();
 
         while self.match_types(Vec::from([Greater, GreaterEqual, Less, LessEqual])) {
-            let operator: Token = self.previous();
+            let operator: Token = self.previous().clone();
             let right: Expr = self.term();
             expr = Expr::BinaryOp {
                 left: Box::new(expr),
@@ -109,7 +109,7 @@ impl Parser {
         let mut expr = self.factor();
 
         while self.match_types(Vec::from([Sub, Add])) {
-            let operator: Token = self.previous();
+            let operator: Token = self.previous().clone();
             let right: Expr = self.factor();
             expr = Expr::BinaryOp {
                 left: Box::new(expr),
@@ -128,7 +128,7 @@ impl Parser {
         let mut expr = self.unary();
 
         while self.match_types(Vec::from([Mod, Div, Mult])) {
-            let operator: Token = self.previous();
+            let operator: Token = self.previous().clone();
             let right: Expr = self.unary();
             expr = Expr::BinaryOp {
                 left: Box::new(expr),
@@ -145,7 +145,7 @@ impl Parser {
         use TokenType::*;
 
         if self.match_types(Vec::from([Not, Sub])) {
-            let operator: Token = self.previous();
+            let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary();
             return Expr::UnaryOp {
@@ -170,18 +170,18 @@ impl Parser {
         }
 
         if self.match_type(TokenType::Number) {
-            match self.previous().literal {
+            match &self.previous().literal {
                 Some(Literal::Number(num)) => {
-                    return Ok(Expr::Literal(Literal::Number(num)));
+                    return Ok(Expr::Literal(Literal::Number(*num)));
                 }
                 Some(literal) => panic!("Error while parsing number: found literal {:#?}", literal),
                 None => panic!("Error while parsing number: no literal found"),
             }
         }
         if self.match_type(TokenType::String) {
-            match self.previous().literal {
+            match &self.previous().literal {
                 Some(Literal::String(str)) => {
-                    return Ok(Expr::Literal(Literal::String(str)));
+                    return Ok(Expr::Literal(Literal::String(str.to_string())));
                 }
                 Some(literal) => panic!("Error while parsing string: found literal {:#?}", literal),
                 None => panic!("Error while parsing string: no literal found"),
@@ -194,7 +194,7 @@ impl Parser {
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 
-        Err(self.parsing_error(self.peek(), "Expected expression"))
+        Err(self.parsing_error(self.peek().clone(), "Expected expression"))
     }
 
     /// Returns `true` if the current token has the given type. If so, it
@@ -238,7 +238,7 @@ impl Parser {
         if !self.is_at_end() {
             self.current += 1;
         }
-        self.previous()
+        self.previous().clone()
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
@@ -247,17 +247,17 @@ impl Parser {
             return Ok(self.advance());
         }
 
-        Err(self.parsing_error(self.peek(), message))
+        Err(self.parsing_error(self.peek().clone(), message))
     }
 
     /// Returns the current token which is yet to consume.
-    fn peek(&self) -> Token {
-        self.tokens[self.current]
+    fn peek(&self) -> &Token {
+        &self.tokens[self.current]
     }
 
     /// Returns the last consumed token.
-    fn previous(&self) -> Token {
-        self.tokens[self.current - 1]
+    fn previous(&self) -> &Token {
+        &self.tokens[self.current - 1]
     }
 }
 
