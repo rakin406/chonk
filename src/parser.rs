@@ -169,9 +169,23 @@ impl Parser {
             return Ok(Expr::Literal(Literal::Null));
         }
 
-        // TODO: Specify `Literal` variant.
-        if self.match_types(Vec::from([TokenType::Number, TokenType::String])) {
-            return Ok(Expr::Literal(self.previous().literal.unwrap()));
+        if self.match_type(TokenType::Number) {
+            match self.previous().literal {
+                Some(Literal::Number(num)) => {
+                    return Ok(Expr::Literal(Literal::Number(num)));
+                }
+                Some(literal) => panic!("Error while parsing number: found literal {:#?}", literal),
+                None => panic!("Error while parsing number: no literal found"),
+            }
+        }
+        if self.match_type(TokenType::String) {
+            match self.previous().literal {
+                Some(Literal::String(str)) => {
+                    return Ok(Expr::Literal(Literal::String(str)));
+                }
+                Some(literal) => panic!("Error while parsing string: found literal {:#?}", literal),
+                None => panic!("Error while parsing string: no literal found"),
+            }
         }
 
         if self.match_type(TokenType::LeftParen) {
