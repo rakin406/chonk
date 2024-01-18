@@ -271,9 +271,10 @@ impl Lexer {
 
     /// Adds identifier token.
     fn add_identifier(&mut self) {
-        let c: char = self.peek();
-        while c.is_alphanumeric() || c == '_' {
+        let mut c: char = self.peek();
+        while c.is_alphabetic() || c == '_' {
             self.advance();
+            c = self.peek();
         }
 
         let text = &self.source[self.start..self.current];
@@ -306,8 +307,6 @@ impl Lexer {
     /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
-
-        // FIX: called `Option::unwrap()` on a `None` value
         self.source.chars().nth(self.current - 1).unwrap()
     }
 
