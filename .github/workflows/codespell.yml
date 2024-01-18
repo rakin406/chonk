@@ -10,4 +10,4 @@ jobs:
       - name: Install codespell
         run: pip install codespell
       - name: Use codespell
-        run: codespell --quiet-level=2 --check-hidden
+        run: codespell --quiet-level=2 --ignore-words=.codespellignorewords
