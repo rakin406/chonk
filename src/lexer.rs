@@ -272,7 +272,7 @@ impl Lexer {
     /// Adds identifier token.
     fn add_identifier(&mut self) {
         let mut c: char = self.peek();
-        while c.is_alphabetic() || c == '_' {
+        while c.is_alphanumeric() || c == '_' {
             self.advance();
             c = self.peek();
         }
