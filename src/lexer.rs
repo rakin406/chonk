@@ -201,7 +201,8 @@ impl Lexer {
                 self.line += 1;
             }
 
-            '"' => self.add_string(),
+            '\'' => self.add_string('\''),
+            '"' => self.add_string('"'),
 
             _ => {
                 if c.is_ascii_digit() {
@@ -228,9 +229,8 @@ impl Lexer {
     }
 
     /// Adds string literal token.
-    fn add_string(&mut self) {
-        // TODO: Match single quote too. Maybe add a quote parameter?
-        while self.peek() != '"' && !self.is_at_end() {
+    fn add_string(&mut self, delimiter: char) {
+        while self.peek() != delimiter && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
             }
