@@ -1,5 +1,4 @@
 ### Todo
-- Finish lexer #feat
 - Finish parser #feat
 - Finish REPL #feat
   - Create `help` command that describes all the commands
