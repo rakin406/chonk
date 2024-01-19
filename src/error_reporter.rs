@@ -9,7 +9,7 @@ pub trait ErrorReporter {
 
     /// Reports a token error.
     fn token_error(&self, token: Token, message: &str) {
-        if token_type::is_eof(token.token_type) {
+        if token_type::is_eof(token.ty) {
             self.report(token.line, " at end", message);
         } else {
             self.report(token.line, &format!(" at \'{}\'", token.lexeme), message);

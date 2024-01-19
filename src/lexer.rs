@@ -245,15 +245,14 @@ impl Lexer {
     }
 
     /// Creates a new token.
-    fn add_token(&mut self, token_type: TokenType) {
-        self.add_token_literal(token_type, None);
+    fn add_token(&mut self, ty: TokenType) {
+        self.add_token_literal(ty, None);
     }
 
     /// Creates a new token with literal.
-    fn add_token_literal(&mut self, token_type: TokenType, literal: Option<Literal>) {
+    fn add_token_literal(&mut self, ty: TokenType, literal: Option<Literal>) {
         let text = self.source[self.start..self.current].to_string();
-        self.tokens
-            .push(Token::new(token_type, text, literal, self.line));
+        self.tokens.push(Token::new(ty, text, literal, self.line));
     }
 
     /// Adds string literal token.
@@ -304,8 +303,8 @@ impl Lexer {
         }
 
         let text = &self.source[self.start..self.current];
-        let token_type = self.keywords.get(text);
-        match token_type {
+        let ty = self.keywords.get(text);
+        match ty {
             Some(value) => self.add_token(*value),
             None => self.add_token(TokenType::Identifier),
         }

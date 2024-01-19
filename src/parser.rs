@@ -43,12 +43,12 @@ impl Parser {
         self.advance();
 
         while !self.is_at_end() {
-            match self.previous().token_type {
+            match self.previous().ty {
                 TokenType::Newline => break,
                 _ => {}
             }
 
-            match self.peek().token_type {
+            match self.peek().ty {
                 // TODO: Add function and variable here.
                 TokenType::While
                 | TokenType::For
@@ -200,8 +200,8 @@ impl Parser {
 
     /// Returns `true` if the current token has the given type. If so, it
     /// consumes the token.
-    fn match_type(&mut self, token_type: token_type::TokenType) -> bool {
-        if self.has_type(token_type) {
+    fn match_type(&mut self, ty: token_type::TokenType) -> bool {
+        if self.has_type(ty) {
             self.advance();
             return true;
         }
@@ -222,16 +222,16 @@ impl Parser {
     }
 
     /// Returns `true` if the current token is of the given type.
-    fn has_type(&self, token_type: token_type::TokenType) -> bool {
+    fn has_type(&self, ty: token_type::TokenType) -> bool {
         if self.is_at_end() {
             return false;
         }
-        self.peek().token_type == token_type
+        self.peek().ty == ty
     }
 
     /// Returns `true` if there is no more tokens to parse.
     fn is_at_end(&self) -> bool {
-        token_type::is_eof(self.peek().token_type)
+        token_type::is_eof(self.peek().ty)
     }
 
     /// Consumes the current token and returns it.
@@ -243,12 +243,8 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(
-        &mut self,
-        token_type: token_type::TokenType,
-        message: &str,
-    ) -> Result<Token, ParseError> {
-        if self.has_type(token_type) {
+    fn consume(&mut self, ty: token_type::TokenType, message: &str) -> Result<Token, ParseError> {
+        if self.has_type(ty) {
             return Ok(self.advance());
         }
 
