@@ -183,9 +183,9 @@ impl Parser {
             }
         }
 
-        if self.match_type(TokenType::LeftParen) {
+        if self.match_type(TokenType::LParen) {
             let expr = self.expression()?;
-            let _ = self.consume(TokenType::RightParen, "Expected \')\' after expression");
+            let _ = self.consume(TokenType::RParen, "Expected \')\' after expression");
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 

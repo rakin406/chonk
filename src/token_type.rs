@@ -7,12 +7,12 @@ pub enum TokenType {
     String,
     Newline,
 
-    LeftParen,       // '('
-    RightParen,      // ')'
-    LeftBracket,     // '['
-    RightBracket,    // ']'
-    LeftBrace,       // '{'
-    RightBrace,      // '}'
+    LParen,          // '('
+    RParen,          // ')'
+    LBracket,        // '['
+    RBracket,        // ']'
+    LBrace,          // '{'
+    RBrace,          // '}'
     Comma,           // ','
     Plus,            // '+'
     Minus,           // '-'

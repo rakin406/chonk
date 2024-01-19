@@ -82,12 +82,12 @@ impl Lexer {
 
         let c: char = self.advance();
         match c {
-            '(' => self.add_token(LeftParen),
-            ')' => self.add_token(RightParen),
-            '[' => self.add_token(LeftBracket),
-            ']' => self.add_token(RightBracket),
-            '{' => self.add_token(LeftBrace),
-            '}' => self.add_token(RightBrace),
+            '(' => self.add_token(LParen),
+            ')' => self.add_token(RParen),
+            '[' => self.add_token(LBracket),
+            ']' => self.add_token(RBracket),
+            '{' => self.add_token(LBrace),
+            '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
 
