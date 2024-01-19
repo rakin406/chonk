@@ -100,9 +100,13 @@ fn run_prompt() {
 /// Runs `Chonk` code.
 fn run(source: String) {
     let tokens = lexer::scan_tokens(source);
+    let expression = parser::parse(tokens.to_owned());
 
-    // NOTE: For now, just print the tokens.
+    // Print the tokens
     for token in tokens.iter() {
         println!("{:#?}", token);
     }
+
+    // TODO: Check for parser error.
+    println!("{:#?}", expression);
 }
