@@ -4,6 +4,7 @@ use clap::Parser;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
+mod ast_printer;
 mod cli;
 mod error_reporter;
 mod expr;
