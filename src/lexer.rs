@@ -111,7 +111,11 @@ impl Lexer {
             }
             '*' => {
                 if self.match_char('*') {
-                    self.add_token(DoubleStar);
+                    if self.match_char('=') {
+                        self.add_token(DoubleStarEqual);
+                    } else {
+                        self.add_token(DoubleStar);
+                    }
                 } else if self.match_char('=') {
                     self.add_token(StarEqual);
                 } else {
@@ -150,7 +154,11 @@ impl Lexer {
 
             '>' => {
                 if self.match_char('>') {
-                    self.add_token(RightShift);
+                    if self.match_char('=') {
+                        self.add_token(RightShiftEqual);
+                    } else {
+                        self.add_token(RightShift);
+                    }
                 } else if self.match_char('=') {
                     self.add_token(GreaterEqual);
                 } else {
@@ -159,7 +167,11 @@ impl Lexer {
             }
             '<' => {
                 if self.match_char('<') {
-                    self.add_token(LeftShift);
+                    if self.match_char('=') {
+                        self.add_token(LeftShiftEqual);
+                    } else {
+                        self.add_token(LeftShift);
+                    }
                 } else if self.match_char('=') {
                     self.add_token(LessEqual);
                 } else {
