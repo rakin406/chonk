@@ -1,7 +1,7 @@
 use crate::error_reporter::ErrorReporter;
 use crate::expr::Expr;
 use crate::token::{Literal, Token};
-use crate::token_type::TokenType;
+use crate::token_type;
 
 #[derive(Debug, Clone)]
 pub struct ParseError;
@@ -38,6 +38,8 @@ impl Parser {
 
     /// Discards tokens until it finds a statement boundary.
     fn synchronize(&mut self) {
+        use token_type::TokenType;
+
         self.advance();
 
         while !self.is_at_end() {
@@ -67,11 +69,11 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn equality(&mut self) -> Result<Expr, ParseError> {
-        use TokenType::*;
+        use token_type::TokenType;
 
         let mut expr = self.comparison()?;
 
-        while self.match_types(Vec::from([BangEqual, EqEqual])) {
+        while self.match_types(Vec::from([TokenType::BangEqual, TokenType::EqEqual])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.comparison()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -82,11 +84,16 @@ impl Parser {
 
     /// Matches an equality operator.
     fn comparison(&mut self) -> Result<Expr, ParseError> {
-        use TokenType::*;
+        use token_type::TokenType;
 
         let mut expr = self.term()?;
 
-        while self.match_types(Vec::from([Greater, GreaterEqual, Less, LessEqual])) {
+        while self.match_types(Vec::from([
+            TokenType::Greater,
+            TokenType::GreaterEqual,
+            TokenType::Less,
+            TokenType::LessEqual,
+        ])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -97,11 +104,11 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn term(&mut self) -> Result<Expr, ParseError> {
-        use TokenType::*;
+        use token_type::TokenType;
 
         let mut expr = self.factor()?;
 
-        while self.match_types(Vec::from([Minus, Plus])) {
+        while self.match_types(Vec::from([TokenType::Minus, TokenType::Plus])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.factor()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -112,11 +119,15 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn factor(&mut self) -> Result<Expr, ParseError> {
-        use TokenType::*;
+        use token_type::TokenType;
 
         let mut expr = self.unary()?;
 
-        while self.match_types(Vec::from([Percent, Slash, Star])) {
+        while self.match_types(Vec::from([
+            TokenType::Percent,
+            TokenType::Slash,
+            TokenType::Star,
+        ])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.unary()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -127,9 +138,9 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn unary(&mut self) -> Result<Expr, ParseError> {
-        use TokenType::*;
+        use token_type::TokenType;
 
-        if self.match_types(Vec::from([Bang, Minus])) {
+        if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
@@ -141,6 +152,8 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn primary(&mut self) -> Result<Expr, ParseError> {
+        use token_type::TokenType;
+
         if self.match_type(TokenType::True) {
             return Ok(Expr::Literal(Literal::Boolean(true)));
         }
@@ -187,7 +200,7 @@ impl Parser {
 
     /// Returns `true` if the current token has the given type. If so, it
     /// consumes the token.
-    fn match_type(&mut self, token_type: TokenType) -> bool {
+    fn match_type(&mut self, token_type: token_type::TokenType) -> bool {
         if self.has_type(token_type) {
             self.advance();
             return true;
@@ -198,7 +211,7 @@ impl Parser {
 
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
-    fn match_types(&mut self, types: Vec<TokenType>) -> bool {
+    fn match_types(&mut self, types: Vec<token_type::TokenType>) -> bool {
         for token_type in types.iter() {
             if self.match_type(*token_type) {
                 return true;
@@ -209,7 +222,7 @@ impl Parser {
     }
 
     /// Returns `true` if the current token is of the given type.
-    fn has_type(&self, token_type: TokenType) -> bool {
+    fn has_type(&self, token_type: token_type::TokenType) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -218,7 +231,7 @@ impl Parser {
 
     /// Returns `true` if there is no more tokens to parse.
     fn is_at_end(&self) -> bool {
-        self.peek().token_type == TokenType::Eof
+        token_type::is_eof(self.peek().token_type)
     }
 
     /// Consumes the current token and returns it.
@@ -230,7 +243,11 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<Token, ParseError> {
+    fn consume(
+        &mut self,
+        token_type: token_type::TokenType,
+        message: &str,
+    ) -> Result<Token, ParseError> {
         if self.has_type(token_type) {
             return Ok(self.advance());
         }

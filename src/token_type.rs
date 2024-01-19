@@ -1,4 +1,4 @@
-/// All the token types in `Chonk` language.
+/// Token types
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
     Eof,
@@ -67,4 +67,9 @@ pub enum TokenType {
     Continue,
     Return,
     Echo,
+}
+
+/// Returns `true` if the token type is `Eof`.
+pub fn is_eof(token_type: TokenType) -> bool {
+    token_type == TokenType::Eof
 }
