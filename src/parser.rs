@@ -4,7 +4,7 @@ use crate::token::{Literal, Token};
 use crate::token_type::TokenType;
 
 #[derive(Debug, Clone)]
-struct ParseError;
+pub struct ParseError;
 
 #[derive(Default)]
 struct Parser {
@@ -13,9 +13,13 @@ struct Parser {
 }
 
 /// Parses tokens and returns expression.
-pub fn parse(tokens: Vec<Token>) -> Expr {
+pub fn parse(tokens: Vec<Token>) -> Result<Expr, ParseError> {
     let mut parser = Parser::new(tokens);
-    parser.parse()
+
+    match parser.parse() {
+        Ok(value) => return Ok(value),
+        Err(error) => return Err(error),
+    }
 }
 
 impl Parser {
@@ -27,9 +31,9 @@ impl Parser {
         }
     }
 
-    /// Parses tokens and returns expression.
-    fn parse(&mut self) -> Expr {
-        self.expression()
+    /// Parses expressions.
+    fn parse(&mut self) -> Result<Expr, ParseError> {
+        Ok(self.expression()?)
     }
 
     /// Discards tokens until it finds a statement boundary.
@@ -56,89 +60,83 @@ impl Parser {
         }
     }
 
-    /// Reports a parsing error.
-    fn parsing_error(&self, token: Token, message: &str) -> ParseError {
-        self.token_error(token, message);
-        ParseError
-    }
-
     /// Expands to the `equality` rule.
-    fn expression(&mut self) -> Expr {
+    fn expression(&mut self) -> Result<Expr, ParseError> {
         self.equality()
     }
 
     // TODO: Add missing documentation.
-    fn equality(&mut self) -> Expr {
+    fn equality(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
-        let mut expr = self.comparison();
+        let mut expr = self.comparison()?;
 
         while self.match_types(Vec::from([NotEqualTo, EqualTo])) {
             let operator: Token = self.previous().clone();
-            let right: Expr = self.comparison();
+            let right: Expr = self.comparison()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
-        expr
+        Ok(expr)
     }
 
     /// Matches an equality operator.
-    fn comparison(&mut self) -> Expr {
+    fn comparison(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
-        let mut expr = self.term();
+        let mut expr = self.term()?;
 
         while self.match_types(Vec::from([Greater, GreaterEqual, Less, LessEqual])) {
             let operator: Token = self.previous().clone();
-            let right: Expr = self.term();
+            let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
-        expr
+        Ok(expr)
     }
 
     // TODO: Add missing documentation.
-    fn term(&mut self) -> Expr {
+    fn term(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
-        let mut expr = self.factor();
+        let mut expr = self.factor()?;
 
         while self.match_types(Vec::from([Sub, Add])) {
             let operator: Token = self.previous().clone();
-            let right: Expr = self.factor();
+            let right: Expr = self.factor()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
-        expr
+        Ok(expr)
     }
 
     // TODO: Add missing documentation.
-    fn factor(&mut self) -> Expr {
+    fn factor(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
-        let mut expr = self.unary();
+        let mut expr = self.unary()?;
 
         while self.match_types(Vec::from([Mod, Div, Mult])) {
             let operator: Token = self.previous().clone();
-            let right: Expr = self.unary();
+            let right: Expr = self.unary()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
-        expr
+        Ok(expr)
     }
 
     // TODO: Add missing documentation.
-    fn unary(&mut self) -> Expr {
+    fn unary(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
         if self.match_types(Vec::from([Not, Sub])) {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
-            let right: Expr = self.unary();
-            return Expr::Unary(operator, Box::new(right));
+            let right: Expr = self.unary()?;
+            return Ok(Expr::Unary(operator, Box::new(right)));
         }
 
-        self.primary().unwrap()
+        self.primary()
     }
 
     // TODO: Add missing documentation.
@@ -173,12 +171,18 @@ impl Parser {
         }
 
         if self.match_type(TokenType::LeftParen) {
-            let expr = self.expression();
+            let expr = self.expression()?;
             let _ = self.consume(TokenType::RightParen, "Expected \')\' after expression");
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 
         Err(self.parsing_error(self.peek().clone(), "Expected expression"))
+    }
+
+    /// Reports a parsing error.
+    fn parsing_error(&self, token: Token, message: &str) -> ParseError {
+        self.token_error(token, message);
+        ParseError
     }
 
     /// Returns `true` if the current token has the given type. If so, it
