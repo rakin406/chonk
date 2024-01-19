@@ -42,7 +42,7 @@ impl Parser {
 
         while !self.is_at_end() {
             match self.previous().token_type {
-                TokenType::Newline | TokenType::Backslash => break,
+                TokenType::Newline => break,
                 _ => {}
             }
 
@@ -71,7 +71,7 @@ impl Parser {
 
         let mut expr = self.comparison()?;
 
-        while self.match_types(Vec::from([NotEqualTo, EqualTo])) {
+        while self.match_types(Vec::from([BangEqual, EqEqual])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.comparison()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -101,7 +101,7 @@ impl Parser {
 
         let mut expr = self.factor()?;
 
-        while self.match_types(Vec::from([Sub, Add])) {
+        while self.match_types(Vec::from([Minus, Plus])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.factor()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -116,7 +116,7 @@ impl Parser {
 
         let mut expr = self.unary()?;
 
-        while self.match_types(Vec::from([Mod, Div, Mult])) {
+        while self.match_types(Vec::from([Percent, Slash, Star])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.unary()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -129,7 +129,7 @@ impl Parser {
     fn unary(&mut self) -> Result<Expr, ParseError> {
         use TokenType::*;
 
-        if self.match_types(Vec::from([Not, Sub])) {
+        if self.match_types(Vec::from([Bang, Minus])) {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary()?;

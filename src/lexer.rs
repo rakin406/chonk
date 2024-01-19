@@ -93,58 +93,58 @@ impl Lexer {
 
             '+' => {
                 if self.match_char('+') {
-                    self.add_token(Increment);
+                    self.add_token(DoublePlus);
                 } else if self.match_char('=') {
-                    self.add_token(AddEqual);
+                    self.add_token(PlusEqual);
                 } else {
-                    self.add_token(Add);
+                    self.add_token(Plus);
                 }
             }
             '-' => {
                 if self.match_char('-') {
-                    self.add_token(Decrement);
+                    self.add_token(DoubleMinus);
                 } else if self.match_char('=') {
-                    self.add_token(SubEqual);
+                    self.add_token(MinEqual);
                 } else {
-                    self.add_token(Sub);
+                    self.add_token(Minus);
                 }
             }
             '*' => {
                 if self.match_char('*') {
-                    self.add_token(Power);
+                    self.add_token(DoubleStar);
                 } else if self.match_char('=') {
-                    self.add_token(MultEqual);
+                    self.add_token(StarEqual);
                 } else {
-                    self.add_token(Mult);
+                    self.add_token(Star);
                 }
             }
             '/' => {
                 if self.match_char('=') {
-                    self.add_token(DivEqual);
+                    self.add_token(SlashEqual);
                 } else {
-                    self.add_token(Div);
+                    self.add_token(Slash);
                 }
             }
             '%' => {
                 if self.match_char('=') {
-                    self.add_token(ModEqual);
+                    self.add_token(PercentEqual);
                 } else {
-                    self.add_token(Mod);
+                    self.add_token(Percent);
                 }
             }
 
             '=' => {
                 if self.match_char('=') {
-                    self.add_token(EqualTo);
+                    self.add_token(EqEqual);
                 } else {
                     self.add_token(Equal);
                 }
             }
             '!' => {
                 if self.match_char('=') {
-                    self.add_token(NotEqualTo);
+                    self.add_token(BangEqual);
                 } else {
-                    self.add_token(Not);
+                    self.add_token(Bang);
                 }
             }
 
@@ -169,20 +169,20 @@ impl Lexer {
 
             '&' => {
                 if self.match_char('&') {
-                    self.add_token(And);
+                    self.add_token(DoubleAmper);
                 } else {
-                    self.add_token(BitAnd);
+                    self.add_token(Amper);
                 }
             }
             '|' => {
                 if self.match_char('|') {
-                    self.add_token(Or);
+                    self.add_token(DoubleVBar);
                 } else {
-                    self.add_token(BitOr);
+                    self.add_token(VBar);
                 }
             }
-            '^' => self.add_token(BitXor),
-            '~' => self.add_token(BitNot),
+            '^' => self.add_token(Caret),
+            '~' => self.add_token(Tilde),
 
             '#' => {
                 // A comment goes until the end of the line
@@ -194,10 +194,6 @@ impl Lexer {
             ' ' | '\r' | '\t' => {}
             '\n' => {
                 self.add_token(Newline);
-                self.line += 1;
-            }
-            '\\' => {
-                self.add_token(Backslash);
                 self.line += 1;
             }
 
