@@ -70,6 +70,6 @@ pub enum TokenType {
 }
 
 /// Returns `true` if the token type is `Eof`.
-pub fn is_eof(token_type: TokenType) -> bool {
-    token_type == TokenType::Eof
+pub fn is_eof(ty: TokenType) -> bool {
+    ty == TokenType::Eof
 }
