@@ -19,6 +19,16 @@ pub fn scan_tokens(source: String) -> Vec<Token> {
     lexer.scan_tokens()
 }
 
+/// Returns `true` if character is a potential start for an identifier.
+fn is_potential_identifier_start(c: char) -> bool {
+    c.is_alphabetic() || c == '_'
+}
+
+/// Returns `true` if character is a potential part of an identifier.
+fn is_potential_identifier_char(c: char) -> bool {
+    c.is_alphanumeric() || c == '_'
+}
+
 impl Default for Lexer {
     fn default() -> Self {
         Self {
@@ -225,7 +235,7 @@ impl Lexer {
             _ => {
                 if c.is_ascii_digit() {
                     self.add_number();
-                } else if c.is_alphabetic() || c == '_' {
+                } else if is_potential_identifier_start(c) {
                     self.add_identifier();
                 } else {
                     self.error(self.line, &format!("Unexpected character: \'{c}\'"));
@@ -289,10 +299,8 @@ impl Lexer {
 
     /// Adds identifier token.
     fn add_identifier(&mut self) {
-        let mut c: char = self.peek();
-        while c.is_alphanumeric() || c == '_' {
+        while is_potential_identifier_char(self.peek()) {
             self.advance();
-            c = self.peek();
         }
 
         let text = &self.source[self.start..self.current];
