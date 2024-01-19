@@ -1,64 +1,56 @@
 /// All the token types in `Chonk` language.
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
-    // Single-character tokens
-    LeftParen,
-    RightParen,
-    LeftBracket,
-    RightBracket,
-    LeftBrace,
-    RightBrace,
-    Comma,
-    Dot,
-    Newline,
-    Backslash,
-
-    // Arithmetic operators
-    Add,
-    Sub,
-    Mult,
-    Div,
-    Mod,
-    Power,
-    Increment,
-    Decrement,
-
-    // Assignment operators
-    Equal,
-    AddEqual,
-    SubEqual,
-    MultEqual,
-    DivEqual,
-    ModEqual,
-    // TODO: Add bitwise assignment operators and power operator.
-
-    // Comparison operators
-    EqualTo,
-    NotEqualTo,
-    Greater,
-    Less,
-    GreaterEqual,
-    LessEqual,
-
-    // Logical operators
-    And,
-    Or,
-    Not,
-
-    // Bitwise operators
-    BitAnd,
-    BitOr,
-    BitXor,
-    BitNot,
-    LeftShift,
-    RightShift,
-
-    // Literals
+    Eof,
     Identifier,
-    String,
     Number,
+    String,
+    Newline,
 
-    // Keywords
+    LeftParen,       // '('
+    RightParen,      // ')'
+    LeftBracket,     // '['
+    RightBracket,    // ']'
+    LeftBrace,       // '{'
+    RightBrace,      // '}'
+    Comma,           // ','
+    Plus,            // '+'
+    Minus,           // '-'
+    Star,            // '*'
+    Slash,           // '/'
+    VBar,            // '|'
+    Amper,           // '&'
+    Less,            // '<'
+    Greater,         // '>'
+    Equal,           // '='
+    Dot,             // '.'
+    Percent,         // '%'
+    Bang,            // '!'
+    EqEqual,         // '=='
+    BangEqual,       // '!='
+    LessEqual,       // '<='
+    GreaterEqual,    // '>='
+    DoubleVBar,      // '||'
+    DoubleAmper,     // '&&'
+    Tilde,           // '~'
+    Caret,           // '^'
+    LeftShift,       // '<<'
+    RightShift,      // '>>'
+    DoubleStar,      // '**'
+    PlusEqual,       // '+='
+    MinEqual,        // '-='
+    StarEqual,       // '*='
+    SlashEqual,      // '/='
+    PercentEqual,    // '%='
+    AmperEqual,      // '&='
+    VBarEqual,       // '|='
+    CaretEqual,      // '^='
+    LeftShiftEqual,  // '<<='
+    RightShiftEqual, // '>>='
+    DoubleStarEqual, // '**='
+    DoublePlus,      // '++'
+    DoubleMinus,     // '--'
+
     Null,
     True,
     False,
@@ -67,14 +59,12 @@ pub enum TokenType {
     Else,
     Case,
     Default,
-    In,
-    NotIn,
+    // In,
+    // NotIn,
     While,
     For,
     Break,
     Continue,
     Return,
     Echo,
-
-    Eof,
 }
