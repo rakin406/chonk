@@ -1,18 +1,20 @@
 use crate::token::{Literal, Token};
 
-// TODO: Add more operators.
-
 #[derive(Debug, Clone)]
 pub enum Expr {
+    Binary(Box<Expr>, Token, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Literal),
-    BinaryOp {
-        left: Box<Expr>,
-        operator: Token,
-        right: Box<Expr>,
+    Logical(Box<Expr>, Token, Box<Expr>),
+    Unary(Token, Box<Expr>),
+    Variable(Token),
+    Assign {
+        name: Token,
+        value: Box<Expr>,
     },
-    UnaryOp {
-        operator: Token,
-        right: Box<Expr>,
+    Call {
+        callee: Box<Expr>,
+        paren: Token,
+        arguments: Vec<Expr>,
     },
 }
