@@ -1,2 +1,1 @@
-pub struct AstPrinter {
-}
+pub struct AstPrinter {}
