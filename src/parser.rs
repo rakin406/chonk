@@ -76,11 +76,7 @@ impl Parser {
         while self.match_types(Vec::from([NotEqualTo, EqualTo])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.comparison();
-            expr = Expr::BinaryOp {
-                left: Box::new(expr),
-                operator,
-                right: Box::new(right),
-            };
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         expr
@@ -95,11 +91,7 @@ impl Parser {
         while self.match_types(Vec::from([Greater, GreaterEqual, Less, LessEqual])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.term();
-            expr = Expr::BinaryOp {
-                left: Box::new(expr),
-                operator,
-                right: Box::new(right),
-            };
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         expr
@@ -114,11 +106,7 @@ impl Parser {
         while self.match_types(Vec::from([Sub, Add])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.factor();
-            expr = Expr::BinaryOp {
-                left: Box::new(expr),
-                operator,
-                right: Box::new(right),
-            };
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         expr
@@ -133,11 +121,7 @@ impl Parser {
         while self.match_types(Vec::from([Mod, Div, Mult])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.unary();
-            expr = Expr::BinaryOp {
-                left: Box::new(expr),
-                operator,
-                right: Box::new(right),
-            };
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         expr
@@ -151,10 +135,7 @@ impl Parser {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary();
-            return Expr::UnaryOp {
-                operator,
-                right: Box::new(right),
-            };
+            return Expr::Unary(operator, Box::new(right));
         }
 
         self.primary().unwrap()
