@@ -170,6 +170,8 @@ impl Lexer {
             '&' => {
                 if self.match_char('&') {
                     self.add_token(DoubleAmper);
+                } else if self.match_char('=') {
+                    self.add_token(AmperEqual);
                 } else {
                     self.add_token(Amper);
                 }
@@ -177,11 +179,19 @@ impl Lexer {
             '|' => {
                 if self.match_char('|') {
                     self.add_token(DoubleVBar);
+                } else if self.match_char('=') {
+                    self.add_token(VBarEqual);
                 } else {
                     self.add_token(VBar);
                 }
             }
-            '^' => self.add_token(Caret),
+            '^' => {
+                if self.match_char('=') {
+                    self.add_token(CaretEqual);
+                } else {
+                    self.add_token(Caret);
+                }
+            }
             '~' => self.add_token(Tilde),
 
             '#' => {
