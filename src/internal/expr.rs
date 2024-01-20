@@ -19,6 +19,13 @@ pub enum Expr {
     },
 }
 
-// trait ExprVisitor {
-//     // fn visit_binary(binary: Expr::Binary);
+// NOTE: I don't know what to do with these yet.
+// impl Expr {
+//     pub fn accept<T>(&self, visitor: &mut dyn Visitor<T>) -> T {
+//         visitor.visit_expr(self)
+//     }
+// }
+//
+// pub trait Visitor<T> {
+//     fn visit_expr(&mut self, expr: &Expr) -> T;
 // }
