@@ -4,14 +4,10 @@ use clap::Parser;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
-mod ast_printer;
 mod cli;
-mod error_reporter;
-mod expr;
-mod lexer;
-mod parser;
-mod token;
-mod token_type;
+mod internal;
+
+use internal::{lexer, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
