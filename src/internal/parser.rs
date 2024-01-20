@@ -1,7 +1,7 @@
-use crate::error_reporter::ErrorReporter;
-use crate::expr::Expr;
-use crate::token::{Literal, Token};
-use crate::token_type;
+use crate::internal::error_reporter::ErrorReporter;
+use crate::internal::expr::Expr;
+use crate::internal::token::{Literal, Token};
+use crate::internal::token_type;
 
 #[derive(Debug, Clone)]
 pub struct ParseError;

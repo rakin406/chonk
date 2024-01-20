@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::error_reporter::ErrorReporter;
-use crate::token::{Literal, Token};
-use crate::token_type::TokenType;
+use crate::internal::error_reporter::ErrorReporter;
+use crate::internal::token::{Literal, Token};
+use crate::internal::token_type::TokenType;
 
 struct Lexer {
     source: String,
@@ -17,16 +17,6 @@ struct Lexer {
 pub fn scan_tokens(source: String) -> Vec<Token> {
     let mut lexer = Lexer::new(source);
     lexer.scan_tokens()
-}
-
-/// Returns `true` if character is a potential start for an identifier.
-fn is_potential_identifier_start(c: char) -> bool {
-    c.is_alphabetic() || c == '_'
-}
-
-/// Returns `true` if character is a potential part of an identifier.
-fn is_potential_identifier_char(c: char) -> bool {
-    c.is_alphanumeric() || c == '_'
 }
 
 impl Default for Lexer {
@@ -351,6 +341,16 @@ impl Lexer {
         }
         self.source.chars().nth(self.current + 1).unwrap()
     }
+}
+
+/// Returns `true` if character is a potential start for an identifier.
+fn is_potential_identifier_start(c: char) -> bool {
+    c.is_alphabetic() || c == '_'
+}
+
+/// Returns `true` if character is a potential part of an identifier.
+fn is_potential_identifier_char(c: char) -> bool {
+    c.is_alphanumeric() || c == '_'
 }
 
 impl ErrorReporter for Lexer {}

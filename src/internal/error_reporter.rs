@@ -1,5 +1,5 @@
-use crate::token::Token;
-use crate::token_type;
+use crate::internal::token::Token;
+use crate::internal::token_type;
 
 pub trait ErrorReporter {
     /// Reports an error.
