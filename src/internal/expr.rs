@@ -20,12 +20,12 @@ pub enum Expr {
 }
 
 // NOTE: I don't know what to do with these yet.
-// impl Expr {
-//     pub fn accept<T>(&self, visitor: &mut dyn Visitor<T>) -> T {
-//         visitor.visit_expr(self)
-//     }
-// }
-//
-// pub trait Visitor<T> {
-//     fn visit_expr(&mut self, expr: &Expr) -> T;
-// }
+impl Expr {
+    pub fn accept<T>(&self, visitor: &mut dyn ExprVisitor<T>) -> T {
+        visitor.visit_expr(self)
+    }
+}
+
+pub trait ExprVisitor<T> {
+    fn visit_expr(&mut self, expr: &Expr) -> T;
+}
