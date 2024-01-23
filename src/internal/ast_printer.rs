@@ -24,6 +24,5 @@ impl AstPrinter {
 }
 
 impl ExprVisitor<String> for AstPrinter {
-    fn visit_expr(&mut self, expr: &Expr) -> String {
-    }
+    fn visit_expr(&mut self, expr: &Expr) -> String {}
 }
