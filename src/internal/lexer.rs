@@ -5,7 +5,7 @@ use crate::internal::token::{Literal, Token};
 use crate::internal::token_type::TokenType;
 
 struct Lexer {
-    source: String,
+    input: String,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
@@ -14,15 +14,15 @@ struct Lexer {
 }
 
 /// Scans tokens from source and returns it.
-pub fn scan_tokens(source: String) -> Vec<Token> {
-    let mut lexer = Lexer::new(source);
+pub fn scan_tokens(input: String) -> Vec<Token> {
+    let mut lexer = Lexer::new(input);
     lexer.scan_tokens()
 }
 
 impl Default for Lexer {
     fn default() -> Self {
         Self {
-            source: String::new(),
+            input: String::new(),
             tokens: Vec::new(),
             start: 0,
             current: 0,
@@ -55,9 +55,9 @@ impl Default for Lexer {
 
 impl Lexer {
     /// Creates a new `Lexer`.
-    fn new(source: String) -> Self {
+    fn new(input: String) -> Self {
         Self {
-            source,
+            input,
             ..Default::default()
         }
     }
@@ -241,7 +241,7 @@ impl Lexer {
 
     /// Creates a new token with literal.
     fn add_token_literal(&mut self, ty: TokenType, literal: Option<Literal>) {
-        let text = self.source[self.start..self.current].to_string();
+        let text = self.input[self.start..self.current].to_string();
         self.tokens.push(Token::new(ty, text, literal, self.line));
     }
 
@@ -262,7 +262,7 @@ impl Lexer {
         self.advance();
 
         // Trim the surrounding quotes
-        let value = self.source[(self.start + 1)..(self.current - 1)].to_string();
+        let value = self.input[(self.start + 1)..(self.current - 1)].to_string();
         self.add_token_literal(TokenType::String, Some(Literal::String(value)));
     }
 
@@ -282,7 +282,7 @@ impl Lexer {
             }
         }
 
-        let value: f64 = self.source[self.start..self.current].parse().unwrap();
+        let value: f64 = self.input[self.start..self.current].parse().unwrap();
         self.add_token_literal(TokenType::Number, Some(Literal::Number(value)));
     }
 
@@ -292,7 +292,7 @@ impl Lexer {
             self.advance();
         }
 
-        let text = &self.source[self.start..self.current];
+        let text = &self.input[self.start..self.current];
         let ty = self.keywords.get(text);
         match ty {
             Some(value) => self.add_token(*value),
@@ -302,7 +302,7 @@ impl Lexer {
 
     /// Returns `true` if current character is the last in the source code.
     fn is_at_end(&self) -> bool {
-        self.current >= self.source.len()
+        self.current >= self.input.len()
     }
 
     /// Consumes the current character if it's what we're looking for.
@@ -311,7 +311,7 @@ impl Lexer {
             return false;
         }
 
-        if self.source.chars().nth(self.current).unwrap() != expected {
+        if self.input.chars().nth(self.current).unwrap() != expected {
             return false;
         }
 
@@ -322,7 +322,7 @@ impl Lexer {
     /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.source.chars().nth(self.current - 1).unwrap()
+        self.input.chars().nth(self.current - 1).unwrap()
     }
 
     /// Similar to `advance()`, but doesn't consume the character. This is called
@@ -331,15 +331,15 @@ impl Lexer {
         if self.is_at_end() {
             return '\0';
         }
-        self.source.chars().nth(self.current).unwrap()
+        self.input.chars().nth(self.current).unwrap()
     }
 
     /// Similar to `peek()`, but checks out the next character instead.
     fn peek_next(&self) -> char {
-        if (self.current + 1) >= self.source.len() {
+        if (self.current + 1) >= self.input.len() {
             return '\0';
         }
-        self.source.chars().nth(self.current + 1).unwrap()
+        self.input.chars().nth(self.current + 1).unwrap()
     }
 }
 
