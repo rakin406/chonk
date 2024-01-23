@@ -228,7 +228,9 @@ impl Lexer {
                 } else if is_potential_identifier_start(c) {
                     self.add_identifier();
                 } else {
-                    self.error(self.line, &format!("Unexpected character: \'{c}\'"));
+                    self.add_token(Illegal);
+                    // NOTE: Might remove this later. Keep it for now.
+                    // self.error(self.line, &format!("Unexpected character: \'{c}\'"));
                 }
             }
         }

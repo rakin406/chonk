@@ -1,7 +1,7 @@
 /// Token types
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
-    // Illegal,
+    Illegal,
     Eof,
 
     Ident,
