@@ -296,7 +296,7 @@ impl Lexer {
         let ty = self.keywords.get(text);
         match ty {
             Some(value) => self.add_token(*value),
-            None => self.add_token(TokenType::Identifier),
+            None => self.add_token(TokenType::Ident),
         }
     }
 
