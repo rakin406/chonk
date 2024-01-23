@@ -11,10 +11,20 @@ use internal::{lexer, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+// TODO: Create a template for `help` command.
+const REPL_TEMPLATE: String = format!(
+    "\
+    Welcome to Chonk {}.\n\
+    Type \".help\" for more information.\
+    ",
+    VERSION
+);
+
 fn main() {
     let args = cli::Cli::parse();
 
     if args.is_empty() {
+        println!("{}", REPL_TEMPLATE);
         run_prompt();
     } else {
         match args.file {
@@ -30,23 +40,13 @@ fn run_file(path: String) {
     run(contents);
 }
 
-// TODO: Refactor this function cuz it's getting too damn big.
+// TODO: Create a separate repl.rs which contains this function and other repl
+// related functions. The problem is that this function needs the `run()`
+// function which is defined in this file. Hmm...
 /// Runs the interpreter interactively.
 fn run_prompt() {
     let mut running = true;
     let mut rl = DefaultEditor::new().unwrap();
-
-    // NOTE: I should probably move this to somewhere else...
-    let repl_template = format!(
-        "\
-        Welcome to Chonk {}.\n\
-        Type \".help\" for more information.\
-        ",
-        VERSION
-    );
-    println!("{}", repl_template);
-
-    // TODO: Create a template for `help` command.
 
     let mut history_path = String::new();
     match home::home_dir() {
