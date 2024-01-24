@@ -7,6 +7,25 @@ impl AstPrinter {
     pub fn print_ast(&self, expr: ast::Expr) -> String {
         self.visit_expr(&expr)
     }
+
+    fn parenthesize(&self, name: String, expr: ast::Expr) -> String {
+        self.parenthesize_multiple(name, Vec::from([expr]))
+    }
+
+    fn parenthesize_multiple(&self, name: String, exprs: Vec<ast::Expr>) -> String {
+        let mut value = String::new();
+
+        value.push('(');
+        value.push_str(&name);
+
+        for expr in exprs.iter() {
+            value.push(' ');
+            value.push_str(&self.visit_expr(expr));
+        }
+
+        value.push(')');
+        value
+    }
 }
 
 impl ast::Visitor<String> for AstPrinter {
@@ -15,13 +34,15 @@ impl ast::Visitor<String> for AstPrinter {
 
         // TODO: Finish Logical, Call and Variable blah blah blah.
         match expr {
-            Expr::BoolOp(op, rhs) => parenthesize_multiple(op.lexeme.to_owned(), rhs.to_owned()),
-            Expr::BinOp(lhs, op, rhs) => parenthesize_multiple(
+            Expr::BoolOp(op, rhs) => {
+                self.parenthesize_multiple(op.lexeme.to_owned(), rhs.to_owned())
+            }
+            Expr::BinOp(lhs, op, rhs) => self.parenthesize_multiple(
                 op.lexeme.to_owned(),
                 Vec::from([*lhs.to_owned(), *rhs.to_owned()]),
             ),
-            Expr::UnaryOp(op, rhs) => parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
-            Expr::Grouping(e) => parenthesize(String::from("group"), *e.to_owned()),
+            Expr::UnaryOp(op, rhs) => self.parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
+            Expr::Grouping(e) => self.parenthesize(String::from("group"), *e.to_owned()),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call { func, args } => todo!(),
             Expr::Constant(literal) => match literal {
@@ -34,23 +55,4 @@ impl ast::Visitor<String> for AstPrinter {
             Expr::Variable(token) => todo!(),
         }
     }
-}
-
-fn parenthesize(name: String, expr: ast::Expr) -> String {
-    parenthesize_multiple(name, Vec::from([expr]))
-}
-
-fn parenthesize_multiple(name: String, exprs: Vec<ast::Expr>) -> String {
-    let mut value = String::new();
-
-    value.push('(');
-    value.push_str(&name);
-
-    for expr in exprs.iter() {
-        value.push(' ');
-        // TODO: Append expression to value somehow.
-    }
-
-    value.push(')');
-    value
 }
