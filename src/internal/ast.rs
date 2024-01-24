@@ -54,3 +54,7 @@ pub enum Expr {
     Constant(Literal),
     Variable(Token),
 }
+
+pub trait Visitor<T> {
+    fn visit_expr(&self, expr: &Expr) -> T;
+}

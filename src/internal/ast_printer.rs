@@ -1,28 +1,53 @@
-use super::expr::{Expr, ExprVisitor};
+use super::ast::{self, Visitor};
+use super::token::Literal;
 
-// TODO: Finish this.
-
-pub struct AstPrinter {}
+pub struct AstPrinter;
 
 impl AstPrinter {
-    pub fn print_ast(&self, expr: Expr) -> String {}
-
-    fn parenthesize_single(&self, name: String, expr: Expr) -> String {
-        let value = String::new();
-
-        value.push('(');
-        value.push_str(&name);
-
-        value.push(' ');
-        value.push_str(expr.accept(self));
-        value.push(')');
-
-        value
+    pub fn print_ast(&self, expr: ast::Expr) -> String {
+        self.visit_expr(&expr)
     }
-
-    fn parenthesize_multiple(&self, name: String, exprs: Vec<Expr>) -> String {}
 }
 
-impl ExprVisitor<String> for AstPrinter {
-    fn visit_expr(&mut self, expr: &Expr) -> String {}
+impl ast::Visitor<String> for AstPrinter {
+    fn visit_expr(&self, expr: &ast::Expr) -> String {
+        use ast::Expr;
+
+        // TODO: Finish Logical, Call and Variable blah blah blah.
+        match *expr {
+            Expr::BoolOp(op, rhs) => parenthesize_multiple(op.lexeme, rhs),
+            Expr::BinOp(lhs, op, rhs) => parenthesize_multiple(op.lexeme, Vec::from([*lhs, *rhs])),
+            Expr::UnaryOp(op, rhs) => parenthesize(op.lexeme, *rhs),
+            Expr::Grouping(e) => parenthesize(String::from("group"), *e),
+            Expr::Logical(lhs, op, rhs) => todo!(),
+            Expr::Call { func, args } => todo!(),
+            Expr::Constant(literal) => match literal {
+                Literal::Number(value) => return value.to_string(),
+                Literal::String(value) => return value,
+                Literal::True(_) => return String::from("true"),
+                Literal::False(_) => return String::from("false"),
+                Literal::Null => return String::from("null"),
+            },
+            Expr::Variable(token) => todo!(),
+        }
+    }
+}
+
+fn parenthesize(name: String, expr: ast::Expr) -> String {
+    parenthesize_multiple(name, Vec::from([expr]))
+}
+
+fn parenthesize_multiple(name: String, exprs: Vec<ast::Expr>) -> String {
+    let mut value = String::new();
+
+    value.push('(');
+    value.push_str(&name);
+
+    for expr in exprs.iter() {
+        value.push(' ');
+        // TODO: Append expression to value somehow.
+    }
+
+    value.push(')');
+    value
 }
