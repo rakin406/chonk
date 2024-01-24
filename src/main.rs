@@ -7,24 +7,22 @@ use rustyline::DefaultEditor;
 mod cli;
 mod internal;
 
-use internal::{lexer, parser};
+use internal::{ast_printer, lexer, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-// TODO: Create a template for `help` command.
-const REPL_TEMPLATE: String = format!(
-    "\
-    Welcome to Chonk {}.\n\
-    Type \".help\" for more information.\
-    ",
-    VERSION
-);
 
 fn main() {
     let args = cli::Cli::parse();
 
     if args.is_empty() {
-        println!("{}", REPL_TEMPLATE);
+        // TODO: Create a template for `help` command.
+        println!(
+            "\
+            Welcome to Chonk {}.\n\
+            Type \".help\" for more information.\
+            ",
+            VERSION
+        );
         run_prompt();
     } else {
         match args.file {
@@ -97,13 +95,17 @@ fn run_prompt() {
 /// Runs `Chonk` code.
 fn run(source: String) {
     let tokens = lexer::scan_tokens(source);
-    let expression = parser::parse(tokens.to_owned());
+    let expression = parser::parse(tokens).unwrap();
+
+    // What the hell is this?
+    let printer = ast_printer::AstPrinter;
 
     // Print the tokens
-    for token in tokens.iter() {
-        println!("{:#?}", token);
-    }
+    // for token in tokens.iter() {
+    //     println!("{:#?}", token);
+    // }
 
     // TODO: Check for parser error.
-    println!("{:#?}", expression);
+
+    println!("{}", printer.print_ast(expression));
 }
