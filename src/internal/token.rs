@@ -2,7 +2,6 @@ use super::token_type::TokenType;
 
 #[derive(Debug, Clone)]
 pub enum Literal {
-    Ident(String),
     Number(f64),
     String(String),
     True(bool),
