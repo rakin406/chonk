@@ -1,3 +1,4 @@
+pub mod ast;
 pub mod ast_printer;
 pub mod error_reporter;
 pub mod expr;
