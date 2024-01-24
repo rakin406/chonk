@@ -68,6 +68,7 @@ pub enum TokenType {
     Break,
     Continue,
     Return,
+    Delete,
     Echo,
 }
 

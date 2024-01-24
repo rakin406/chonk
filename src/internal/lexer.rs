@@ -44,6 +44,7 @@ impl Default for Lexer {
                 ("break", TokenType::Break),
                 ("continue", TokenType::Continue),
                 ("return", TokenType::Return),
+                ("del", TokenType::Delete),
                 ("echo", TokenType::Echo),
             ])
             .into_iter()
