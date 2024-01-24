@@ -2,7 +2,7 @@ use super::token::{Literal, Token};
 
 // enum Program {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Stmt {
     FunctionDef {
         name: Expr,
@@ -43,7 +43,7 @@ pub enum Stmt {
     Block(Token, Box<Stmt>, Token),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     BoolOp(Token, Vec<Expr>),
     BinOp(Box<Expr>, Token, Box<Expr>),

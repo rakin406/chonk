@@ -14,16 +14,19 @@ impl ast::Visitor<String> for AstPrinter {
         use ast::Expr;
 
         // TODO: Finish Logical, Call and Variable blah blah blah.
-        match *expr {
-            Expr::BoolOp(op, rhs) => parenthesize_multiple(op.lexeme, rhs),
-            Expr::BinOp(lhs, op, rhs) => parenthesize_multiple(op.lexeme, Vec::from([*lhs, *rhs])),
-            Expr::UnaryOp(op, rhs) => parenthesize(op.lexeme, *rhs),
-            Expr::Grouping(e) => parenthesize(String::from("group"), *e),
+        match expr {
+            Expr::BoolOp(op, rhs) => parenthesize_multiple(op.lexeme.to_owned(), rhs.to_owned()),
+            Expr::BinOp(lhs, op, rhs) => parenthesize_multiple(
+                op.lexeme.to_owned(),
+                Vec::from([*lhs.to_owned(), *rhs.to_owned()]),
+            ),
+            Expr::UnaryOp(op, rhs) => parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
+            Expr::Grouping(e) => parenthesize(String::from("group"), *e.to_owned()),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call { func, args } => todo!(),
             Expr::Constant(literal) => match literal {
                 Literal::Number(value) => return value.to_string(),
-                Literal::String(value) => return value,
+                Literal::String(value) => return value.to_owned(),
                 Literal::True(_) => return String::from("true"),
                 Literal::False(_) => return String::from("false"),
                 Literal::Null => return String::from("null"),
