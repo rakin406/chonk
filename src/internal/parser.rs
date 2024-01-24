@@ -1,5 +1,5 @@
+use super::ast::{Expr, Stmt};
 use super::error_reporter::ErrorReporter;
-use super::expr::Expr;
 use super::token::{Literal, Token};
 use super::token_type;
 
@@ -155,19 +155,19 @@ impl Parser {
         use token_type::TokenType;
 
         if self.match_type(TokenType::True) {
-            return Ok(Expr::Literal(Literal::Boolean(true)));
+            return Ok(Expr::Constant(Literal::True(true)));
         }
         if self.match_type(TokenType::False) {
-            return Ok(Expr::Literal(Literal::Boolean(false)));
+            return Ok(Expr::Constant(Literal::False(false)));
         }
         if self.match_type(TokenType::Null) {
-            return Ok(Expr::Literal(Literal::Null));
+            return Ok(Expr::Constant(Literal::Null));
         }
 
         if self.match_type(TokenType::Number) {
             match &self.previous().literal {
                 Some(Literal::Number(num)) => {
-                    return Ok(Expr::Literal(Literal::Number(*num)));
+                    return Ok(Expr::Constant(Literal::Number(*num)));
                 }
                 Some(literal) => panic!("Error while parsing number: found literal {:#?}", literal),
                 None => panic!("Error while parsing number: no literal found"),
@@ -176,7 +176,7 @@ impl Parser {
         if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
-                    return Ok(Expr::Literal(Literal::String(str.to_string())));
+                    return Ok(Expr::Constant(Literal::String(str.to_string())));
                 }
                 Some(literal) => panic!("Error while parsing string: found literal {:#?}", literal),
                 None => panic!("Error while parsing string: no literal found"),
@@ -261,5 +261,60 @@ impl Parser {
         &self.tokens[self.current - 1]
     }
 }
+
+// trait StmtParser {
+//     fn parse_func_def_stmt(&self) -> Stmt;
+//     fn parse_return_stmt(&self) -> Stmt;
+//     fn parse_delete_stmt(&self) -> Stmt;
+//     fn parse_assign_stmt(&self) -> Stmt;
+//     fn parse_aug_assign_stmt(&self) -> Stmt;
+//     fn parse_for_stmt(&self) -> Stmt;
+//     fn parse_while_stmt(&self) -> Stmt;
+//     fn parse_if_stmt(&self) -> Stmt;
+//     fn parse_expr_stmt(&self) -> Stmt;
+//     fn parse_break_stmt(&self) -> Stmt;
+//     fn parse_continue_stmt(&self) -> Stmt;
+//     fn parse_echo_stmt(&self) -> Stmt;
+//     fn parse_block_stmt(&self) -> Stmt;
+// }
+//
+// impl StmtParser for Parser {
+//     fn parse_func_def_stmt(&self) -> Stmt {}
+//
+//     fn parse_return_stmt(&self) -> Stmt {}
+//
+//     fn parse_delete_stmt(&self) -> Stmt {}
+//
+//     fn parse_assign_stmt(&self) -> Stmt {}
+//
+//     fn parse_aug_assign_stmt(&self) -> Stmt {}
+//
+//     fn parse_for_stmt(&self) -> Stmt {}
+//
+//     fn parse_while_stmt(&self) -> Stmt {}
+//
+//     fn parse_if_stmt(&self) -> Stmt {}
+//
+//     fn parse_expr_stmt(&self) -> Stmt {}
+//
+//     fn parse_break_stmt(&self) -> Stmt {}
+//
+//     fn parse_continue_stmt(&self) -> Stmt {}
+//
+//     fn parse_echo_stmt(&self) -> Stmt {}
+//
+//     fn parse_block_stmt(&self) -> Stmt {}
+// }
+//
+// trait ExprParser {
+//     fn parse_bool_op_expr(&self) -> Expr;
+//     fn parse_bin_op_expr(&self) -> Expr;
+//     fn parse_unary_op_expr(&self) -> Expr;
+//     fn parse_grouping_expr(&self) -> Expr;
+//     fn parse_compare_expr(&self) -> Expr;
+//     fn parse_call_expr(&self) -> Expr;
+//     fn parse_constant_expr(&self) -> Expr;
+//     fn parse_variable_expr(&self) -> Expr;
+// }
 
 impl ErrorReporter for Parser {}
