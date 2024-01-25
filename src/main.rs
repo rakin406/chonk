@@ -94,20 +94,24 @@ fn run_prompt() {
 
 /// Runs `Chonk` code.
 fn run(source: String) {
-    let tokens = lexer::scan_tokens(source);
-    let expression = parser::parse(tokens);
+    // I know this looks weird :/
+    match lexer::scan_tokens(source) {
+        Ok(value) => {
+            // NOTE: This snippet is purely for printing the tokens.
+            // Print the tokens
+            // for token in value.iter() {
+            //     println!("{:#?}", token);
+            // }
 
-    // What the hell is this?
-    let printer = ast_printer::AstPrinter;
-
-    // Print the tokens
-    // for token in tokens.iter() {
-    //     println!("{:#?}", token);
-    // }
-
-    // Check for parser error
-    match expression {
-        Ok(value) => println!("{}", printer.print_ast(value)),
-        Err(error) => eprintln!("{:#?}", error),
+            // Check for parser error
+            match parser::parse(value) {
+                Ok(value) => {
+                    let printer = ast_printer::AstPrinter;
+                    println!("{}", printer.print_ast(value));
+                }
+                Err(error) => eprintln!("{:?}", error),
+            }
+        }
+        Err(ref error) => eprintln!("{:?}", error),
     }
 }
