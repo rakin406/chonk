@@ -91,7 +91,7 @@ impl Lexer {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
-            self.scan_token();
+            self.scan_token()?;
         }
 
         self.tokens
