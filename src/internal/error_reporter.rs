@@ -1,6 +1,8 @@
 use super::token::Token;
 use super::token_type;
 
+// NOTE: This file is unused.
+
 pub trait ErrorReporter {
     /// Reports an error.
     fn error(&self, line: usize, message: &str) {
