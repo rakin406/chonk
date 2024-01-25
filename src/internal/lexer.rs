@@ -324,7 +324,10 @@ impl Lexer {
 
     /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
-        self.current += 1;
+        // WARNING: Not sure if `is_at_end()` should be here.
+        if !self.is_at_end() {
+            self.current += 1;
+        }
         self.input.chars().nth(self.current - 1).unwrap()
     }
 
