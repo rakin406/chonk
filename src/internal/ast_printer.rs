@@ -28,7 +28,7 @@ impl AstPrinter {
     }
 }
 
-impl ast::Visitor<String> for AstPrinter {
+impl Visitor<String> for AstPrinter {
     fn visit_expr(&self, expr: &ast::Expr) -> String {
         use ast::Expr;
 
