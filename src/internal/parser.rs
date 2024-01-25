@@ -1,10 +1,14 @@
-use super::ast::Expr;
-use super::error_reporter::ErrorReporter;
-use super::token::{Literal, Token};
-use super::token_type;
+use std::fmt;
 
-#[derive(Debug, Clone)]
-pub struct ParseError;
+use super::ast::Expr;
+use super::token::{Literal, Token};
+use super::token_type::{self, TokenType};
+
+/// All possible error types in `Parser`.
+pub enum ParseError {
+    ExpectedExpression(Token),
+    TokenMismatch { expected: TokenType, found: Token },
+}
 
 #[derive(Default)]
 struct Parser {
@@ -19,6 +23,27 @@ pub fn parse(tokens: Vec<Token>) -> Result<Expr, ParseError> {
     match parser.parse() {
         Ok(value) => return Ok(value),
         Err(error) => return Err(error),
+    }
+}
+
+impl fmt::Debug for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ParseError::ExpectedExpression(token) => {
+                write!(
+                    f,
+                    "[line {}] ParseError: Expected expression, but found token {:#?}",
+                    token.line, token.ty
+                )
+            }
+            ParseError::TokenMismatch { expected, found } => {
+                write!(
+                    f,
+                    "[line {}] ParseError: Expected token {:#?} but found {:#?}",
+                    found.line, expected, found.ty
+                )
+            }
+        }
     }
 }
 
@@ -38,8 +63,6 @@ impl Parser {
 
     /// Discards tokens until it finds a statement boundary.
     fn synchronize(&mut self) {
-        use token_type::TokenType;
-
         self.advance();
 
         while !self.is_at_end() {
@@ -69,8 +92,6 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn equality(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         let mut expr = self.comparison()?;
 
         while self.match_types(Vec::from([TokenType::BangEqual, TokenType::EqEqual])) {
@@ -84,8 +105,6 @@ impl Parser {
 
     /// Matches an equality operator.
     fn comparison(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         let mut expr = self.term()?;
 
         while self.match_types(Vec::from([
@@ -104,8 +123,6 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn term(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         let mut expr = self.factor()?;
 
         while self.match_types(Vec::from([TokenType::Minus, TokenType::Plus])) {
@@ -119,8 +136,6 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn factor(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         let mut expr = self.unary()?;
 
         while self.match_types(Vec::from([
@@ -138,8 +153,6 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn unary(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
@@ -152,8 +165,6 @@ impl Parser {
 
     // TODO: Add missing documentation.
     fn primary(&mut self) -> Result<Expr, ParseError> {
-        use token_type::TokenType;
-
         if self.match_type(TokenType::True) {
             return Ok(Expr::Constant(Literal::True(true)));
         } else if self.match_type(TokenType::False) {
@@ -165,35 +176,29 @@ impl Parser {
                 Some(Literal::Number(num)) => {
                     return Ok(Expr::Constant(Literal::Number(*num)));
                 }
-                Some(literal) => panic!("Error while parsing number: found literal {:#?}", literal),
-                None => panic!("Error while parsing number: no literal found"),
+                Some(_) => {}
+                None => {}
             }
         } else if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
                     return Ok(Expr::Constant(Literal::String(str.to_string())));
                 }
-                Some(literal) => panic!("Error while parsing string: found literal {:#?}", literal),
-                None => panic!("Error while parsing string: no literal found"),
+                Some(_) => {}
+                None => {}
             }
         } else if self.match_type(TokenType::LParen) {
             let expr = self.expression()?;
-            let _ = self.consume(TokenType::RParen, "Expected \')\' after expression");
+            self.consume(TokenType::RParen)?;
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 
-        Err(self.parsing_error(self.peek().clone(), "Expected expression"))
-    }
-
-    /// Reports a parsing error.
-    fn parsing_error(&self, token: Token, message: &str) -> ParseError {
-        self.token_error(token, message);
-        ParseError
+        Err(ParseError::ExpectedExpression(self.peek().clone()))
     }
 
     /// Returns `true` if the current token has the given type. If so, it
     /// consumes the token.
-    fn match_type(&mut self, ty: token_type::TokenType) -> bool {
+    fn match_type(&mut self, ty: TokenType) -> bool {
         if self.has_type(ty) {
             self.advance();
             return true;
@@ -204,9 +209,9 @@ impl Parser {
 
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
-    fn match_types(&mut self, types: Vec<token_type::TokenType>) -> bool {
-        for token_type in types.iter() {
-            if self.match_type(*token_type) {
+    fn match_types(&mut self, types: Vec<TokenType>) -> bool {
+        for ty in types.iter() {
+            if self.match_type(*ty) {
                 return true;
             }
         }
@@ -215,7 +220,7 @@ impl Parser {
     }
 
     /// Returns `true` if the current token is of the given type.
-    fn has_type(&self, ty: token_type::TokenType) -> bool {
+    fn has_type(&self, ty: TokenType) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -236,12 +241,16 @@ impl Parser {
     }
 
     /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&mut self, ty: token_type::TokenType, message: &str) -> Result<Token, ParseError> {
+    fn consume(&mut self, ty: TokenType) -> Result<Token, ParseError> {
         if self.has_type(ty) {
             return Ok(self.advance());
         }
 
-        Err(self.parsing_error(self.peek().clone(), message))
+        // FIX: TokenMismatch error not printing.
+        Err(ParseError::TokenMismatch {
+            expected: ty,
+            found: self.peek().clone(),
+        })
     }
 
     /// Returns the current token which is yet to consume.
@@ -254,5 +263,3 @@ impl Parser {
         &self.tokens[self.current - 1]
     }
 }
-
-impl ErrorReporter for Parser {}

@@ -4,7 +4,7 @@ use std::fmt;
 use super::token::{Literal, Token};
 use super::token_type::TokenType;
 
-/// All possible error types in the lexer.
+/// All possible error types in `Lexer`.
 pub enum LexError {
     UnexpectedChar { character: char, line: usize },
     UnterminatedString(usize),
@@ -31,7 +31,7 @@ impl fmt::Debug for LexError {
             LexError::UnexpectedChar { character, line } => {
                 write!(
                     f,
-                    "[line {}] LexError: Unexpected character => \'{}\'",
+                    "[line {}] LexError: Unexpected character \'{}\'",
                     line, character
                 )
             }
