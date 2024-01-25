@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use super::error_reporter::ErrorReporter;
 use super::token::{Literal, Token};
 use super::token_type::TokenType;
 
@@ -387,5 +386,3 @@ fn is_potential_identifier_start(c: char) -> bool {
 fn is_potential_identifier_char(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
 }
-
-impl ErrorReporter for Lexer {}
