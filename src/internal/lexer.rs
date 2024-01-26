@@ -237,8 +237,8 @@ impl Lexer {
                 }
             }
 
-            ' ' | '\r' | '\t' => {}
-            '\n' => {
+            ' ' | '\t' => {}
+            '\n' | '\r' => {
                 self.add_token(Newline);
                 self.line += 1;
             }
