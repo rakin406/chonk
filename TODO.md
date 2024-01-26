@@ -1,6 +1,6 @@
 ### Todo
 - Finish parser #feat
-- Finish AstPrinter #feat
+- Finish interpreter #feat
 - Finish REPL #feat
   - Create `help` command that describes all the commands
 - Update readme #docs
