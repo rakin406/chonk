@@ -15,19 +15,14 @@ impl Interpreter {
         use ast::Stmt;
 
         match stmt {
-            Stmt::FunctionDef {
-                name,
-                args,
-                body,
-                returns,
-            } => todo!(),
+            Stmt::FunctionDef { .. } => todo!(),
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
-            Stmt::Assign { targets, value } => todo!(),
-            Stmt::AugAssign { target, op, value } => todo!(),
-            Stmt::For { target, body } => todo!(),
-            Stmt::While { test, body } => todo!(),
-            Stmt::If { test, body, orelse } => todo!(),
+            Stmt::Assign { .. } => todo!(),
+            Stmt::AugAssign { .. } => todo!(),
+            Stmt::For { .. } => todo!(),
+            Stmt::While { .. } => todo!(),
+            Stmt::If { .. } => todo!(),
             Stmt::Expr(expr) => {
                 self.visit_expr(expr);
             }
@@ -105,10 +100,10 @@ impl Visitor<Literal> for Interpreter {
             Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
-            Expr::Logical(lhs, op, rhs) => todo!(),
-            Expr::Call(func, args) => todo!(),
+            Expr::Logical(_lhs, _op, _rhs) => todo!(),
+            Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
-            Expr::Variable(token) => todo!(),
+            Expr::Variable(_token) => todo!(),
         }
     }
 }

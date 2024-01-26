@@ -57,6 +57,7 @@ impl Parser {
     }
 
     /// Discards tokens until it finds a statement boundary.
+    #[allow(dead_code)]
     fn synchronize(&mut self) {
         self.advance();
 
