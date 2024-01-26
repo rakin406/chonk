@@ -62,9 +62,8 @@ impl Parser {
         self.advance();
 
         while !self.is_at_end() {
-            match self.previous().ty {
-                TokenType::Newline => break,
-                _ => {}
+            if self.previous().ty == TokenType::Newline {
+                break;
             }
 
             match self.peek().ty {

@@ -28,9 +28,8 @@ fn main() {
         );
         run_prompt();
     } else {
-        match args.file {
-            Some(file) => run_file(file),
-            None => {}
+        if let Some(file) = args.file {
+            run_file(file)
         }
     }
 }
@@ -50,18 +49,12 @@ fn run_prompt() {
     let mut rl = DefaultEditor::new().unwrap();
 
     let mut history_path = String::new();
-    match home::home_dir() {
-        Some(path) => {
-            history_path = format!("{}/.chonk_history", path.to_str().unwrap());
-        }
-        None => {}
+    if let Some(path) = home::home_dir() {
+        history_path = format!("{}/.chonk_history", path.to_str().unwrap());
     }
 
     // Load REPL history
-    match rl.load_history(&history_path) {
-        Ok(_) => {}
-        Err(_) => {}
-    }
+    if let Ok(_) = rl.load_history(&history_path) {}
 
     while running {
         let readline = rl.readline(">> ");
