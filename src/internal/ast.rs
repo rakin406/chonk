@@ -36,10 +36,10 @@ pub enum Stmt {
         orelse: Option<Box<Stmt>>,
     },
 
-    Expr(Expr, Token),
+    Expr(Expr),
     Break,
     Continue,
-    Echo(Token, Expr, Token),
+    Echo(Expr),
     Block(Token, Box<Stmt>, Token),
 }
 
