@@ -49,7 +49,7 @@ pub enum Expr {
     Unary(Token, Box<Expr>),
     Grouping(Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
-    Call { func: Box<Expr>, args: Vec<Expr> },
+    Call(Box<Expr>, Vec<Expr>),
     Constant(Literal),
     Variable(Token),
 }

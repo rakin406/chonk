@@ -65,7 +65,7 @@ impl Visitor<Literal> for Interpreter {
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
             Expr::Logical(lhs, op, rhs) => todo!(),
-            Expr::Call { func, args } => todo!(),
+            Expr::Call(func, args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(token) => todo!(),
         }

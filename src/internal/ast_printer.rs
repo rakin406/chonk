@@ -41,7 +41,7 @@ impl Visitor<String> for AstPrinter {
             Expr::Unary(op, rhs) => self.parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
             Expr::Grouping(e) => self.parenthesize(String::from("group"), *e.to_owned()),
             Expr::Logical(lhs, op, rhs) => todo!(),
-            Expr::Call { func, args } => todo!(),
+            Expr::Call(func, args) => todo!(),
             Expr::Constant(literal) => match literal {
                 Literal::Number(value) => value.to_string(),
                 Literal::String(value) => value.to_owned(),
