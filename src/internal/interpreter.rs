@@ -2,9 +2,14 @@ use super::ast::{self, Visitor};
 use super::token::Literal;
 use super::token_type::TokenType;
 
-struct Interpreter;
+pub struct Interpreter;
 
 impl Interpreter {
+    pub fn interpret(&self, expr: ast::Expr) {
+        let literal = self.visit_expr(&expr);
+        println!("{}", stringify(literal));
+    }
+
     fn interpret_binary(&self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
         let left = self.visit_expr(lhs);
         let right = self.visit_expr(rhs);
@@ -83,5 +88,16 @@ fn is_truthy(literal: Literal) -> bool {
         Literal::Null => false,
         Literal::Bool(value) => value,
         _ => true,
+    }
+}
+
+// TODO: Put this in Literal impl.
+/// Converts literal value to string.
+fn stringify(literal: Literal) -> String {
+    match literal {
+        Literal::Number(value) => value.to_string(),
+        Literal::String(value) => value,
+        Literal::Bool(value) => value.to_string(),
+        Literal::Null => String::from("null"),
     }
 }

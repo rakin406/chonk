@@ -7,7 +7,7 @@ use rustyline::DefaultEditor;
 mod cli;
 mod internal;
 
-use internal::{ast_printer, lexer, parser};
+use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -105,9 +105,11 @@ fn run(source: String) {
 
             // Check for parser error
             match parser::parse(value) {
-                Ok(value) => {
-                    let printer = ast_printer::AstPrinter;
-                    println!("{}", printer.print_ast(value));
+                Ok(expr) => {
+                    // let printer = ast_printer::AstPrinter;
+                    // println!("{}", printer.print_ast(value));
+                    let interpreter = interpreter::Interpreter;
+                    interpreter.interpret(expr);
                 }
                 Err(error) => eprintln!("{:?}", error),
             }
