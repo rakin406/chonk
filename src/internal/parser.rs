@@ -263,7 +263,6 @@ impl Parser {
             return Ok(self.advance());
         }
 
-        // FIX: TokenMismatch error not printing.
         Err(ParseError::TokenMismatch {
             expected: ty,
             found: self.peek().clone(),

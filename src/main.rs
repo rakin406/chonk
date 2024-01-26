@@ -96,9 +96,9 @@ fn run_prompt() {
 }
 
 /// Runs `Chonk` code.
-fn run(source: String) {
+fn run(input: String) {
     // I know this looks weird :/
-    match lexer::scan_tokens(source) {
+    match lexer::scan_tokens(input) {
         Ok(tokens) => {
             // NOTE: This snippet is purely for printing the tokens.
             // Print the tokens
