@@ -113,11 +113,7 @@ fn run(input: String) {
 
             // Check for parser error
             match parser.parse() {
-                Ok(stmts) => {
-                    // let printer = ast_printer::AstPrinter;
-                    // println!("{}", printer.print_ast(value));
-                    INTERPRETER.interpret(stmts);
-                }
+                Ok(stmts) => INTERPRETER.interpret(stmts),
                 Err(error) => eprintln!("{error:?}"),
             }
         }
