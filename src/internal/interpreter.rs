@@ -61,9 +61,8 @@ impl Visitor<Literal> for Interpreter {
         use ast::Expr;
 
         match expr {
-            Expr::BoolOp(op, rhs) => todo!(),
-            Expr::BinOp(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
-            Expr::UnaryOp(op, rhs) => self.interpret_unary(op.ty, rhs),
+            Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
+            Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call { func, args } => todo!(),

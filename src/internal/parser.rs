@@ -97,7 +97,7 @@ impl Parser {
         while self.match_types(Vec::from([TokenType::BangEqual, TokenType::EqEqual])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.comparison()?;
-            expr = Expr::BinOp(Box::new(expr), operator, Box::new(right));
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         Ok(expr)
@@ -115,7 +115,7 @@ impl Parser {
         ])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.term()?;
-            expr = Expr::BinOp(Box::new(expr), operator, Box::new(right));
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         Ok(expr)
@@ -128,7 +128,7 @@ impl Parser {
         while self.match_types(Vec::from([TokenType::Minus, TokenType::Plus])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.factor()?;
-            expr = Expr::BinOp(Box::new(expr), operator, Box::new(right));
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         Ok(expr)
@@ -145,7 +145,7 @@ impl Parser {
         ])) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.unary()?;
-            expr = Expr::BinOp(Box::new(expr), operator, Box::new(right));
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
 
         Ok(expr)
@@ -157,7 +157,7 @@ impl Parser {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
-            return Ok(Expr::UnaryOp(operator, Box::new(right)));
+            return Ok(Expr::Unary(operator, Box::new(right)));
         }
 
         self.primary()

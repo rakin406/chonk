@@ -45,9 +45,8 @@ pub enum Stmt {
 
 #[derive(Debug, Clone)]
 pub enum Expr {
-    BoolOp(Token, Vec<Expr>),
-    BinOp(Box<Expr>, Token, Box<Expr>),
-    UnaryOp(Token, Box<Expr>),
+    Binary(Box<Expr>, Token, Box<Expr>),
+    Unary(Token, Box<Expr>),
     Grouping(Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
     Call { func: Box<Expr>, args: Vec<Expr> },

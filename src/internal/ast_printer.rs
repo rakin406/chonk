@@ -34,14 +34,11 @@ impl Visitor<String> for AstPrinter {
 
         // TODO: Finish Logical, Call and Variable blah blah blah.
         match expr {
-            Expr::BoolOp(op, rhs) => {
-                self.parenthesize_multiple(op.lexeme.to_owned(), rhs.to_owned())
-            }
-            Expr::BinOp(lhs, op, rhs) => self.parenthesize_multiple(
+            Expr::Binary(lhs, op, rhs) => self.parenthesize_multiple(
                 op.lexeme.to_owned(),
                 Vec::from([*lhs.to_owned(), *rhs.to_owned()]),
             ),
-            Expr::UnaryOp(op, rhs) => self.parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
+            Expr::Unary(op, rhs) => self.parenthesize(op.lexeme.to_owned(), *rhs.to_owned()),
             Expr::Grouping(e) => self.parenthesize(String::from("group"), *e.to_owned()),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call { func, args } => todo!(),
