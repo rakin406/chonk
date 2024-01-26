@@ -7,7 +7,7 @@ pub struct Interpreter;
 impl Interpreter {
     pub fn interpret(&self, expr: ast::Expr) {
         let literal = self.visit_expr(&expr);
-        println!("{}", stringify(literal));
+        println!("{}", literal.to_string());
     }
 
     fn interpret_binary(&self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
@@ -88,16 +88,5 @@ fn is_truthy(literal: Literal) -> bool {
         Literal::Null => false,
         Literal::Bool(value) => value,
         _ => true,
-    }
-}
-
-// TODO: Put this in Literal impl.
-/// Converts literal value to string.
-fn stringify(literal: Literal) -> String {
-    match literal {
-        Literal::Number(value) => value.to_string(),
-        Literal::String(value) => value,
-        Literal::Bool(value) => value.to_string(),
-        Literal::Null => String::from("null"),
     }
 }

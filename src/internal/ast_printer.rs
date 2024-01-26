@@ -42,15 +42,7 @@ impl Visitor<String> for AstPrinter {
             Expr::Grouping(e) => self.parenthesize(String::from("group"), *e.to_owned()),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call(func, args) => todo!(),
-            Expr::Constant(literal) => match literal {
-                Literal::Number(value) => value.to_string(),
-                Literal::String(value) => value.to_owned(),
-                Literal::Bool(value) => match *value {
-                    true => String::from("true"),
-                    false => String::from("false"),
-                },
-                Literal::Null => String::from("null"),
-            },
+            Expr::Constant(literal) => literal.to_string(),
             Expr::Variable(token) => todo!(),
         }
     }
