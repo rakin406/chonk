@@ -10,19 +10,18 @@ impl Interpreter {
         let right = self.visit_expr(rhs);
 
         match (left, op, right) {
-            // TODO: Create a "Boolean" literal for comparison operators.
-            // (Literal::Number(n1), TokenType::Greater, Literal::Number(n2)) => {
-            //     return Literal::Number(n1 > n2);
-            // }
-            // (Literal::Number(n1), TokenType::GreaterEqual, Literal::Number(n2)) => {
-            //     return Literal::Number(n1 >= n2);
-            // }
-            // (Literal::Number(n1), TokenType::Less, Literal::Number(n2)) => {
-            //     return Literal::Number(n1 < n2);
-            // }
-            // (Literal::Number(n1), TokenType::LessEqual, Literal::Number(n2)) => {
-            //     return Literal::Number(n1 <= n2);
-            // }
+            (Literal::Number(n1), TokenType::Greater, Literal::Number(n2)) => {
+                return Literal::Bool(n1 > n2);
+            }
+            (Literal::Number(n1), TokenType::GreaterEqual, Literal::Number(n2)) => {
+                return Literal::Bool(n1 >= n2);
+            }
+            (Literal::Number(n1), TokenType::Less, Literal::Number(n2)) => {
+                return Literal::Bool(n1 < n2);
+            }
+            (Literal::Number(n1), TokenType::LessEqual, Literal::Number(n2)) => {
+                return Literal::Bool(n1 <= n2);
+            }
             (Literal::Number(n1), TokenType::Minus, Literal::Number(n2)) => {
                 return Literal::Number(n1 - n2);
             }
