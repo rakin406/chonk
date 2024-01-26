@@ -82,6 +82,9 @@ fn run_prompt() {
                     continue;
                 }
 
+                // This is to prevent the parser failing to find newline token
+                line.push('\n');
+
                 run(line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
@@ -115,9 +118,9 @@ fn run(input: String) {
                     // println!("{}", printer.print_ast(value));
                     INTERPRETER.interpret(stmts);
                 }
-                Err(error) => eprintln!("{:?}", error),
+                Err(error) => eprintln!("{error:?}"),
             }
         }
-        Err(ref error) => eprintln!("{:?}", error),
+        Err(ref error) => eprintln!("{error:?}"),
     }
 }
