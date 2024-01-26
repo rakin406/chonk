@@ -11,6 +11,9 @@ use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+// This looks funny
+static INTERPRETER: interpreter::Interpreter = interpreter::Interpreter;
+
 fn main() {
     let args = cli::Cli::parse();
 
@@ -108,8 +111,7 @@ fn run(source: String) {
                 Ok(expr) => {
                     // let printer = ast_printer::AstPrinter;
                     // println!("{}", printer.print_ast(value));
-                    let interpreter = interpreter::Interpreter;
-                    interpreter.interpret(expr);
+                    INTERPRETER.interpret(expr);
                 }
                 Err(error) => eprintln!("{:?}", error),
             }
