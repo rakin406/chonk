@@ -1,5 +1,4 @@
 use super::ast::{self, Visitor};
-use super::token::Literal;
 
 pub struct AstPrinter;
 
