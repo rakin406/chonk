@@ -239,7 +239,18 @@ impl Lexer {
 
             ' ' | '\t' => {}
             '\n' | '\r' => {
-                self.add_token(Newline);
+                // Add newline token if last token was not newline.
+                // NOTE: The reason I am only taking one newline token at a time
+                // is because multiple newline tokens are unnecessary.
+                match self.tokens.last() {
+                    Some(token) => {
+                        if token.ty != Newline {
+                            self.add_token(Newline);
+                        }
+                    }
+                    None => {}
+                }
+
                 self.line += 1;
             }
 
@@ -352,7 +363,6 @@ impl Lexer {
 
     /// Consumes and returns the next character in the source code.
     fn advance(&mut self) -> char {
-        // WARNING: Not sure if `is_at_end()` should be here.
         if !self.is_at_end() {
             self.current += 1;
         }

@@ -102,7 +102,7 @@ fn run(source: String) {
         Ok(tokens) => {
             // NOTE: This snippet is purely for printing the tokens.
             // Print the tokens
-            // for token in value.iter() {
+            // for token in tokens.iter() {
             //     println!("{:#?}", token);
             // }
 
