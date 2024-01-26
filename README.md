@@ -1,7 +1,7 @@
 # The Chonk programming language
 
 This is the main source code repository for Chonk. It is a simple interpreted
-programming language focusing on readability.
+programming language based on the book [Crafting Interpreters](https://craftinginterpreters.com/).
 
 > [!WARNING]
 > **Chonk is still under development.**
@@ -11,7 +11,6 @@ programming language focusing on readability.
 <summary>Table of Contents</summary>
 
 - [About Chonk](#about-chonk)
-  - [Built With](#built-with)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -25,44 +24,55 @@ programming language focusing on readability.
 
 ## About Chonk
 
-One day, out of nowhere, I felt like making a programming language. Yeah that's
-the whole story. Nothing else.
-
-### Built With
-
-This section should list any major frameworks/libraries used to bootstrap the
-project.
+Chonk is based on a mixture of Bash and Python. It is dynamically typed and uses
+a tree-walk interpreter, which is pretty slow but simple to implement. It
+doesn't support [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming)
+and the goal is to keep it that way for simplicity's sake.
 
 ## Getting Started
 
-To get a local copy up and running, follow these steps.
-
-### Prerequisites
-
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+To try out the experimental interpreter, follow these steps.
 
 ### Installation
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/rakin406/chonk.git
    ```
-2. Install NPM packages
+
+2. Build the project
    ```sh
-   npm install
-   ```
-3. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+   cargo build --release
    ```
 
 ## Usage
 
-Use this space to show useful examples of how the language can be used.
-Additional screenshots, code examples and demos work well in this space.
+* You can either run the REPL (with zero arguments)
+  ```sh
+  ./target/release/chonk
+  ```
+  or
+  ```sh
+  cargo run --release
+  ```
+* Or run a script file
+  ```sh
+  ./target/release/chonk <path-to-file>
+  ```
+  Example:
+  ```sh
+  ./target/release/chonk dummy.ck
+  ```
+  You can use any file extension you want, I chose ".ck" as "chonk" starts with
+  'c' and ends with 'k'.
+
+Sample code:
+```sh
+echo 6 + 4          # Output: 10
+echo 9 < 20         # Output: true
+echo "Hello World"  # Output: Hello World
+echo !true          # Output: false
+```
 
 ## Contributing
 
@@ -80,7 +90,10 @@ create a pull request. Don't forget to give the project a star! Thanks again!
 
 ## Acknowledgments
 
+* [Crafting Interpreters](https://craftinginterpreters.com/)
 * [Choose an Open Source License](https://choosealicense.com)
+* [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+* [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Contact
 

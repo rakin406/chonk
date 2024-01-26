@@ -1,6 +1,6 @@
-# Chonk
-The Chonk programming language
-
-### Todo ✓
-- [ ] Create lexers #feat 2024/01/07
-  - [ ] Create parser
+### Todo
+- Finish parser #feat
+- Finish interpreter #feat
+- Finish REPL #feat
+  - Create `help` command that describes all the commands
+- Create tests #test
