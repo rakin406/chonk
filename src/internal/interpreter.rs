@@ -30,7 +30,7 @@ impl Interpreter {
             Stmt::Continue => todo!(),
             Stmt::Echo(expr) => {
                 let value = self.visit_expr(expr);
-                println!("{}", value.to_string());
+                println!("{}", value);
             }
             Stmt::Block(_, _, _) => todo!(),
         }
@@ -42,38 +42,32 @@ impl Interpreter {
 
         match (left, op, right) {
             (Literal::Number(n1), TokenType::Greater, Literal::Number(n2)) => {
-                return Literal::Bool(n1 > n2);
+                Literal::Bool(n1 > n2)
             }
             (Literal::Number(n1), TokenType::GreaterEqual, Literal::Number(n2)) => {
-                return Literal::Bool(n1 >= n2);
+                Literal::Bool(n1 >= n2)
             }
-            (Literal::Number(n1), TokenType::Less, Literal::Number(n2)) => {
-                return Literal::Bool(n1 < n2);
-            }
+            (Literal::Number(n1), TokenType::Less, Literal::Number(n2)) => Literal::Bool(n1 < n2),
             (Literal::Number(n1), TokenType::LessEqual, Literal::Number(n2)) => {
-                return Literal::Bool(n1 <= n2);
+                Literal::Bool(n1 <= n2)
             }
             (Literal::Number(n1), TokenType::BangEqual, Literal::Number(n2)) => {
-                return Literal::Bool(n1 != n2);
+                Literal::Bool(n1 != n2)
             }
             (Literal::Number(n1), TokenType::EqEqual, Literal::Number(n2)) => {
-                return Literal::Bool(n1 == n2);
+                Literal::Bool(n1 == n2)
             }
             (Literal::Number(n1), TokenType::Minus, Literal::Number(n2)) => {
-                return Literal::Number(n1 - n2);
+                Literal::Number(n1 - n2)
             }
-            (Literal::Number(n1), TokenType::Plus, Literal::Number(n2)) => {
-                return Literal::Number(n1 + n2);
-            }
+            (Literal::Number(n1), TokenType::Plus, Literal::Number(n2)) => Literal::Number(n1 + n2),
             (Literal::String(s1), TokenType::Plus, Literal::String(s2)) => {
-                return Literal::String(s1 + &s2);
+                Literal::String(s1 + &s2)
             }
             (Literal::Number(n1), TokenType::Slash, Literal::Number(n2)) => {
-                return Literal::Number(n1 / n2);
+                Literal::Number(n1 / n2)
             }
-            (Literal::Number(n1), TokenType::Star, Literal::Number(n2)) => {
-                return Literal::Number(n1 * n2);
-            }
+            (Literal::Number(n1), TokenType::Star, Literal::Number(n2)) => Literal::Number(n1 * n2),
             _ => Literal::Null,
         }
     }
