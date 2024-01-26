@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::ast::Expr;
+use super::ast::{Expr, Stmt};
 use super::token::{Literal, Token};
 use super::token_type::{self, TokenType};
 
@@ -83,6 +83,28 @@ impl Parser {
 
             self.advance();
         }
+    }
+
+    /// Parses statements.
+    fn statement(&mut self) -> Result<Stmt, ParseError> {
+        if self.match_type(TokenType::Echo) {
+            return self.echo_statement();
+        }
+        self.expression_statement()
+    }
+
+    /// Parses echo statement.
+    fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
+        let value = self.expression()?;
+        self.consume(TokenType::Newline)?;
+        Ok(Stmt::Echo(value))
+    }
+
+    /// Parses expression statement.
+    fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
+        let expr = self.expression()?;
+        self.consume(TokenType::Newline)?;
+        Ok(Stmt::Expr(expr))
     }
 
     /// Expands to the `equality` rule.
