@@ -11,19 +11,9 @@ pub enum ParseError {
 }
 
 #[derive(Default)]
-struct Parser {
+pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
-}
-
-/// Parses tokens and returns expression.
-pub fn parse(tokens: Vec<Token>) -> Result<Expr, ParseError> {
-    let mut parser = Parser::new(tokens);
-
-    match parser.parse() {
-        Ok(value) => return Ok(value),
-        Err(error) => return Err(error),
-    }
 }
 
 impl fmt::Debug for ParseError {
@@ -49,7 +39,7 @@ impl fmt::Debug for ParseError {
 
 impl Parser {
     /// Creates a new `Parser`.
-    fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Self {
             tokens,
             ..Default::default()
@@ -57,8 +47,13 @@ impl Parser {
     }
 
     /// Parses expressions.
-    fn parse(&mut self) -> Result<Expr, ParseError> {
-        Ok(self.expression()?)
+    pub fn parse(&mut self) -> Result<Vec<Stmt>, ParseError> {
+        let mut statements = Vec::new();
+        while !self.is_at_end() {
+            statements.push(self.statement()?);
+        }
+
+        Ok(statements)
     }
 
     /// Discards tokens until it finds a statement boundary.

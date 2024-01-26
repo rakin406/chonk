@@ -5,9 +5,40 @@ use super::token_type::TokenType;
 pub struct Interpreter;
 
 impl Interpreter {
-    pub fn interpret(&self, expr: ast::Expr) {
-        let literal = self.visit_expr(&expr);
-        println!("{}", literal.to_string());
+    pub fn interpret(&self, stmts: Vec<ast::Stmt>) {
+        for stmt in stmts.iter() {
+            self.walk_stmt(stmt);
+        }
+    }
+
+    fn walk_stmt(&self, stmt: &ast::Stmt) {
+        use ast::Stmt;
+
+        match stmt {
+            Stmt::FunctionDef {
+                name,
+                args,
+                body,
+                returns,
+            } => todo!(),
+            Stmt::Return(_, _, _) => todo!(),
+            Stmt::Delete(_, _) => todo!(),
+            Stmt::Assign { targets, value } => todo!(),
+            Stmt::AugAssign { target, op, value } => todo!(),
+            Stmt::For { target, body } => todo!(),
+            Stmt::While { test, body } => todo!(),
+            Stmt::If { test, body, orelse } => todo!(),
+            Stmt::Expr(expr) => {
+                self.visit_expr(expr);
+            }
+            Stmt::Break => todo!(),
+            Stmt::Continue => todo!(),
+            Stmt::Echo(expr) => {
+                let value = self.visit_expr(expr);
+                println!("{}", value.to_string());
+            }
+            Stmt::Block(_, _, _) => todo!(),
+        }
     }
 
     fn interpret_binary(&self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {

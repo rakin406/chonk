@@ -99,19 +99,21 @@ fn run_prompt() {
 fn run(source: String) {
     // I know this looks weird :/
     match lexer::scan_tokens(source) {
-        Ok(value) => {
+        Ok(tokens) => {
             // NOTE: This snippet is purely for printing the tokens.
             // Print the tokens
             // for token in value.iter() {
             //     println!("{:#?}", token);
             // }
 
+            let mut parser = parser::Parser::new(tokens);
+
             // Check for parser error
-            match parser::parse(value) {
-                Ok(expr) => {
+            match parser.parse() {
+                Ok(stmts) => {
                     // let printer = ast_printer::AstPrinter;
                     // println!("{}", printer.print_ast(value));
-                    INTERPRETER.interpret(expr);
+                    INTERPRETER.interpret(stmts);
                 }
                 Err(error) => eprintln!("{:?}", error),
             }
