@@ -46,11 +46,13 @@ impl Visitor<String> for AstPrinter {
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call { func, args } => todo!(),
             Expr::Constant(literal) => match literal {
-                Literal::Number(value) => return value.to_string(),
-                Literal::String(value) => return value.to_owned(),
-                Literal::True(_) => return String::from("true"),
-                Literal::False(_) => return String::from("false"),
-                Literal::Null => return String::from("null"),
+                Literal::Number(value) => value.to_string(),
+                Literal::String(value) => value.to_owned(),
+                Literal::Bool(value) => match *value {
+                    true => String::from("true"),
+                    false => String::from("false"),
+                },
+                Literal::Null => String::from("null"),
             },
             Expr::Variable(token) => todo!(),
         }

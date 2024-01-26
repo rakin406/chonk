@@ -48,8 +48,8 @@ impl Interpreter {
         match (op, &right) {
             (TokenType::Minus, Literal::Number(value)) => Literal::Number(-value),
             (TokenType::Bang, _) => match is_truthy(right) {
-                true => Literal::False(false),
-                false => Literal::True(true),
+                true => Literal::Bool(false),
+                false => Literal::Bool(true),
             },
             _ => Literal::Null,
         }
@@ -77,7 +77,7 @@ impl Visitor<Literal> for Interpreter {
 fn is_truthy(literal: Literal) -> bool {
     match literal {
         Literal::Null => false,
-        Literal::True(value) | Literal::False(value) => value,
+        Literal::Bool(value) => value,
         _ => true,
     }
 }

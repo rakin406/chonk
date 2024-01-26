@@ -4,8 +4,7 @@ use super::token_type::TokenType;
 pub enum Literal {
     Number(f64),
     String(String),
-    True(bool),
-    False(bool),
+    Bool(bool),
     Null,
 }
 
