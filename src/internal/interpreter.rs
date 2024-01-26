@@ -22,6 +22,12 @@ impl Interpreter {
             (Literal::Number(n1), TokenType::LessEqual, Literal::Number(n2)) => {
                 return Literal::Bool(n1 <= n2);
             }
+            (Literal::Number(n1), TokenType::BangEqual, Literal::Number(n2)) => {
+                return Literal::Bool(n1 != n2);
+            }
+            (Literal::Number(n1), TokenType::EqEqual, Literal::Number(n2)) => {
+                return Literal::Bool(n1 == n2);
+            }
             (Literal::Number(n1), TokenType::Minus, Literal::Number(n2)) => {
                 return Literal::Number(n1 - n2);
             }
