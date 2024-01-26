@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
@@ -27,10 +28,8 @@ fn main() {
             VERSION
         );
         run_prompt();
-    } else {
-        if let Some(file) = args.file {
-            run_file(file)
-        }
+    } else if let Some(file) = args.file {
+        run_file(file);
     }
 }
 
@@ -54,7 +53,9 @@ fn run_prompt() {
     }
 
     // Load REPL history
-    if let Ok(_) = rl.load_history(&history_path) {}
+    if Path::new(&history_path).try_exists().is_ok() {
+        let _ = rl.load_history(&history_path);
+    }
 
     while running {
         let readline = rl.readline(">> ");
