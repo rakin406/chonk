@@ -98,25 +98,14 @@ impl Visitor<Literal> for Interpreter {
             Expr::Grouping(e) => self.visit_expr(e),
             Expr::Assign(name, e) => {
                 let value = self.visit_expr(e);
-                if self.environment.get(name.lexeme).is_some() {
-                    self.environment.assign(name.lexeme, value);
-                } else {
-                    // NOTE: I probably shouldn't attach bindings in expressions.
-                    self.environment.define(name.lexeme, value);
-                }
+                self.environment.set(name.lexeme, value);
                 return value;
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(_lhs, _op, _rhs) => todo!(),
             Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
-            Expr::Variable(name) => {
-                match self.environment.get(name.lexeme) {
-                    Some(value) => value,
-                    // WARNING: This should return an error instead of Null.
-                    None => Literal::Null,
-                }
-            }
+            Expr::Variable(name) => self.environment.get(name.to_owned()),
         }
     }
 }

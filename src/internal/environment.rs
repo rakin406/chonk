@@ -9,21 +9,6 @@ pub struct Environment {
 }
 
 impl Environment {
-    /// Binds a new name to a value.
-    pub fn define(&mut self, name: String, value: Literal) {
-        self.store.insert(name, value);
-    }
-
-    /// Assigns a new value to an existing name.
-    pub fn assign(&mut self, name: Token, value: Literal) {
-        if self.store.contains_key(&name.lexeme) {
-            self.store.insert(name.lexeme, value);
-        } else {
-            self.token_error(name, &format!("Undefined variable \"{}\"", name.lexeme));
-            panic!();
-        }
-    }
-
     /// Returns the literal value bound to the name.
     pub fn get(&self, name: Token) -> Literal {
         if let Some(value) = self.store.get(&name.lexeme) {
@@ -34,6 +19,12 @@ impl Environment {
         // That way I could pass in the error string to panic!().
         self.token_error(name, &format!("Undefined variable \"{}\"", name.lexeme));
         panic!();
+    }
+
+    /// Binds a new name to a value. If the name exists, it assigns a new value
+    /// to it.
+    pub fn set(&mut self, name: String, value: Literal) {
+        self.store.insert(name, value);
     }
 }
 
