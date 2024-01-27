@@ -39,7 +39,7 @@ pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),
     Unary(Token, Box<Expr>),
     Grouping(Box<Expr>),
-    Assign(Vec<Expr>, Box<Expr>),
+    Assign(Token, Box<Expr>),
     AugAssign(Box<Expr>, Token, Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),

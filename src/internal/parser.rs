@@ -88,13 +88,6 @@ impl Parser {
         self.expression_statement()
     }
 
-    /// Parses echo statement.
-    fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
-        let value = self.expression()?;
-        self.consume(TokenType::Newline)?;
-        Ok(Stmt::Echo(value))
-    }
-
     /// Parses expression statement.
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = self.expression()?;
@@ -102,9 +95,33 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
 
+    /// Parses echo statement.
+    fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
+        let value = self.expression()?;
+        self.consume(TokenType::Newline)?;
+        Ok(Stmt::Echo(value))
+    }
+
     /// Expands to the `equality` rule.
     fn expression(&mut self) -> Result<Expr, ParseError> {
-        self.equality()
+        self.assignment()
+    }
+
+    // TODO: Add missing documentation.
+    fn assignment(&mut self) -> Result<Expr, ParseError> {
+        let expr = self.equality()?;
+
+        if self.match_type(TokenType::Equal) {
+            let value: Expr = self.assignment()?;
+
+            if let Expr::Variable(token) = expr {
+                return Ok(Expr::Assign(token, Box::new(value)));
+            }
+
+            // TODO: Return error.
+        }
+
+        Ok(expr)
     }
 
     // TODO: Add missing documentation.
