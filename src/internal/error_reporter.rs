@@ -1,9 +1,15 @@
 use super::token::Token;
 use super::token_type;
 
-// NOTE: This file is unused.
+#[derive(Debug)]
+pub enum ErrorType {
+    SyntaxError,
+    RuntimeError,
+}
 
 pub trait ErrorReporter {
+    const ERROR_TYPE: ErrorType;
+
     /// Reports an error.
     fn error(&self, line: usize, message: &str) {
         self.report(line, "", message);
@@ -14,12 +20,18 @@ pub trait ErrorReporter {
         if token_type::is_eof(token.ty) {
             self.report(token.line, " at end", message);
         } else {
-            self.report(token.line, &format!(" at \'{}\'", token.lexeme), message);
+            self.report(token.line, &format!(" at \"{}\"", token.lexeme), message);
         }
     }
 
     /// Pretty prints an error with the given information.
     fn report(&self, line: usize, location: &str, message: &str) {
-        eprintln!("[line {}] Error{}: {}", line, location, message);
+        eprintln!(
+            "[line {}] {:#?}{}: {}",
+            line,
+            Self::ERROR_TYPE,
+            location,
+            message
+        );
     }
 }
