@@ -1,8 +1,11 @@
 use super::ast::{self, Visitor};
+use super::environment::Environment;
 use super::token::Literal;
 use super::token_type::TokenType;
 
-pub struct Interpreter;
+pub struct Interpreter {
+    environment: Environment,
+}
 
 impl Interpreter {
     pub fn interpret(&self, stmts: Vec<ast::Stmt>) {
@@ -92,12 +95,16 @@ impl Visitor<Literal> for Interpreter {
             Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
-            Expr::Assign(_exprs, _e) => todo!(),
+            Expr::Assign(name, e) => {
+                let value = self.visit_expr(e);
+                self.environment.define(name.lexeme, value);
+                return value;
+            }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(_lhs, _op, _rhs) => todo!(),
             Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
-            Expr::Variable(_token) => todo!(),
+            Expr::Variable(name) => self.environment.get(name.to_owned()),
         }
     }
 }
