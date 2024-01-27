@@ -59,9 +59,6 @@ impl Default for Lexer {
                 ("else", TokenType::Else),
                 ("case", TokenType::Case),
                 ("default", TokenType::Default),
-                // TODO: Use these later.
-                // ("in", TokenType::In),
-                // ("!in", TokenType::NotIn),
                 ("while", TokenType::While),
                 ("for", TokenType::For),
                 ("break", TokenType::Break),

@@ -59,8 +59,6 @@ pub enum TokenType {
     Else,
     Case,
     Default,
-    // In,
-    // NotIn,
     While,
     For,
     Break,
