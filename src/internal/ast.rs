@@ -12,15 +12,6 @@ pub enum Stmt {
     },
     Return(Token, Option<Expr>, Token),
     Delete(Token, Vec<Expr>),
-    Assign {
-        targets: Vec<Expr>,
-        value: Expr,
-    },
-    AugAssign {
-        target: Expr,
-        op: Token,
-        value: Expr,
-    },
 
     For {
         target: Expr,
@@ -48,6 +39,8 @@ pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),
     Unary(Token, Box<Expr>),
     Grouping(Box<Expr>),
+    Assign(Vec<Expr>, Box<Expr>),
+    AugAssign(Box<Expr>, Token, Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),
     Constant(Literal),
