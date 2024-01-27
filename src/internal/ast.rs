@@ -48,13 +48,7 @@ pub enum Expr {
 // TODO: Do something with this.
 #[allow(dead_code)]
 pub struct Program {
-    statements: Vec<Stmt>,
-}
-
-impl Program {
-    pub fn new(statements: Vec<Stmt>) -> Self {
-        Self { statements }
-    }
+    pub statements: Vec<Stmt>,
 }
 
 pub trait Visitor<T> {
