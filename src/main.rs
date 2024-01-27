@@ -94,22 +94,19 @@ fn run_prompt() {
 fn run(input: String) {
     // I know this looks weird :/
     let mut lexer = lexer::Lexer::new(input);
-    match lexer.scan_tokens() {
-        Ok(tokens) => {
-            // NOTE: This snippet is purely for printing the tokens.
-            // Print the tokens
-            // for token in tokens.iter() {
-            //     println!("{:#?}", token);
-            // }
+    let tokens = lexer.scan_tokens();
 
-            let mut parser = parser::Parser::new(tokens);
+    // NOTE: This snippet is purely for printing the tokens.
+    // Print the tokens
+    // for token in tokens.iter() {
+    //     println!("{:#?}", token);
+    // }
 
-            // Check for parser error
-            match parser.parse() {
-                Ok(stmts) => INTERPRETER.interpret(stmts),
-                Err(error) => eprintln!("{error:?}"),
-            }
-        }
-        Err(ref error) => eprintln!("{error:?}"),
+    let mut parser = parser::Parser::new(tokens);
+
+    // Check for parser error
+    match parser.parse() {
+        Ok(stmts) => INTERPRETER.interpret(stmts),
+        Err(error) => eprintln!("{error:?}"),
     }
 }
