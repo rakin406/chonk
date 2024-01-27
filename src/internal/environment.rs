@@ -1,14 +1,12 @@
 use std::collections::HashMap;
 
-use super::token::{Literal, Token};
+use super::token::Literal;
 
-#[allow(dead_code)]
 #[derive(Default)]
 pub struct Environment {
     values: HashMap<String, Literal>,
 }
 
-#[allow(dead_code)]
 impl Environment {
     /// Binds a new name to a value.
     pub fn define(&mut self, name: String, value: Literal) {
