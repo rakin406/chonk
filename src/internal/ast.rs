@@ -1,7 +1,5 @@
 use super::token::{Literal, Token};
 
-// enum Program {}
-
 #[allow(dead_code)]
 pub enum Stmt {
     FunctionDef {
@@ -45,6 +43,18 @@ pub enum Expr {
     Call(Box<Expr>, Vec<Expr>),
     Constant(Literal),
     Variable(Token),
+}
+
+// TODO: Do something with this.
+#[allow(dead_code)]
+pub struct Program {
+    statements: Vec<Stmt>,
+}
+
+impl Program {
+    pub fn new(statements: Vec<Stmt>) -> Self {
+        Self { statements }
+    }
 }
 
 pub trait Visitor<T> {
