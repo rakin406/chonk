@@ -114,8 +114,8 @@ impl Parser {
         if self.match_type(TokenType::Equal) {
             let value: Expr = self.assignment()?;
 
-            if let Expr::Variable(token) = expr {
-                return Ok(Expr::Assign(token, Box::new(value)));
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::Assign(name, Box::new(value)));
             }
 
             // TODO: Return error.
