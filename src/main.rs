@@ -12,11 +12,9 @@ use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// This looks funny
-static INTERPRETER: interpreter::Interpreter = interpreter::Interpreter;
-
 fn main() {
     let args = cli::Cli::parse();
+    let interpreter = interpreter::Interpreter::default();
 
     if args.is_empty() {
         // TODO: Create a template for `help` command.
@@ -95,7 +93,8 @@ fn run_prompt() {
 /// Runs `Chonk` code.
 fn run(input: String) {
     // I know this looks weird :/
-    match lexer::scan_tokens(input) {
+    let mut lexer = lexer::Lexer::new(input);
+    match lexer.scan_tokens() {
         Ok(tokens) => {
             // NOTE: This snippet is purely for printing the tokens.
             // Print the tokens
