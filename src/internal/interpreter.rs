@@ -3,6 +3,7 @@ use super::environment::Environment;
 use super::token::Literal;
 use super::token_type::TokenType;
 
+#[derive(Default)]
 pub struct Interpreter {
     environment: Environment,
 }
