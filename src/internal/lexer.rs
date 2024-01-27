@@ -10,19 +10,13 @@ pub enum LexError {
     UnterminatedString(usize),
 }
 
-struct Lexer {
+pub struct Lexer {
     input: String,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
     line: usize,
     keywords: HashMap<String, TokenType>,
-}
-
-/// Scans tokens from source and returns it.
-pub fn scan_tokens(input: String) -> Result<Vec<Token>, LexError> {
-    let mut lexer = Lexer::new(input);
-    lexer.scan_tokens()
 }
 
 impl fmt::Debug for LexError {
@@ -76,7 +70,7 @@ impl Default for Lexer {
 
 impl Lexer {
     /// Creates a new `Lexer`.
-    fn new(input: String) -> Self {
+    pub fn new(input: String) -> Self {
         Self {
             input,
             ..Default::default()
@@ -84,7 +78,7 @@ impl Lexer {
     }
 
     /// Adds tokens from source until character ends.
-    fn scan_tokens(&mut self) -> Result<Vec<Token>, LexError> {
+    pub fn scan_tokens(&mut self) -> Result<Vec<Token>, LexError> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
@@ -93,8 +87,7 @@ impl Lexer {
 
         self.tokens
             .push(Token::new(TokenType::Eof, String::new(), None, self.line));
-
-        Ok(self.tokens.clone())
+        Ok(self.tokens.to_owned())
     }
 
     /// Adds token type for the next character.
