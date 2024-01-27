@@ -199,7 +199,7 @@ impl Parser {
         } else if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
-                    return Ok(Expr::Constant(Literal::String(str.to_string())));
+                    return Ok(Expr::Constant(Literal::String(str.to_owned())));
                 }
                 Some(_) => {}
                 None => {}
@@ -208,6 +208,8 @@ impl Parser {
             let expr = self.expression()?;
             self.consume(TokenType::RParen)?;
             return Ok(Expr::Grouping(Box::new(expr)));
+        } else if self.match_type(TokenType::Ident) {
+            return Ok(Expr::Variable(self.previous().to_owned()));
         }
 
         Err(ParseError::ExpectedExpression(self.peek().clone()))
