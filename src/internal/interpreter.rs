@@ -10,13 +10,13 @@ pub struct Interpreter {
 
 impl Interpreter {
     /// Interprets a program.
-    pub fn interpret(&self, program: ast::Program) {
+    pub fn interpret(&mut self, program: ast::Program) {
         for stmt in program.get().iter() {
             self.walk_stmt(stmt);
         }
     }
 
-    fn walk_stmt(&self, stmt: &ast::Stmt) {
+    fn walk_stmt(&mut self, stmt: &ast::Stmt) {
         use ast::Stmt;
 
         match stmt {
@@ -90,7 +90,7 @@ impl Interpreter {
 }
 
 impl Visitor<Literal> for Interpreter {
-    fn visit_expr(&self, expr: &ast::Expr) -> Literal {
+    fn visit_expr(&mut self, expr: &ast::Expr) -> Literal {
         use ast::Expr;
 
         match expr {
