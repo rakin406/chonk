@@ -101,7 +101,7 @@ impl Visitor<Literal> for Interpreter {
                 let value = &self.visit_expr(e);
                 self.environment
                     .set(name.lexeme.to_owned(), value.to_owned());
-                return value.to_owned();
+                value.to_owned()
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(_lhs, _op, _rhs) => todo!(),
