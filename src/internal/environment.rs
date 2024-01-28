@@ -10,14 +10,17 @@ pub struct Environment {
 
 impl Environment {
     /// Returns the literal value bound to the name.
-    pub fn get(&self, name: Token) -> Literal {
+    pub fn get(&self, name: &Token) -> Literal {
         if let Some(value) = self.store.get(&name.lexeme) {
             return value.to_owned();
         }
 
         // NOTE: This looks ugly to me, maybe turn ErrorReporter into ErrorFormatter?
         // That way I could pass in the error string to panic!().
-        self.token_error(name, &format!("Undefined variable \"{}\"", name.lexeme));
+        self.token_error(
+            name.to_owned(),
+            &format!("Undefined variable \"{}\"", name.lexeme),
+        );
         panic!();
     }
 
