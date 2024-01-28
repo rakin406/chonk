@@ -2,7 +2,6 @@ use std::fs;
 use std::path::Path;
 
 use clap::Parser;
-use once_cell::sync::Lazy;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
@@ -13,10 +12,9 @@ use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-static INTERPRETER: Lazy<interpreter::Interpreter> = Lazy::new(|| Default::default());
-
 fn main() {
     let args = cli::Cli::parse();
+    let mut interpreter = interpreter::Interpreter::default();
 
     if args.is_empty() {
         // TODO: Create a template for `help` command.
@@ -27,20 +25,20 @@ fn main() {
             ",
             VERSION
         );
-        run_prompt();
+        run_prompt(&mut interpreter);
     } else if let Some(file) = args.file {
-        run_file(file);
+        run_file(&mut interpreter, file);
     }
 }
 
 /// Reads a source file and executes it.
-fn run_file(path: String) {
+fn run_file(interpreter: &mut interpreter::Interpreter, path: String) {
     let contents = fs::read_to_string(path).expect("Unable to read file");
-    run(contents);
+    run(interpreter, contents);
 }
 
 /// Runs the interpreter interactively.
-fn run_prompt() {
+fn run_prompt(interpreter: &mut interpreter::Interpreter) {
     let mut running = true;
     let mut rl = DefaultEditor::new().unwrap();
 
@@ -76,7 +74,7 @@ fn run_prompt() {
                 // This is to prevent the parser failing to find newline token
                 line.push('\n');
 
-                run(line);
+                run(interpreter, line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
@@ -90,7 +88,7 @@ fn run_prompt() {
 }
 
 /// Runs `Chonk` code.
-fn run(input: String) {
+fn run(interpreter: &mut interpreter::Interpreter, input: String) {
     // I know this looks weird :/
     let mut lexer = lexer::Lexer::new(input);
     let tokens = lexer.scan_tokens();
@@ -105,7 +103,7 @@ fn run(input: String) {
 
     // Check for parser error
     match parser.parse() {
-        Ok(program) => INTERPRETER.interpret(program),
+        Ok(program) => interpreter.interpret(program),
         Err(error) => eprintln!("{error:?}"),
     }
 }
