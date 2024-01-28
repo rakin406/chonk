@@ -85,11 +85,14 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, ParseError> {
         if self.match_type(TokenType::If) {
             return self.if_statement();
-        } else if self.match_type(TokenType::Echo) {
+        }
+        if self.match_type(TokenType::Echo) {
             return self.echo_statement();
-        } else if self.match_type(TokenType::LBrace) {
+        }
+        if self.match_type(TokenType::LBrace) {
             return self.block_statement();
         }
+
         self.expression_statement()
     }
 
@@ -240,11 +243,14 @@ impl Parser {
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
             return Ok(Expr::Constant(Literal::Bool(true)));
-        } else if self.match_type(TokenType::False) {
+        }
+        if self.match_type(TokenType::False) {
             return Ok(Expr::Constant(Literal::Bool(false)));
-        } else if self.match_type(TokenType::Null) {
+        }
+        if self.match_type(TokenType::Null) {
             return Ok(Expr::Constant(Literal::Null));
-        } else if self.match_type(TokenType::Number) {
+        }
+        if self.match_type(TokenType::Number) {
             match &self.previous().literal {
                 Some(Literal::Number(num)) => {
                     return Ok(Expr::Constant(Literal::Number(*num)));
@@ -252,7 +258,8 @@ impl Parser {
                 Some(_) => {}
                 None => {}
             }
-        } else if self.match_type(TokenType::String) {
+        }
+        if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
                     return Ok(Expr::Constant(Literal::String(str.to_owned())));
@@ -260,11 +267,13 @@ impl Parser {
                 Some(_) => {}
                 None => {}
             }
-        } else if self.match_type(TokenType::LParen) {
+        }
+        if self.match_type(TokenType::LParen) {
             let expr = self.expression()?;
             self.consume(TokenType::RParen)?;
             return Ok(Expr::Grouping(Box::new(expr)));
-        } else if self.match_type(TokenType::Ident) {
+        }
+        if self.match_type(TokenType::Ident) {
             return Ok(Expr::Variable(self.previous().to_owned()));
         }
 
