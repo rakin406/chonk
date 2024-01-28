@@ -151,7 +151,7 @@ impl Parser {
         self.assignment()
     }
 
-    // Parses assignment expression.
+    /// Parses assignment expression.
     fn assignment(&mut self) -> Result<Expr, ParseError> {
         let expr = self.or()?;
 
@@ -168,7 +168,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses logical OR expression.
     fn or(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.and()?;
 
@@ -181,7 +181,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses logical AND expression.
     fn and(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.equality()?;
 
@@ -194,7 +194,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // Parses equality expression.
+    /// Parses equality expression.
     fn equality(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.comparison()?;
 
@@ -255,7 +255,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // Parses unary expression.
+    /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
         if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
             let operator: Token = self.previous().clone();
