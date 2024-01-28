@@ -83,12 +83,33 @@ impl Parser {
 
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
-        if self.match_type(TokenType::Echo) {
+        if self.match_type(TokenType::If) {
+            return self.if_statement();
+        } else if self.match_type(TokenType::Echo) {
             return self.echo_statement();
         } else if self.match_type(TokenType::LBrace) {
             return self.block_statement();
         }
         self.expression_statement()
+    }
+
+    /// Parses if statement.
+    fn if_statement(&mut self) -> Result<Stmt, ParseError> {
+        let test = self.expression()?;
+        let body = self.statement()?;
+
+        let or_else = if self.match_type(TokenType::Else) {
+            Some(Box::new(self.statement()?))
+        } else {
+            None
+        };
+
+        Ok(Stmt::If {
+            test,
+            body: Box::new(body),
+            elif: todo!(),
+            or_else,
+        })
     }
 
     /// Parses expression statement.
