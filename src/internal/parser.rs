@@ -141,7 +141,7 @@ impl Parser {
         }
 
         self.consume(TokenType::RBrace)?;
-        self.consume(TokenType::Newline)?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
 
         Ok(Stmt::Block(statements))
     }
