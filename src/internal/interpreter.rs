@@ -23,7 +23,18 @@ impl Interpreter {
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { .. } => todo!(),
-            Stmt::If { .. } => todo!(),
+            Stmt::If {
+                test,
+                body,
+                elif,
+                or_else,
+            } => {
+                if is_truthy(self.visit_expr(test)) {
+                    self.walk_stmt(body);
+                } else if let Some(else_stmt) = or_else {
+                    self.walk_stmt(else_stmt);
+                }
+            }
             Stmt::Expr(expr) => {
                 self.visit_expr(expr);
             }
