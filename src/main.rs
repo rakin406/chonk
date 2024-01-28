@@ -12,11 +12,9 @@ use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// This looks funny
-static INTERPRETER: interpreter::Interpreter = interpreter::Interpreter;
-
 fn main() {
     let args = cli::Cli::parse();
+    let mut interpreter = interpreter::Interpreter::default();
 
     if args.is_empty() {
         // TODO: Create a template for `help` command.
@@ -27,23 +25,20 @@ fn main() {
             ",
             VERSION
         );
-        run_prompt();
+        run_prompt(&mut interpreter);
     } else if let Some(file) = args.file {
-        run_file(file);
+        run_file(&mut interpreter, file);
     }
 }
 
 /// Reads a source file and executes it.
-fn run_file(path: String) {
+fn run_file(interpreter: &mut interpreter::Interpreter, path: String) {
     let contents = fs::read_to_string(path).expect("Unable to read file");
-    run(contents);
+    run(interpreter, contents);
 }
 
-// TODO: Create a separate repl.rs which contains this function and other repl
-// related functions. The problem is that this function needs the `run()`
-// function which is defined in this file. Hmm...
 /// Runs the interpreter interactively.
-fn run_prompt() {
+fn run_prompt(interpreter: &mut interpreter::Interpreter) {
     let mut running = true;
     let mut rl = DefaultEditor::new().unwrap();
 
@@ -79,7 +74,7 @@ fn run_prompt() {
                 // This is to prevent the parser failing to find newline token
                 line.push('\n');
 
-                run(line);
+                run(interpreter, line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
@@ -93,24 +88,22 @@ fn run_prompt() {
 }
 
 /// Runs `Chonk` code.
-fn run(input: String) {
+fn run(interpreter: &mut interpreter::Interpreter, input: String) {
     // I know this looks weird :/
-    match lexer::scan_tokens(input) {
-        Ok(tokens) => {
-            // NOTE: This snippet is purely for printing the tokens.
-            // Print the tokens
-            // for token in tokens.iter() {
-            //     println!("{:#?}", token);
-            // }
+    let mut lexer = lexer::Lexer::new(input);
+    let tokens = lexer.scan_tokens();
 
-            let mut parser = parser::Parser::new(tokens);
+    // NOTE: This snippet is purely for printing the tokens.
+    // Print the tokens
+    // for token in tokens.iter() {
+    //     println!("{:#?}", token);
+    // }
 
-            // Check for parser error
-            match parser.parse() {
-                Ok(stmts) => INTERPRETER.interpret(stmts),
-                Err(error) => eprintln!("{error:?}"),
-            }
-        }
-        Err(ref error) => eprintln!("{error:?}"),
+    let mut parser = parser::Parser::new(tokens);
+
+    // Check for parser error
+    match parser.parse() {
+        Ok(program) => interpreter.interpret(program),
+        Err(error) => eprintln!("{error:?}"),
     }
 }

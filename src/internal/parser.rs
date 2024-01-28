@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::ast::{Expr, Stmt};
+use super::ast::{Expr, Program, Stmt};
 use super::token::{Literal, Token};
 use super::token_type::{self, TokenType};
 
@@ -46,14 +46,15 @@ impl Parser {
         }
     }
 
-    /// Parses expressions.
-    pub fn parse(&mut self) -> Result<Vec<Stmt>, ParseError> {
-        let mut statements = Vec::new();
+    /// Parses statements and returns program.
+    pub fn parse(&mut self) -> Result<Program, ParseError> {
+        let mut program = Program::default();
+
         while !self.is_at_end() {
-            statements.push(self.statement()?);
+            program.add(self.statement()?);
         }
 
-        Ok(statements)
+        Ok(program)
     }
 
     /// Discards tokens until it finds a statement boundary.
@@ -88,13 +89,6 @@ impl Parser {
         self.expression_statement()
     }
 
-    /// Parses echo statement.
-    fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
-        let value = self.expression()?;
-        self.consume(TokenType::Newline)?;
-        Ok(Stmt::Echo(value))
-    }
-
     /// Parses expression statement.
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = self.expression()?;
@@ -102,9 +96,33 @@ impl Parser {
         Ok(Stmt::Expr(expr))
     }
 
+    /// Parses echo statement.
+    fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
+        let value = self.expression()?;
+        self.consume(TokenType::Newline)?;
+        Ok(Stmt::Echo(value))
+    }
+
     /// Expands to the `equality` rule.
     fn expression(&mut self) -> Result<Expr, ParseError> {
-        self.equality()
+        self.assignment()
+    }
+
+    // TODO: Add missing documentation.
+    fn assignment(&mut self) -> Result<Expr, ParseError> {
+        let expr = self.equality()?;
+
+        if self.match_type(TokenType::Equal) {
+            let value: Expr = self.assignment()?;
+
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::Assign(name, Box::new(value)));
+            }
+
+            // TODO: Return error.
+        }
+
+        Ok(expr)
     }
 
     // TODO: Add missing documentation.
@@ -199,7 +217,7 @@ impl Parser {
         } else if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
-                    return Ok(Expr::Constant(Literal::String(str.to_string())));
+                    return Ok(Expr::Constant(Literal::String(str.to_owned())));
                 }
                 Some(_) => {}
                 None => {}
@@ -208,6 +226,8 @@ impl Parser {
             let expr = self.expression()?;
             self.consume(TokenType::RParen)?;
             return Ok(Expr::Grouping(Box::new(expr)));
+        } else if self.match_type(TokenType::Ident) {
+            return Ok(Expr::Variable(self.previous().to_owned()));
         }
 
         Err(ParseError::ExpectedExpression(self.peek().clone()))

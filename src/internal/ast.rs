@@ -1,7 +1,5 @@
 use super::token::{Literal, Token};
 
-// enum Program {}
-
 #[allow(dead_code)]
 pub enum Stmt {
     FunctionDef {
@@ -12,15 +10,6 @@ pub enum Stmt {
     },
     Return(Token, Option<Expr>, Token),
     Delete(Token, Vec<Expr>),
-    Assign {
-        targets: Vec<Expr>,
-        value: Expr,
-    },
-    AugAssign {
-        target: Expr,
-        op: Token,
-        value: Expr,
-    },
 
     For {
         target: Expr,
@@ -48,12 +37,31 @@ pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),
     Unary(Token, Box<Expr>),
     Grouping(Box<Expr>),
+    Assign(Token, Box<Expr>),
+    AugAssign(Box<Expr>, Token, Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),
     Constant(Literal),
     Variable(Token),
 }
 
+#[derive(Default)]
+pub struct Program {
+    statements: Vec<Stmt>,
+}
+
+impl Program {
+    /// Appends a new statement to the list.
+    pub fn add(&mut self, statement: Stmt) {
+        self.statements.push(statement);
+    }
+
+    /// Returns a list of statements
+    pub fn get(&self) -> &Vec<Stmt> {
+        &self.statements
+    }
+}
+
 pub trait Visitor<T> {
-    fn visit_expr(&self, expr: &Expr) -> T;
+    fn visit_expr(&mut self, expr: &Expr) -> T;
 }

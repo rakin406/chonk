@@ -1,45 +1,16 @@
 use std::collections::HashMap;
-use std::fmt;
 
+use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::{Literal, Token};
 use super::token_type::TokenType;
 
-/// All possible error types in `Lexer`.
-pub enum LexError {
-    UnexpectedChar { character: char, line: usize },
-    UnterminatedString(usize),
-}
-
-struct Lexer {
+pub struct Lexer {
     input: String,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
     line: usize,
     keywords: HashMap<String, TokenType>,
-}
-
-/// Scans tokens from source and returns it.
-pub fn scan_tokens(input: String) -> Result<Vec<Token>, LexError> {
-    let mut lexer = Lexer::new(input);
-    lexer.scan_tokens()
-}
-
-impl fmt::Debug for LexError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            LexError::UnexpectedChar { character, line } => {
-                write!(
-                    f,
-                    "[line {}] LexError: Unexpected character \'{}\'",
-                    line, character
-                )
-            }
-            LexError::UnterminatedString(line) => {
-                write!(f, "[line {}] LexError: Unterminated string", line)
-            }
-        }
-    }
 }
 
 impl Default for Lexer {
@@ -59,9 +30,6 @@ impl Default for Lexer {
                 ("else", TokenType::Else),
                 ("case", TokenType::Case),
                 ("default", TokenType::Default),
-                // TODO: Use these later.
-                // ("in", TokenType::In),
-                // ("!in", TokenType::NotIn),
                 ("while", TokenType::While),
                 ("for", TokenType::For),
                 ("break", TokenType::Break),
@@ -79,7 +47,7 @@ impl Default for Lexer {
 
 impl Lexer {
     /// Creates a new `Lexer`.
-    fn new(input: String) -> Self {
+    pub fn new(input: String) -> Self {
         Self {
             input,
             ..Default::default()
@@ -87,21 +55,20 @@ impl Lexer {
     }
 
     /// Adds tokens from source until character ends.
-    fn scan_tokens(&mut self) -> Result<Vec<Token>, LexError> {
+    pub fn scan_tokens(&mut self) -> Vec<Token> {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
-            self.scan_token()?;
+            self.scan_token();
         }
 
         self.tokens
             .push(Token::new(TokenType::Eof, String::new(), None, self.line));
-
-        Ok(self.tokens.clone())
+        self.tokens.to_owned()
     }
 
     /// Adds token type for the next character.
-    fn scan_token(&mut self) -> Result<(), LexError> {
+    fn scan_token(&mut self) {
         use TokenType::*;
 
         let c: char = self.advance();
@@ -251,8 +218,8 @@ impl Lexer {
                 self.line += 1;
             }
 
-            '\'' => self.add_string('\'')?,
-            '"' => self.add_string('"')?,
+            '\'' => self.add_string('\''),
+            '"' => self.add_string('"'),
 
             _ => {
                 if c.is_ascii_digit() {
@@ -260,15 +227,10 @@ impl Lexer {
                 } else if is_potential_identifier_start(c) {
                     self.add_identifier();
                 } else {
-                    return Err(LexError::UnexpectedChar {
-                        character: c,
-                        line: self.line,
-                    });
+                    self.error(self.line, "Unexpected character \'{c}\'");
                 }
             }
         }
-
-        Ok(())
     }
 
     /// Creates a new token.
@@ -283,7 +245,7 @@ impl Lexer {
     }
 
     /// Adds string literal token.
-    fn add_string(&mut self, delimiter: char) -> Result<(), LexError> {
+    fn add_string(&mut self, delimiter: char) {
         while self.peek() != delimiter && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
@@ -292,7 +254,7 @@ impl Lexer {
         }
 
         if self.is_at_end() {
-            return Err(LexError::UnterminatedString(self.line));
+            self.error(self.line, "Unterminated string");
         }
 
         // The closing quote
@@ -301,8 +263,6 @@ impl Lexer {
         // Trim the surrounding quotes
         let value = self.input[(self.start + 1)..(self.current - 1)].to_string();
         self.add_token_literal(TokenType::String, Some(Literal::String(value)));
-
-        Ok(())
     }
 
     /// Adds number literal token.
@@ -392,4 +352,8 @@ fn is_potential_identifier_start(c: char) -> bool {
 /// Returns `true` if character is a potential part of an identifier.
 fn is_potential_identifier_char(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
+}
+
+impl ErrorReporter for Lexer {
+    const ERROR_TYPE: ErrorType = ErrorType::SyntaxError;
 }

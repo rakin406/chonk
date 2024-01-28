@@ -1,25 +1,28 @@
 use super::ast::{self, Visitor};
+use super::environment::Environment;
 use super::token::Literal;
 use super::token_type::TokenType;
 
-pub struct Interpreter;
+#[derive(Default)]
+pub struct Interpreter {
+    environment: Environment,
+}
 
 impl Interpreter {
-    pub fn interpret(&self, stmts: Vec<ast::Stmt>) {
-        for stmt in stmts.iter() {
+    /// Interprets a program.
+    pub fn interpret(&mut self, program: ast::Program) {
+        for stmt in program.get().iter() {
             self.walk_stmt(stmt);
         }
     }
 
-    fn walk_stmt(&self, stmt: &ast::Stmt) {
+    fn walk_stmt(&mut self, stmt: &ast::Stmt) {
         use ast::Stmt;
 
         match stmt {
             Stmt::FunctionDef { .. } => todo!(),
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
-            Stmt::Assign { .. } => todo!(),
-            Stmt::AugAssign { .. } => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { .. } => todo!(),
             Stmt::If { .. } => todo!(),
@@ -36,7 +39,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_binary(&self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn interpret_binary(&mut self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
         let left = self.visit_expr(lhs);
         let right = self.visit_expr(rhs);
 
@@ -72,7 +75,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_unary(&self, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn interpret_unary(&mut self, op: TokenType, rhs: &ast::Expr) -> Literal {
         let right = self.visit_expr(rhs);
 
         match (op, &right) {
@@ -87,17 +90,24 @@ impl Interpreter {
 }
 
 impl Visitor<Literal> for Interpreter {
-    fn visit_expr(&self, expr: &ast::Expr) -> Literal {
+    fn visit_expr(&mut self, expr: &ast::Expr) -> Literal {
         use ast::Expr;
 
         match expr {
             Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
+            Expr::Assign(name, e) => {
+                let value = &self.visit_expr(e);
+                self.environment
+                    .set(name.lexeme.to_owned(), value.to_owned());
+                value.to_owned()
+            }
+            Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(_lhs, _op, _rhs) => todo!(),
             Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
-            Expr::Variable(_token) => todo!(),
+            Expr::Variable(name) => self.environment.get(name),
         }
     }
 }
