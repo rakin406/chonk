@@ -9,8 +9,8 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
-    pub fn interpret(&self, stmts: Vec<ast::Stmt>) {
-        for stmt in stmts.iter() {
+    pub fn interpret(&self, statements: Vec<ast::Stmt>) {
+        for stmt in statements.iter() {
             self.walk_stmt(stmt);
         }
     }
