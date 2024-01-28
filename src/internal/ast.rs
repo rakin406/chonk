@@ -57,11 +57,11 @@ impl Program {
     }
 
     /// Returns a list of statements
-    pub fn get(&self) -> Vec<Stmt> {
-        self.statements
+    pub fn get(&self) -> &Vec<Stmt> {
+        &self.statements
     }
 }
 
 pub trait Visitor<T> {
-    fn visit_expr(&self, expr: &Expr) -> T;
+    fn visit_expr(&mut self, expr: &Expr) -> T;
 }
