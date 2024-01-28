@@ -85,6 +85,8 @@ impl Parser {
     fn statement(&mut self) -> Result<Stmt, ParseError> {
         if self.match_type(TokenType::Echo) {
             return self.echo_statement();
+        } else if self.match_type(TokenType::LBrace) {
+            return self.block_statement();
         }
         self.expression_statement()
     }
@@ -101,6 +103,21 @@ impl Parser {
         let value = self.expression()?;
         self.consume(TokenType::Newline)?;
         Ok(Stmt::Echo(value))
+    }
+
+    /// Parses block statement.
+    fn block_statement(&mut self) -> Result<Stmt, ParseError> {
+        let mut statements: Vec<Stmt> = Vec::new();
+        self.consume(TokenType::Newline)?; // enter block after newline
+
+        while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
+            statements.push(self.statement()?);
+        }
+
+        self.consume(TokenType::RBrace)?;
+        self.consume(TokenType::Newline)?;
+
+        Ok(Stmt::Block(statements))
     }
 
     /// Expands to the `equality` rule.

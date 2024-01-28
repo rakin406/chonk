@@ -1,4 +1,4 @@
-use super::ast::{self, Visitor};
+use super::ast::{Expr, Program, Stmt, Visitor};
 use super::environment::Environment;
 use super::token::Literal;
 use super::token_type::TokenType;
@@ -10,15 +10,13 @@ pub struct Interpreter {
 
 impl Interpreter {
     /// Interprets a program.
-    pub fn interpret(&mut self, program: ast::Program) {
+    pub fn interpret(&mut self, program: Program) {
         for stmt in program.get().iter() {
             self.walk_stmt(stmt);
         }
     }
 
-    fn walk_stmt(&mut self, stmt: &ast::Stmt) {
-        use ast::Stmt;
-
+    fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::FunctionDef { .. } => todo!(),
             Stmt::Return(_, _, _) => todo!(),
@@ -35,11 +33,26 @@ impl Interpreter {
                 let value = self.visit_expr(expr);
                 println!("{}", value);
             }
-            Stmt::Block(_, _, _) => todo!(),
+            Stmt::Block(statements) => {
+                self.execute_block(
+                    statements.to_owned(),
+                    Environment::new_outer(Box::new(self.environment.to_owned())),
+                );
+            }
         }
     }
 
-    fn interpret_binary(&mut self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
+        let previous = self.environment.clone();
+        self.environment = environment;
+
+        for stmt in statements.iter() {
+            self.walk_stmt(stmt);
+        }
+        self.environment = previous;
+    }
+
+    fn interpret_binary(&mut self, lhs: &Expr, op: TokenType, rhs: &Expr) -> Literal {
         let left = self.visit_expr(lhs);
         let right = self.visit_expr(rhs);
 
@@ -75,7 +88,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_unary(&mut self, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn interpret_unary(&mut self, op: TokenType, rhs: &Expr) -> Literal {
         let right = self.visit_expr(rhs);
 
         match (op, &right) {
@@ -90,9 +103,7 @@ impl Interpreter {
 }
 
 impl Visitor<Literal> for Interpreter {
-    fn visit_expr(&mut self, expr: &ast::Expr) -> Literal {
-        use ast::Expr;
-
+    fn visit_expr(&mut self, expr: &Expr) -> Literal {
         match expr {
             Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),

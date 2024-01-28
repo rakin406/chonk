@@ -1,6 +1,7 @@
 use super::token::{Literal, Token};
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub enum Stmt {
     FunctionDef {
         name: Expr,
@@ -29,10 +30,11 @@ pub enum Stmt {
     Break,
     Continue,
     Echo(Expr),
-    Block(Token, Box<Stmt>, Token),
+    Block(Vec<Stmt>),
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),
     Unary(Token, Box<Expr>),

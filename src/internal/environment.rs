@@ -3,16 +3,29 @@ use std::collections::HashMap;
 use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::{Literal, Token};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Environment {
     store: HashMap<String, Literal>,
+    outer: Option<Box<Environment>>,
 }
 
 impl Environment {
+    /// Creates a new outer scope.
+    pub fn new_outer(outer: Box<Environment>) -> Self {
+        Self {
+            outer: Some(outer),
+            ..Default::default()
+        }
+    }
+
     /// Returns the literal value bound to the name.
     pub fn get(&self, name: &Token) -> Literal {
         if let Some(value) = self.store.get(&name.lexeme) {
             return value.to_owned();
+        }
+
+        if let Some(outer_env) = &self.outer {
+            return outer_env.get(name);
         }
 
         self.token_error(
