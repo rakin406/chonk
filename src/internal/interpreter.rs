@@ -133,10 +133,8 @@ impl Visitor<Literal> for Interpreter {
                     if is_truthy(left.to_owned()) {
                         return left.to_owned();
                     }
-                } else {
-                    if !is_truthy(left.to_owned()) {
-                        return left.to_owned();
-                    }
+                } else if !is_truthy(left.to_owned()) {
+                    return left.to_owned();
                 }
 
                 self.visit_expr(rhs)
