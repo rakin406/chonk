@@ -1,6 +1,6 @@
 [package]
 name = "chonk"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Rakin Rahman <rakinrahman406@gmail.com>"]
 description = "The Chonk programming language"
 readme = "README.md"
