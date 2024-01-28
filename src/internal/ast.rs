@@ -45,10 +45,16 @@ pub enum Expr {
     Variable(Token),
 }
 
-// TODO: Do something with this.
-#[allow(dead_code)]
+#[derive(Default)]
 pub struct Program {
-    pub statements: Vec<Stmt>,
+    statements: Vec<Stmt>,
+}
+
+impl Program {
+    /// Appends a new statement to the list.
+    pub fn add_statement(&mut self, statement: Stmt) {
+        self.statements.push(statement);
+    }
 }
 
 pub trait Visitor<T> {
