@@ -99,8 +99,10 @@ impl Parser {
     /// Parses if statement.
     fn if_statement(&mut self) -> Result<Stmt, ParseError> {
         let test = self.expression()?;
-        let body = self.statement()?;
+        // Optional newline after condition
+        let _ = self.match_type(TokenType::Newline);
 
+        let body = self.statement()?;
         let or_else = if self.match_type(TokenType::Else) {
             Some(Box::new(self.statement()?))
         } else {
@@ -110,7 +112,7 @@ impl Parser {
         Ok(Stmt::If {
             test,
             body: Box::new(body),
-            elif: todo!(),
+            // elif: todo!(),
             or_else,
         })
     }
