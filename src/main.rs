@@ -105,7 +105,7 @@ fn run(input: String) {
     let mut parser = parser::Parser::new(tokens);
 
     // Check for parser error
-    match parser.parse_program() {
+    match parser.parse() {
         Ok(stmts) => INTERPRETER.interpret(stmts),
         Err(error) => eprintln!("{error:?}"),
     }
