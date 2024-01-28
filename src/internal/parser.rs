@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::ast::{Expr, Stmt};
+use super::ast::{Expr, Program, Stmt};
 use super::token::{Literal, Token};
 use super::token_type::{self, TokenType};
 
@@ -46,14 +46,15 @@ impl Parser {
         }
     }
 
-    /// Parses expressions.
-    pub fn parse(&mut self) -> Result<Vec<Stmt>, ParseError> {
-        let mut statements = Vec::new();
+    /// Parses program.
+    pub fn parse_program(&mut self) -> Result<Program, ParseError> {
+        let mut program = Program::default();
+
         while !self.is_at_end() {
-            statements.push(self.statement()?);
+            program.add_statement(self.statement()?);
         }
 
-        Ok(statements)
+        Ok(program)
     }
 
     /// Discards tokens until it finds a statement boundary.
