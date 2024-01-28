@@ -46,12 +46,12 @@ impl Parser {
         }
     }
 
-    /// Parses program.
-    pub fn parse_program(&mut self) -> Result<Program, ParseError> {
+    /// Parses statements and returns program.
+    pub fn parse(&mut self) -> Result<Program, ParseError> {
         let mut program = Program::default();
 
         while !self.is_at_end() {
-            program.add_statement(self.statement()?);
+            program.add(self.statement()?);
         }
 
         Ok(program)

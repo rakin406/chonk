@@ -52,8 +52,13 @@ pub struct Program {
 
 impl Program {
     /// Appends a new statement to the list.
-    pub fn add_statement(&mut self, statement: Stmt) {
+    pub fn add(&mut self, statement: Stmt) {
         self.statements.push(statement);
+    }
+
+    /// Returns a list of statements
+    pub fn get(&self) -> Vec<Stmt> {
+        self.statements
     }
 }
 
