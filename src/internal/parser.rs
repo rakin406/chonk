@@ -104,6 +104,7 @@ impl Parser {
 
         let body = self.statement()?;
         let or_else = if self.match_type(TokenType::Else) {
+            let _ = self.match_type(TokenType::Newline);
             Some(Box::new(self.statement()?))
         } else {
             None
