@@ -35,7 +35,7 @@ impl Interpreter {
                 let value = self.visit_expr(expr);
                 println!("{}", value);
             }
-            Stmt::Block(_, _, _) => todo!(),
+            Stmt::Block(_) => todo!(),
         }
     }
 

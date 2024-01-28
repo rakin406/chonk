@@ -29,7 +29,7 @@ pub enum Stmt {
     Break,
     Continue,
     Echo(Expr),
-    Block(Token, Box<Stmt>, Token),
+    Block(Vec<Stmt>),
 }
 
 #[allow(dead_code)]
