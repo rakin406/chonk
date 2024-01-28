@@ -26,7 +26,6 @@ impl Interpreter {
             Stmt::If {
                 test,
                 body,
-                // elif,
                 or_else,
             } => {
                 if is_truthy(self.visit_expr(test)) {
