@@ -39,7 +39,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_binary(&self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn interpret_binary(&mut self, lhs: &ast::Expr, op: TokenType, rhs: &ast::Expr) -> Literal {
         let left = self.visit_expr(lhs);
         let right = self.visit_expr(rhs);
 
@@ -75,7 +75,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_unary(&self, op: TokenType, rhs: &ast::Expr) -> Literal {
+    fn interpret_unary(&mut self, op: TokenType, rhs: &ast::Expr) -> Literal {
         let right = self.visit_expr(rhs);
 
         match (op, &right) {
@@ -98,9 +98,10 @@ impl Visitor<Literal> for Interpreter {
             Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
             Expr::Grouping(e) => self.visit_expr(e),
             Expr::Assign(name, e) => {
-                let value = self.visit_expr(e);
-                self.environment.set(name.lexeme, value);
-                return value;
+                let value = &self.visit_expr(e);
+                self.environment
+                    .set(name.lexeme.to_owned(), value.to_owned());
+                return value.to_owned();
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(_lhs, _op, _rhs) => todo!(),
