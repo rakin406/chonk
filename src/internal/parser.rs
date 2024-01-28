@@ -146,14 +146,14 @@ impl Parser {
         Ok(Stmt::Block(statements))
     }
 
-    /// Expands to the `equality` rule.
+    /// Expands to the `assignment` rule.
     fn expression(&mut self) -> Result<Expr, ParseError> {
         self.assignment()
     }
 
-    // TODO: Add missing documentation.
+    // Parses assignment expression.
     fn assignment(&mut self) -> Result<Expr, ParseError> {
-        let expr = self.equality()?;
+        let expr = self.or()?;
 
         if self.match_type(TokenType::Equal) {
             let value: Expr = self.assignment()?;
@@ -169,6 +169,22 @@ impl Parser {
     }
 
     // TODO: Add missing documentation.
+    fn or(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.and()?;
+
+        while self.match_type(TokenType::DoubleVBar) {
+            let operator: Token = self.previous().clone();
+            let right: Expr = self.and()?;
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
+        }
+
+        Ok(expr)
+    }
+
+    // TODO: Add missing documentation.
+    fn and(&mut self) -> Result<Expr, ParseError> {}
+
+    // Parses equality expression.
     fn equality(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.comparison()?;
 
@@ -229,7 +245,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    // Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
         if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
             let operator: Token = self.previous().clone();
