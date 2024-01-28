@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::{Literal, Token};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Environment {
     store: HashMap<String, Literal>,
     outer: Option<Box<Environment>>,
@@ -11,8 +11,11 @@ pub struct Environment {
 
 impl Environment {
     /// Creates a new outer scope.
-    pub fn new_outer(&mut self, outer: Box<Environment>) {
-        self.outer = Some(outer);
+    pub fn new_outer(outer: Box<Environment>) -> Self {
+        Self {
+            outer: Some(outer),
+            ..Default::default()
+        }
     }
 
     /// Returns the literal value bound to the name.
