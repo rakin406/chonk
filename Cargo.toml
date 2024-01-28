@@ -12,4 +12,5 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.4.14", features = ["derive"] }
 home = "0.5.9"
+once_cell = "1.19.0"
 rustyline = "13.0.0"

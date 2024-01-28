@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::Parser;
+use once_cell::sync::Lazy;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
@@ -12,9 +13,10 @@ use internal::*;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+static INTERPRETER: Lazy<interpreter::Interpreter> = Lazy::new(|| Default::default());
+
 fn main() {
     let args = cli::Cli::parse();
-    let interpreter = interpreter::Interpreter::default();
 
     if args.is_empty() {
         // TODO: Create a template for `help` command.
@@ -37,9 +39,6 @@ fn run_file(path: String) {
     run(contents);
 }
 
-// TODO: Create a separate repl.rs which contains this function and other repl
-// related functions. The problem is that this function needs the `run()`
-// function which is defined in this file. Hmm...
 /// Runs the interpreter interactively.
 fn run_prompt() {
     let mut running = true;
@@ -106,7 +105,7 @@ fn run(input: String) {
 
     // Check for parser error
     match parser.parse() {
-        Ok(stmts) => INTERPRETER.interpret(stmts),
+        Ok(program) => INTERPRETER.interpret(program),
         Err(error) => eprintln!("{error:?}"),
     }
 }
