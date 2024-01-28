@@ -182,7 +182,17 @@ impl Parser {
     }
 
     // TODO: Add missing documentation.
-    fn and(&mut self) -> Result<Expr, ParseError> {}
+    fn and(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.equality()?;
+
+        while self.match_type(TokenType::DoubleAmper) {
+            let operator: Token = self.previous().clone();
+            let right: Expr = self.equality()?;
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
+        }
+
+        Ok(expr)
+    }
 
     // Parses equality expression.
     fn equality(&mut self) -> Result<Expr, ParseError> {
