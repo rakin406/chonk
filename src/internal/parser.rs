@@ -108,12 +108,15 @@ impl Parser {
     /// Parses block statement.
     fn block_statement(&mut self) -> Result<Stmt, ParseError> {
         let mut statements: Vec<Stmt> = Vec::new();
+        self.consume(TokenType::Newline)?; // enter block after newline
 
         while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
             statements.push(self.statement()?);
         }
 
         self.consume(TokenType::RBrace)?;
+        self.consume(TokenType::Newline)?;
+
         Ok(Stmt::Block(statements))
     }
 
