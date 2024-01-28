@@ -26,7 +26,7 @@ impl Interpreter {
             Stmt::If {
                 test,
                 body,
-                elif,
+                // elif,
                 or_else,
             } => {
                 if is_truthy(self.visit_expr(test)) {
@@ -126,7 +126,21 @@ impl Visitor<Literal> for Interpreter {
                 value.to_owned()
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
-            Expr::Logical(_lhs, _op, _rhs) => todo!(),
+            Expr::Logical(lhs, op, rhs) => {
+                let left = &self.visit_expr(lhs);
+
+                if op.ty == TokenType::DoubleVBar {
+                    if is_truthy(left.to_owned()) {
+                        return left.to_owned();
+                    }
+                } else {
+                    if !is_truthy(left.to_owned()) {
+                        return left.to_owned();
+                    }
+                }
+
+                self.visit_expr(rhs)
+            }
             Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(name) => self.environment.get(name),
