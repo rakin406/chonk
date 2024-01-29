@@ -344,8 +344,9 @@ impl Parser {
         if !self.has_type(TokenType::RParen) {
             loop {
                 if arguments.len() >= 255 {
-                    todo!("Report error");
+                    self.token_error(self.peek().clone(), "Can't have more than 255 arguments");
                 }
+
                 arguments.push(self.expression()?);
                 if !self.match_type(TokenType::Comma) {
                     break;
