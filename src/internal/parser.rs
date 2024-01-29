@@ -83,6 +83,9 @@ impl Parser {
 
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
+        if self.match_type(TokenType::While) {
+            return self.while_statement();
+        }
         if self.match_type(TokenType::If) {
             return self.if_statement();
         }
@@ -94,6 +97,18 @@ impl Parser {
         }
 
         self.expression_statement()
+    }
+
+    /// Parses while statement.
+    fn while_statement(&mut self) -> Result<Stmt, ParseError> {
+        let test = self.expression()?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
+        let body = self.statement()?;
+
+        Ok(Stmt::While {
+            test,
+            body: Box::new(body),
+        })
     }
 
     /// Parses if statement.
