@@ -8,7 +8,11 @@ use super::token_type::{self, TokenType};
 /// All possible error types in `Parser`.
 pub enum ParseError {
     ExpectedExpression(Token),
-    TokenMismatch { expected: TokenType, found: Token },
+    TokenMismatch {
+        expected: TokenType,
+        found: Token,
+        message: String,
+    },
 }
 
 #[derive(Default)]
@@ -29,14 +33,19 @@ impl fmt::Debug for ParseError {
                     token.ty
                 )
             }
-            ParseError::TokenMismatch { expected, found } => {
+            ParseError::TokenMismatch {
+                expected,
+                found,
+                message,
+            } => {
                 write!(
                     f,
-                    "[line {}] {:#?}: Expected token {:#?} but found {:#?}",
+                    "[line {}] {:#?}: Expected token {:#?} but found {:#?}: {}",
                     found.line,
                     ErrorType::SyntaxError,
                     expected,
-                    found.ty
+                    found.ty,
+                    message
                 )
             }
         }
@@ -107,20 +116,20 @@ impl Parser {
 
     /// Parses function definition statement.
     fn function_statement(&mut self) -> Result<Stmt, ParseError> {
-        let name: Token = self.consume(TokenType::Ident)?;
-        self.consume(TokenType::LParen)?;
+        let name: Token = self.consume(TokenType::Ident, "Expected function name")?;
+        self.consume(TokenType::LParen, "Expected '(' after function name")?;
         let mut params: Vec<Token> = Vec::new();
 
         if !self.has_type(TokenType::RParen) {
             loop {
-                params.push(self.consume(TokenType::Ident)?);
+                params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
                 if !self.match_type(TokenType::Comma) {
                     break;
                 }
             }
         }
 
-        self.consume(TokenType::RParen)?;
+        self.consume(TokenType::RParen, "Expected ')' after parameters")?;
         let _ = self.match_type(TokenType::Newline); // optional newline
         let body: Vec<Stmt> = self.block()?;
 
@@ -160,28 +169,29 @@ impl Parser {
     /// Parses expression statement.
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = self.expression()?;
-        self.consume(TokenType::Newline)?;
+        self.consume(TokenType::Newline, "Expected newline after expression")?;
         Ok(Stmt::Expr(expr))
     }
 
     /// Parses echo statement.
     fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
         let value = self.expression()?;
-        self.consume(TokenType::Newline)?;
+        self.consume(TokenType::Newline, "Expected newline after value")?;
         Ok(Stmt::Echo(value))
     }
 
     /// Parses a block of statements.
     fn block(&mut self) -> Result<Vec<Stmt>, ParseError> {
-        self.consume(TokenType::LBrace)?;
-        self.consume(TokenType::Newline)?; // enter block after newline
+        self.consume(TokenType::LBrace, "Expected '{' before block")?;
+        // Enter block after newline
+        self.consume(TokenType::Newline, "Expected newline after '{'")?;
         let mut statements: Vec<Stmt> = Vec::new();
 
         while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
             statements.push(self.statement()?);
         }
 
-        self.consume(TokenType::RBrace)?;
+        self.consume(TokenType::RBrace, "Expected '}' after block")?;
         let _ = self.match_type(TokenType::Newline); // optional newline
         Ok(statements)
     }
@@ -338,7 +348,7 @@ impl Parser {
             }
         }
 
-        let paren: Token = self.consume(TokenType::RParen)?;
+        let paren: Token = self.consume(TokenType::RParen, "Expected ')' after arguments")?;
 
         Ok(Expr::Call(Box::new(callee), paren, arguments))
     }
@@ -374,7 +384,7 @@ impl Parser {
         }
         if self.match_type(TokenType::LParen) {
             let expr = self.expression()?;
-            self.consume(TokenType::RParen)?;
+            self.consume(TokenType::RParen, "Expected ')' after expression")?;
             return Ok(Expr::Grouping(Box::new(expr)));
         }
         if self.match_type(TokenType::Ident) {
@@ -428,8 +438,8 @@ impl Parser {
         self.previous().clone()
     }
 
-    /// Checks to see if the next token is of the expected type and consumes it.
-    fn consume(&mut self, ty: TokenType) -> Result<Token, ParseError> {
+    /// Checks to see if the current token is of the expected type and consumes it.
+    fn consume(&mut self, ty: TokenType, message: &str) -> Result<Token, ParseError> {
         if self.has_type(ty) {
             return Ok(self.advance());
         }
@@ -437,6 +447,7 @@ impl Parser {
         Err(ParseError::TokenMismatch {
             expected: ty,
             found: self.peek().clone(),
+            message: message.to_string(),
         })
     }
 
