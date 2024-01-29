@@ -1,6 +1,6 @@
 use super::ast::{Expr, Program, Stmt, Visitor};
 use super::environment::Environment;
-use super::error_reporter::{ErrorReporter, ErrorType};
+// use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::Literal;
 use super::token_type::TokenType;
 
@@ -9,7 +9,9 @@ pub struct Interpreter {
     environment: Environment,
 }
 
-struct ChonkFunction {}
+struct ChonkFunction {
+    callee: Literal,
+}
 
 trait Callable {
     fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal;
@@ -157,7 +159,7 @@ impl Visitor<Literal> for Interpreter {
 
                 self.visit_expr(rhs)
             }
-            Expr::Call(callee, paren, arguments) => {
+            Expr::Call(callee, _, arguments) => {
                 let callee_literal = &self.visit_expr(callee);
 
                 let mut args: Vec<Literal> = Vec::new();
@@ -165,7 +167,8 @@ impl Visitor<Literal> for Interpreter {
                     args.push(self.visit_expr(arg));
                 }
 
-                todo!();
+                let function = ChonkFunction::new(callee_literal.to_owned());
+                function.call(self, args)
             }
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(name) => self.environment.get(name),
@@ -182,6 +185,19 @@ fn is_truthy(literal: Literal) -> bool {
     }
 }
 
-impl ErrorReporter for Interpreter {
-    const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
+// impl ErrorReporter for Interpreter {
+//     const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
+// }
+
+impl ChonkFunction {
+    /// Creates a new `ChonkFunction`.
+    fn new(callee: Literal) -> Self {
+        Self { callee }
+    }
+}
+
+impl Callable for ChonkFunction {
+    fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal {
+        todo!()
+    }
 }
