@@ -227,7 +227,7 @@ impl Lexer {
                 } else if is_potential_identifier_start(c) {
                     self.add_identifier();
                 } else {
-                    self.error(self.line, "Unexpected character '{c}'");
+                    self.error(self.line, &format!("Unexpected character '{c}'"));
                 }
             }
         }
