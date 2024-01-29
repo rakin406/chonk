@@ -122,6 +122,10 @@ impl Parser {
 
         if !self.has_type(TokenType::RParen) {
             loop {
+                if params.len() >= 255 {
+                    self.token_error(self.peek().clone(), "Can't have more than 255 parameters");
+                }
+
                 params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
                 if !self.match_type(TokenType::Comma) {
                     break;
@@ -206,13 +210,14 @@ impl Parser {
         let expr = self.or()?;
 
         if self.match_type(TokenType::Equal) {
+            let equals: Token = self.previous().clone();
             let value: Expr = self.assignment()?;
 
             if let Expr::Variable(name) = expr {
                 return Ok(Expr::Assign(name, Box::new(value)));
             }
 
-            // TODO: Return error.
+            self.token_error(equals, "Invalid assignment target");
         }
 
         Ok(expr)
@@ -460,4 +465,8 @@ impl Parser {
     fn previous(&self) -> &Token {
         &self.tokens[self.current - 1]
     }
+}
+
+impl ErrorReporter for Parser {
+    const ERROR_TYPE: ErrorType = ErrorType::SyntaxError;
 }
