@@ -3,7 +3,7 @@ use super::token::{Literal, Token};
 #[allow(dead_code)]
 #[derive(Clone)]
 pub enum Stmt {
-    FunctionDef {
+    Function {
         name: Expr,
         args: Option<Vec<Expr>>,
         body: Box<Stmt>,
