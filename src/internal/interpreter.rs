@@ -1,6 +1,6 @@
 use super::ast::{Expr, Program, Stmt, Visitor};
 use super::environment::Environment;
-// use super::error_reporter::{ErrorReporter, ErrorType};
+use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::Literal;
 use super::token_type::TokenType;
 
@@ -14,6 +14,10 @@ struct ChonkFunction {
 }
 
 trait Callable {
+    /// Returns the number of arguments of the function.
+    fn arity(&self) -> u8;
+
+    // TODO: Add missing documentation.
     fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal;
 }
 
@@ -159,7 +163,7 @@ impl Visitor<Literal> for Interpreter {
 
                 self.visit_expr(rhs)
             }
-            Expr::Call(callee, _, arguments) => {
+            Expr::Call(callee, paren, arguments) => {
                 let callee_literal = &self.visit_expr(callee);
 
                 let mut args: Vec<Literal> = Vec::new();
@@ -168,6 +172,17 @@ impl Visitor<Literal> for Interpreter {
                 }
 
                 let function = ChonkFunction::new(callee_literal.to_owned());
+                if args.len() != function.arity().into() {
+                    self.token_error(
+                        paren.to_owned(),
+                        &format!(
+                            "Expected {} arguments but got {}",
+                            function.arity(),
+                            args.len()
+                        ),
+                    );
+                }
+
                 function.call(self, args)
             }
             Expr::Constant(literal) => literal.to_owned(),
@@ -185,9 +200,9 @@ fn is_truthy(literal: Literal) -> bool {
     }
 }
 
-// impl ErrorReporter for Interpreter {
-//     const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
-// }
+impl ErrorReporter for Interpreter {
+    const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
+}
 
 impl ChonkFunction {
     /// Creates a new `ChonkFunction`.
@@ -197,6 +212,10 @@ impl ChonkFunction {
 }
 
 impl Callable for ChonkFunction {
+    fn arity(&self) -> u8 {
+        todo!()
+    }
+
     fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal {
         todo!()
     }
