@@ -83,12 +83,53 @@ impl Parser {
 
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
+        if self.match_type(TokenType::While) {
+            return self.while_statement();
+        }
+        if self.match_type(TokenType::If) {
+            return self.if_statement();
+        }
         if self.match_type(TokenType::Echo) {
             return self.echo_statement();
-        } else if self.match_type(TokenType::LBrace) {
+        }
+        if self.match_type(TokenType::LBrace) {
             return self.block_statement();
         }
+
         self.expression_statement()
+    }
+
+    /// Parses while statement.
+    fn while_statement(&mut self) -> Result<Stmt, ParseError> {
+        let test = self.expression()?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
+        let body = self.statement()?;
+
+        Ok(Stmt::While {
+            test,
+            body: Box::new(body),
+        })
+    }
+
+    /// Parses if statement.
+    fn if_statement(&mut self) -> Result<Stmt, ParseError> {
+        let test = self.expression()?;
+        // Optional newline after condition
+        let _ = self.match_type(TokenType::Newline);
+
+        let body = self.statement()?;
+        let or_else = if self.match_type(TokenType::Else) {
+            let _ = self.match_type(TokenType::Newline);
+            Some(Box::new(self.statement()?))
+        } else {
+            None
+        };
+
+        Ok(Stmt::If {
+            test,
+            body: Box::new(body),
+            or_else,
+        })
     }
 
     /// Parses expression statement.
@@ -115,19 +156,19 @@ impl Parser {
         }
 
         self.consume(TokenType::RBrace)?;
-        self.consume(TokenType::Newline)?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
 
         Ok(Stmt::Block(statements))
     }
 
-    /// Expands to the `equality` rule.
+    /// Expands to the `assignment` rule.
     fn expression(&mut self) -> Result<Expr, ParseError> {
         self.assignment()
     }
 
-    // TODO: Add missing documentation.
+    /// Parses assignment expression.
     fn assignment(&mut self) -> Result<Expr, ParseError> {
-        let expr = self.equality()?;
+        let expr = self.or()?;
 
         if self.match_type(TokenType::Equal) {
             let value: Expr = self.assignment()?;
@@ -142,7 +183,33 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses logical OR expression.
+    fn or(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.and()?;
+
+        while self.match_type(TokenType::DoubleVBar) {
+            let operator: Token = self.previous().clone();
+            let right: Expr = self.and()?;
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
+        }
+
+        Ok(expr)
+    }
+
+    /// Parses logical AND expression.
+    fn and(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.equality()?;
+
+        while self.match_type(TokenType::DoubleAmper) {
+            let operator: Token = self.previous().clone();
+            let right: Expr = self.equality()?;
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
+        }
+
+        Ok(expr)
+    }
+
+    /// Parses equality expression.
     fn equality(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.comparison()?;
 
@@ -203,7 +270,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
         if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
             let operator: Token = self.previous().clone();
@@ -219,11 +286,14 @@ impl Parser {
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
             return Ok(Expr::Constant(Literal::Bool(true)));
-        } else if self.match_type(TokenType::False) {
+        }
+        if self.match_type(TokenType::False) {
             return Ok(Expr::Constant(Literal::Bool(false)));
-        } else if self.match_type(TokenType::Null) {
+        }
+        if self.match_type(TokenType::Null) {
             return Ok(Expr::Constant(Literal::Null));
-        } else if self.match_type(TokenType::Number) {
+        }
+        if self.match_type(TokenType::Number) {
             match &self.previous().literal {
                 Some(Literal::Number(num)) => {
                     return Ok(Expr::Constant(Literal::Number(*num)));
@@ -231,7 +301,8 @@ impl Parser {
                 Some(_) => {}
                 None => {}
             }
-        } else if self.match_type(TokenType::String) {
+        }
+        if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
                     return Ok(Expr::Constant(Literal::String(str.to_owned())));
@@ -239,11 +310,13 @@ impl Parser {
                 Some(_) => {}
                 None => {}
             }
-        } else if self.match_type(TokenType::LParen) {
+        }
+        if self.match_type(TokenType::LParen) {
             let expr = self.expression()?;
             self.consume(TokenType::RParen)?;
             return Ok(Expr::Grouping(Box::new(expr)));
-        } else if self.match_type(TokenType::Ident) {
+        }
+        if self.match_type(TokenType::Ident) {
             return Ok(Expr::Variable(self.previous().to_owned()));
         }
 

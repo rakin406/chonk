@@ -23,7 +23,7 @@ pub enum Stmt {
     If {
         test: Expr,
         body: Box<Stmt>,
-        orelse: Option<Box<Stmt>>,
+        or_else: Option<Box<Stmt>>,
     },
 
     Expr(Expr),

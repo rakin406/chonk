@@ -22,8 +22,22 @@ impl Interpreter {
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
-            Stmt::While { .. } => todo!(),
-            Stmt::If { .. } => todo!(),
+            Stmt::While { test, body } => {
+                while is_truthy(self.visit_expr(test)) {
+                    self.walk_stmt(body);
+                }
+            }
+            Stmt::If {
+                test,
+                body,
+                or_else,
+            } => {
+                if is_truthy(self.visit_expr(test)) {
+                    self.walk_stmt(body);
+                } else if let Some(else_stmt) = or_else {
+                    self.walk_stmt(else_stmt);
+                }
+            }
             Stmt::Expr(expr) => {
                 self.visit_expr(expr);
             }
@@ -34,10 +48,15 @@ impl Interpreter {
                 println!("{}", value);
             }
             Stmt::Block(statements) => {
-                self.execute_block(
-                    statements.to_owned(),
-                    Environment::new_outer(Box::new(self.environment.to_owned())),
-                );
+                // WARNING: I want control blocks to stay in the same outer scope. New
+                // environment should only be created inside function blocks.
+                // self.execute_block(
+                //     statements.to_owned(),
+                //     Environment::new_outer(Box::new(self.environment.to_owned())),
+                // );
+                for stmt in statements.iter() {
+                    self.walk_stmt(stmt);
+                }
             }
         }
     }
@@ -115,7 +134,19 @@ impl Visitor<Literal> for Interpreter {
                 value.to_owned()
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
-            Expr::Logical(_lhs, _op, _rhs) => todo!(),
+            Expr::Logical(lhs, op, rhs) => {
+                let left = &self.visit_expr(lhs);
+
+                if op.ty == TokenType::DoubleVBar {
+                    if is_truthy(left.to_owned()) {
+                        return left.to_owned();
+                    }
+                } else if !is_truthy(left.to_owned()) {
+                    return left.to_owned();
+                }
+
+                self.visit_expr(rhs)
+            }
             Expr::Call(_func, _args) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(name) => self.environment.get(name),
