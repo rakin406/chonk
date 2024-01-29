@@ -83,6 +83,9 @@ impl Parser {
 
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
+        if self.match_type(TokenType::Func) {
+            // return self.while_statement();
+        }
         if self.match_type(TokenType::While) {
             return self.while_statement();
         }
@@ -92,11 +95,31 @@ impl Parser {
         if self.match_type(TokenType::Echo) {
             return self.echo_statement();
         }
-        if self.match_type(TokenType::LBrace) {
-            return self.block_statement();
-        }
 
         self.expression_statement()
+    }
+
+    /// Parses function definition statement.
+    fn function_statement(&mut self) -> Result<Stmt, ParseError> {
+        let name: Token = self.consume(TokenType::Ident)?;
+        self.consume(TokenType::LParen)?;
+        let mut params: Vec<Token> = Vec::new();
+
+        if !self.has_type(TokenType::RParen) {
+            loop {
+                params.push(self.consume(TokenType::Ident)?);
+                if !self.match_type(TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        self.consume(TokenType::RParen)?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
+
+        let body = Vec::from([self.block_statement()?]);
+
+        Ok(Stmt::Function { name, params, body })
     }
 
     /// Parses while statement.
@@ -146,10 +169,11 @@ impl Parser {
         Ok(Stmt::Echo(value))
     }
 
-    /// Parses block statement.
-    fn block_statement(&mut self) -> Result<Stmt, ParseError> {
-        let mut statements: Vec<Stmt> = Vec::new();
+    /// Parses a block of statements.
+    fn block(&mut self) -> Result<Vec<Stmt>, ParseError> {
+        self.consume(TokenType::LBrace)?;
         self.consume(TokenType::Newline)?; // enter block after newline
+        let mut statements: Vec<Stmt> = Vec::new();
 
         while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
             statements.push(self.statement()?);
@@ -157,8 +181,7 @@ impl Parser {
 
         self.consume(TokenType::RBrace)?;
         let _ = self.match_type(TokenType::Newline); // optional newline
-
-        Ok(Stmt::Block(statements))
+        Ok(statements)
     }
 
     /// Expands to the `assignment` rule.

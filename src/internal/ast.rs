@@ -4,10 +4,9 @@ use super::token::{Literal, Token};
 #[derive(Clone)]
 pub enum Stmt {
     Function {
-        name: Expr,
-        args: Option<Vec<Expr>>,
-        body: Box<Stmt>,
-        returns: Option<Expr>,
+        name: Token,
+        params: Vec<Token>,
+        body: Vec<Stmt>,
     },
     Return(Token, Option<Expr>, Token),
     Delete(Token, Vec<Expr>),
@@ -30,7 +29,6 @@ pub enum Stmt {
     Break,
     Continue,
     Echo(Expr),
-    Block(Vec<Stmt>),
 }
 
 #[allow(dead_code)]
