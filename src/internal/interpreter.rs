@@ -1,11 +1,18 @@
 use super::ast::{Expr, Program, Stmt, Visitor};
 use super::environment::Environment;
+use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::Literal;
 use super::token_type::TokenType;
 
 #[derive(Default)]
 pub struct Interpreter {
     environment: Environment,
+}
+
+struct ChonkFunction {}
+
+trait Callable {
+    fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal;
 }
 
 impl Interpreter {
@@ -18,13 +25,13 @@ impl Interpreter {
 
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
-            Stmt::FunctionDef { .. } => todo!(),
+            Stmt::Function { .. } => todo!(),
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
                 while is_truthy(self.visit_expr(test)) {
-                    self.walk_stmt(body);
+                    self.execute_block(body);
                 }
             }
             Stmt::If {
@@ -33,9 +40,9 @@ impl Interpreter {
                 or_else,
             } => {
                 if is_truthy(self.visit_expr(test)) {
-                    self.walk_stmt(body);
+                    self.execute_block(body);
                 } else if let Some(else_stmt) = or_else {
-                    self.walk_stmt(else_stmt);
+                    self.execute_block(else_stmt);
                 }
             }
             Stmt::Expr(expr) => {
@@ -46,29 +53,32 @@ impl Interpreter {
             Stmt::Echo(expr) => {
                 let value = self.visit_expr(expr);
                 println!("{}", value);
-            }
-            Stmt::Block(statements) => {
-                // WARNING: I want control blocks to stay in the same outer scope. New
-                // environment should only be created inside function blocks.
-                // self.execute_block(
-                //     statements.to_owned(),
-                //     Environment::new_outer(Box::new(self.environment.to_owned())),
-                // );
-                for stmt in statements.iter() {
-                    self.walk_stmt(stmt);
-                }
-            }
+            } // Stmt::Block(statements) => {
+              //     // WARNING: I want control blocks to stay in the same outer scope. New
+              //     // environment should only be created inside function blocks.
+              //     // self.execute_block(
+              //     //     statements.to_owned(),
+              //     //     Environment::new_outer(Box::new(self.environment.to_owned())),
+              //     // );
+              // }
         }
     }
 
-    fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
-        let previous = self.environment.clone();
-        self.environment = environment;
+    // fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
+    //     let previous = self.environment.clone();
+    //     self.environment = environment;
+    //
+    //     for stmt in statements.iter() {
+    //         self.walk_stmt(stmt);
+    //     }
+    //     self.environment = previous;
+    // }
 
+    /// Executes a block of statements.
+    fn execute_block(&mut self, statements: &Vec<Stmt>) {
         for stmt in statements.iter() {
             self.walk_stmt(stmt);
         }
-        self.environment = previous;
     }
 
     fn interpret_binary(&mut self, lhs: &Expr, op: TokenType, rhs: &Expr) -> Literal {
@@ -147,7 +157,16 @@ impl Visitor<Literal> for Interpreter {
 
                 self.visit_expr(rhs)
             }
-            Expr::Call(..) => todo!(),
+            Expr::Call(callee, paren, arguments) => {
+                let callee_literal = &self.visit_expr(callee);
+
+                let mut args: Vec<Literal> = Vec::new();
+                for arg in arguments.iter() {
+                    args.push(self.visit_expr(arg));
+                }
+
+                todo!();
+            }
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(name) => self.environment.get(name),
         }
@@ -161,4 +180,8 @@ fn is_truthy(literal: Literal) -> bool {
         Literal::Bool(value) => value,
         _ => true,
     }
+}
+
+impl ErrorReporter for Interpreter {
+    const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
 }

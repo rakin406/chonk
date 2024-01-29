@@ -84,7 +84,7 @@ impl Parser {
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
         if self.match_type(TokenType::Func) {
-            // return self.while_statement();
+            return self.function_statement();
         }
         if self.match_type(TokenType::While) {
             return self.while_statement();
@@ -116,8 +116,7 @@ impl Parser {
 
         self.consume(TokenType::RParen)?;
         let _ = self.match_type(TokenType::Newline); // optional newline
-
-        let body = Vec::from([self.block_statement()?]);
+        let body: Vec<Stmt> = self.block()?;
 
         Ok(Stmt::Function { name, params, body })
     }
@@ -126,12 +125,9 @@ impl Parser {
     fn while_statement(&mut self) -> Result<Stmt, ParseError> {
         let test = self.expression()?;
         let _ = self.match_type(TokenType::Newline); // optional newline
-        let body = self.statement()?;
+        let body: Vec<Stmt> = self.block()?;
 
-        Ok(Stmt::While {
-            test,
-            body: Box::new(body),
-        })
+        Ok(Stmt::While { test, body })
     }
 
     /// Parses if statement.
@@ -140,17 +136,17 @@ impl Parser {
         // Optional newline after condition
         let _ = self.match_type(TokenType::Newline);
 
-        let body = self.statement()?;
+        let body: Vec<Stmt> = self.block()?;
         let or_else = if self.match_type(TokenType::Else) {
             let _ = self.match_type(TokenType::Newline);
-            Some(Box::new(self.statement()?))
+            Some(self.block()?)
         } else {
             None
         };
 
         Ok(Stmt::If {
             test,
-            body: Box::new(body),
+            body,
             or_else,
         })
     }

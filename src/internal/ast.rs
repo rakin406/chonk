@@ -17,12 +17,12 @@ pub enum Stmt {
     },
     While {
         test: Expr,
-        body: Box<Stmt>,
+        body: Vec<Stmt>,
     },
     If {
         test: Expr,
-        body: Box<Stmt>,
-        or_else: Option<Box<Stmt>>,
+        body: Vec<Stmt>,
+        or_else: Option<Vec<Stmt>>,
     },
 
     Expr(Expr),
