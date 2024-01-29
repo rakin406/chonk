@@ -22,7 +22,11 @@ impl Interpreter {
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
-            Stmt::While { .. } => todo!(),
+            Stmt::While { test, body } => {
+                while is_truthy(self.visit_expr(test)) {
+                    self.walk_stmt(body);
+                }
+            }
             Stmt::If {
                 test,
                 body,
