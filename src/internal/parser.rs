@@ -279,7 +279,40 @@ impl Parser {
             return Ok(Expr::Unary(operator, Box::new(right)));
         }
 
-        self.primary()
+        self.call()
+    }
+
+    /// Parses function call expression.
+    fn call(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.primary()?;
+
+        loop {
+            if self.match_type(TokenType::LParen) {
+                expr = self.finish_call(expr)?;
+            } else {
+                break;
+            }
+        }
+
+        Ok(expr)
+    }
+
+    /// Finishes function call expression.
+    fn finish_call(&mut self, callee: Expr) -> Result<Expr, ParseError> {
+        let mut arguments: Vec<Expr> = Vec::new();
+
+        if !self.has_type(TokenType::RParen) {
+            loop {
+                arguments.push(self.expression()?);
+                if !self.match_type(TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+
+        let paren: Token = self.consume(TokenType::RParen)?;
+
+        Ok(Expr::Call(Box::new(callee), paren, arguments))
     }
 
     // TODO: Add missing documentation.

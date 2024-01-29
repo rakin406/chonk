@@ -42,7 +42,7 @@ pub enum Expr {
     Assign(Token, Box<Expr>),
     AugAssign(Box<Expr>, Token, Box<Expr>),
     Logical(Box<Expr>, Token, Box<Expr>),
-    Call(Box<Expr>, Vec<Expr>),
+    Call(Box<Expr>, Token, Vec<Expr>),
     Constant(Literal),
     Variable(Token),
 }

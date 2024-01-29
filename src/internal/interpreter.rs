@@ -147,7 +147,7 @@ impl Visitor<Literal> for Interpreter {
 
                 self.visit_expr(rhs)
             }
-            Expr::Call(_func, _args) => todo!(),
+            Expr::Call(..) => todo!(),
             Expr::Constant(literal) => literal.to_owned(),
             Expr::Variable(name) => self.environment.get(name),
         }
