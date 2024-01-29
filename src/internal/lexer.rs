@@ -25,6 +25,7 @@ impl Default for Lexer {
                 ("null", TokenType::Null),
                 ("true", TokenType::True),
                 ("false", TokenType::False),
+                ("func", TokenType::Func),
                 ("if", TokenType::If),
                 ("else", TokenType::Else),
                 ("case", TokenType::Case),
