@@ -1,6 +1,7 @@
 use std::fmt;
 
 use super::ast::{Expr, Program, Stmt};
+use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::{Literal, Token};
 use super::token_type::{self, TokenType};
 
@@ -22,15 +23,20 @@ impl fmt::Debug for ParseError {
             ParseError::ExpectedExpression(token) => {
                 write!(
                     f,
-                    "[line {}] ParseError: Expected expression, but found token {:#?}",
-                    token.line, token.ty
+                    "[line {}] {:#?}: Expected expression, but found token {:#?}",
+                    token.line,
+                    ErrorType::SyntaxError,
+                    token.ty
                 )
             }
             ParseError::TokenMismatch { expected, found } => {
                 write!(
                     f,
-                    "[line {}] ParseError: Expected token {:#?} but found {:#?}",
-                    found.line, expected, found.ty
+                    "[line {}] {:#?}: Expected token {:#?} but found {:#?}",
+                    found.line,
+                    ErrorType::SyntaxError,
+                    expected,
+                    found.ty
                 )
             }
         }
@@ -322,6 +328,9 @@ impl Parser {
 
         if !self.has_type(TokenType::RParen) {
             loop {
+                if arguments.len() >= 255 {
+                    todo!("Report error");
+                }
                 arguments.push(self.expression()?);
                 if !self.match_type(TokenType::Comma) {
                     break;
