@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::error_reporter::{ErrorReporter, ErrorType};
+use super::runtime_error::RuntimeError;
 use super::token::{Literal, Token};
 
 #[derive(Default, Clone)]
@@ -19,20 +19,19 @@ impl Environment {
     }
 
     /// Returns the literal value bound to the name.
-    pub fn get(&self, name: &Token) -> Literal {
+    pub fn get(&self, name: &Token) -> Result<Literal, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
-            return value.to_owned();
+            return Ok(value.to_owned());
         }
 
         if let Some(outer_env) = &self.outer {
             return outer_env.get(name);
         }
 
-        self.token_error(
+        Err(RuntimeError::new(
             name.to_owned(),
             &format!("Undefined variable \"{}\"", name.lexeme),
-        );
-        Literal::Null
+        ))
     }
 
     /// Binds a new name to a value. If the name exists, it assigns a new value
@@ -40,8 +39,4 @@ impl Environment {
     pub fn set(&mut self, name: String, value: Literal) {
         self.store.insert(name, value);
     }
-}
-
-impl ErrorReporter for Environment {
-    const ERROR_TYPE: ErrorType = ErrorType::RuntimeError;
 }
