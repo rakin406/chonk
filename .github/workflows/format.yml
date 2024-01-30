@@ -1,23 +1,11 @@
-name: Format
+name: Format checking
 
 on: [push, pull_request]
 
 jobs:
   format:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
       - name: Run rustfmt
-        run: cargo fmt --all
-
-      - name: Commit all changed files
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Apply rustfmt changes
+        run: cargo fmt --check
