@@ -19,7 +19,7 @@ trait Callable {
     fn arity(&self) -> u8;
 
     // TODO: Add missing documentation.
-    fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal;
+    fn call(&self, interpreter: &mut Interpreter, arguments: &[Literal]) -> Literal;
 }
 
 impl Interpreter {
@@ -135,7 +135,7 @@ impl Interpreter {
                     ));
                 }
 
-                Ok(function.call(self, args))
+                Ok(function.call(self, &args))
             }
             Expr::Constant(literal) => Ok(literal.clone()),
             Expr::Variable(name) => self.environment.get(name),
@@ -224,7 +224,7 @@ impl Callable for ChonkFunction {
         todo!()
     }
 
-    fn call(&self, interpreter: &mut Interpreter, arguments: Vec<Literal>) -> Literal {
+    fn call(&self, interpreter: &mut Interpreter, arguments: &[Literal]) -> Literal {
         todo!()
     }
 }

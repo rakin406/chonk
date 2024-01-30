@@ -253,7 +253,7 @@ impl Parser {
     fn equality(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.comparison()?;
 
-        while self.match_types(Vec::from([TokenType::BangEqual, TokenType::EqEqual])) {
+        while self.match_types(&[TokenType::BangEqual, TokenType::EqEqual]) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.comparison()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -266,12 +266,12 @@ impl Parser {
     fn comparison(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.term()?;
 
-        while self.match_types(Vec::from([
+        while self.match_types(&[
             TokenType::Greater,
             TokenType::GreaterEqual,
             TokenType::Less,
             TokenType::LessEqual,
-        ])) {
+        ]) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -284,7 +284,7 @@ impl Parser {
     fn term(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.factor()?;
 
-        while self.match_types(Vec::from([TokenType::Minus, TokenType::Plus])) {
+        while self.match_types(&[TokenType::Minus, TokenType::Plus]) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.factor()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -297,11 +297,7 @@ impl Parser {
     fn factor(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.unary()?;
 
-        while self.match_types(Vec::from([
-            TokenType::Percent,
-            TokenType::Slash,
-            TokenType::Star,
-        ])) {
+        while self.match_types(&[TokenType::Percent, TokenType::Slash, TokenType::Star]) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.unary()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
@@ -312,7 +308,7 @@ impl Parser {
 
     /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
-        if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
+        if self.match_types(&[TokenType::Bang, TokenType::Minus]) {
             let operator: Token = self.previous().clone();
             // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
@@ -413,7 +409,7 @@ impl Parser {
 
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
-    fn match_types(&mut self, types: Vec<TokenType>) -> bool {
+    fn match_types(&mut self, types: &[TokenType]) -> bool {
         for ty in types.iter() {
             if self.match_type(*ty) {
                 return true;
