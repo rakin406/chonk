@@ -21,7 +21,7 @@ impl Environment {
     /// Returns the literal value bound to the name.
     pub fn get(&self, name: &Token) -> Result<Literal, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
-            return Ok(value.to_owned());
+            return Ok(value.clone());
         }
 
         if let Some(outer_env) = &self.outer {

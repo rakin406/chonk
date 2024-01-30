@@ -382,7 +382,7 @@ impl Parser {
         if self.match_type(TokenType::String) {
             match &self.previous().literal {
                 Some(Literal::String(str)) => {
-                    return Ok(Expr::Constant(Literal::String(str.to_owned())));
+                    return Ok(Expr::Constant(Literal::String(str.into())));
                 }
                 Some(_) => {}
                 None => {}
@@ -394,10 +394,10 @@ impl Parser {
             return Ok(Expr::Grouping(Box::new(expr)));
         }
         if self.match_type(TokenType::Ident) {
-            return Ok(Expr::Variable(self.previous().to_owned()));
+            return Ok(Expr::Variable(self.previous().clone()));
         }
 
-        Err(ParseError::ExpectedExpression(self.peek().clone()))
+        Err(ParseError::ExpectedExpression(self.peek().to_owned()))
     }
 
     /// Returns `true` if the current token has the given type. If so, it
@@ -452,7 +452,7 @@ impl Parser {
 
         Err(ParseError::TokenMismatch {
             expected: ty,
-            found: self.peek().clone(),
+            found: self.peek().to_owned(),
             message: message.to_string(),
         })
     }
