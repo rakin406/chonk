@@ -21,7 +21,7 @@ impl Environment {
     /// Returns the literal value bound to the name.
     pub fn get(&self, name: &Token) -> Result<Literal, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
-            return Ok(value.clone());
+            return Ok(*value);
         }
 
         if let Some(outer_env) = &self.outer {
@@ -29,7 +29,7 @@ impl Environment {
         }
 
         Err(RuntimeError::new(
-            name.to_owned(),
+            *name,
             &format!("Undefined variable \"{}\"", name.lexeme),
         ))
     }
