@@ -2,6 +2,7 @@ use super::token::Token;
 use super::token_type;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum ErrorType {
     SyntaxError,
     RuntimeError,

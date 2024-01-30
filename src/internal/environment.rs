@@ -11,6 +11,7 @@ pub struct Environment {
 
 impl Environment {
     /// Creates a new outer scope.
+    #[allow(dead_code)]
     pub fn new_outer(outer: Box<Environment>) -> Self {
         Self {
             outer: Some(outer),
