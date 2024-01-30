@@ -1,3 +1,5 @@
+#![allow(clippy::module_inception)]
+
 use std::fmt;
 
 use super::lexer::Lexer;

@@ -1,3 +1,5 @@
+#![allow(clippy::module_inception)]
+
 use super::environment::Environment;
 use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
@@ -223,7 +225,7 @@ impl Callable for ChonkFunction {
         todo!()
     }
 
-    fn call(&self, interpreter: &mut Interpreter, arguments: &[Literal]) -> Literal {
+    fn call(&self, _interpreter: &mut Interpreter, _arguments: &[Literal]) -> Literal {
         todo!()
     }
 }

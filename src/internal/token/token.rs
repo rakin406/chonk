@@ -1,3 +1,5 @@
+#![allow(clippy::module_inception)]
+
 use super::literal::Literal;
 use super::token_type::TokenType;
 
