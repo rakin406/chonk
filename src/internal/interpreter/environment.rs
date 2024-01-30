@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use super::runtime_error::RuntimeError;
-use super::token::{Literal, Token};
+use crate::internal::runtime_error::RuntimeError;
+use crate::internal::token::{Literal, Token};
 
 #[derive(Default, Clone)]
 pub struct Environment {

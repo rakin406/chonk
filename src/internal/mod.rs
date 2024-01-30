@@ -1,5 +1,4 @@
 pub mod ast;
-pub mod environment;
 pub mod error_reporter;
 pub mod interpreter;
 pub mod lexer;

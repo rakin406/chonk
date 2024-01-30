@@ -1,5 +1,5 @@
+use super::environment::Environment;
 use crate::internal::ast::{Expr, Program, Stmt};
-use crate::internal::environment::Environment;
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token};
 use crate::internal::token_type::TokenType;
