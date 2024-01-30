@@ -1,8 +1,9 @@
 use std::fmt;
 
-use super::ast::{Expr, Program, Stmt};
-use super::error_reporter::{ErrorReporter, ErrorType};
-use super::token::{token_type, Literal, Token, TokenType};
+use super::lexer::Lexer;
+use crate::internal::ast::{Expr, Program, Stmt};
+use crate::internal::error_reporter::{ErrorReporter, ErrorType};
+use crate::internal::token::{token_type, Literal, Token, TokenType};
 
 /// All possible error types in `Parser`.
 pub enum ParseError {
@@ -53,7 +54,10 @@ impl fmt::Debug for ParseError {
 
 impl Parser {
     /// Creates a new `Parser`.
-    pub fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(input: String) -> Self {
+        let mut lexer = Lexer::new(input);
+        let tokens = lexer.scan_tokens();
+
         Self {
             tokens,
             ..Default::default()
