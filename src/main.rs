@@ -103,7 +103,11 @@ fn run(interpreter: &mut interpreter::Interpreter, input: String) {
 
     // Check for parser error
     match parser.parse() {
-        Ok(program) => interpreter.interpret(program),
+        Ok(program) => {
+            if let Err(error) = interpreter.interpret(program) {
+                eprintln!("{error:?}");
+            }
+        }
         Err(error) => eprintln!("{error:?}"),
     }
 }
