@@ -39,7 +39,7 @@ impl Interpreter {
     // }
 
     /// Executes a list of statements.
-    fn execute_multiple(&mut self, statements: &Vec<Stmt>) -> Result<(), RuntimeError> {
+    fn execute_multiple(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
         for stmt in statements.iter() {
             self.execute(stmt)?;
         }
