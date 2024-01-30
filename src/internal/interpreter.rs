@@ -77,24 +77,24 @@ impl Interpreter {
     /// Interprets expression.
     fn interpret_expr(&mut self, expr: &Expr) -> Result<Literal, RuntimeError> {
         match expr {
-            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, *op, rhs)?),
+            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op.clone(), rhs)?),
             Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.ty, rhs)?),
             Expr::Grouping(e) => self.interpret_expr(e),
             Expr::Assign(name, e) => {
                 let value = &self.interpret_expr(e)?;
-                self.environment.set(name.lexeme, *value);
-                Ok(*value)
+                self.environment.set(name.lexeme.clone(), value.clone());
+                Ok(value.clone())
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(lhs, op, rhs) => {
                 let left = &self.interpret_expr(lhs)?;
 
                 if op.ty == TokenType::DoubleVBar {
-                    if is_truthy(*left) {
-                        return Ok(*left);
+                    if is_truthy(left.clone()) {
+                        return Ok(left.clone());
                     }
-                } else if !is_truthy(*left) {
-                    return Ok(*left);
+                } else if !is_truthy(left.clone()) {
+                    return Ok(left.clone());
                 }
 
                 self.interpret_expr(rhs)
@@ -107,10 +107,10 @@ impl Interpreter {
                     args.push(self.interpret_expr(arg)?);
                 }
 
-                let function = ChonkFunction::new(*callee_literal);
+                let function = ChonkFunction::new(callee_literal.clone());
                 if args.len() != function.arity().into() {
                     return Err(RuntimeError::new(
-                        *paren,
+                        paren.to_owned(),
                         &format!(
                             "Expected {} arguments but got {}",
                             function.arity(),
@@ -121,7 +121,7 @@ impl Interpreter {
 
                 Ok(function.call(self, args))
             }
-            Expr::Constant(literal) => Ok(*literal),
+            Expr::Constant(literal) => Ok(literal.clone()),
             Expr::Variable(name) => self.environment.get(name),
         }
     }
