@@ -9,6 +9,7 @@ pub struct Interpreter {
     environment: Environment,
 }
 
+#[allow(dead_code)]
 struct ChonkFunction {
     callee: Literal,
 }
@@ -24,7 +25,22 @@ trait Callable {
 impl Interpreter {
     /// Interprets a program.
     pub fn interpret(&mut self, program: Program) -> Result<(), RuntimeError> {
-        for stmt in program.get().iter() {
+        self.execute_multiple(program.get())
+    }
+
+    // fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
+    //     let previous = self.environment.clone();
+    //     self.environment = environment;
+    //
+    //     for stmt in statements.iter() {
+    //         self.walk_stmt(stmt);
+    //     }
+    //     self.environment = previous;
+    // }
+
+    /// Executes a list of statements.
+    fn execute_multiple(&mut self, statements: &Vec<Stmt>) -> Result<(), RuntimeError> {
+        for stmt in statements.iter() {
             self.execute(stmt)?;
         }
         Ok(())
@@ -39,7 +55,7 @@ impl Interpreter {
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
                 while is_truthy(self.interpret_expr(test)?) {
-                    self.execute_block(body);
+                    self.execute_multiple(body)?;
                 }
             }
             Stmt::If {
@@ -48,9 +64,9 @@ impl Interpreter {
                 or_else,
             } => {
                 if is_truthy(self.interpret_expr(test)?) {
-                    self.execute_block(body);
+                    self.execute_multiple(body)?;
                 } else if let Some(else_stmt) = or_else {
-                    self.execute_block(else_stmt);
+                    self.execute_multiple(else_stmt)?;
                 }
             }
             Stmt::Expr(expr) => {
@@ -123,23 +139,6 @@ impl Interpreter {
             }
             Expr::Constant(literal) => Ok(literal.clone()),
             Expr::Variable(name) => self.environment.get(name),
-        }
-    }
-
-    // fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
-    //     let previous = self.environment.clone();
-    //     self.environment = environment;
-    //
-    //     for stmt in statements.iter() {
-    //         self.walk_stmt(stmt);
-    //     }
-    //     self.environment = previous;
-    // }
-
-    /// Executes a block of statements.
-    fn execute_block(&mut self, statements: &Vec<Stmt>) {
-        for stmt in statements.iter() {
-            self.execute(stmt);
         }
     }
 
