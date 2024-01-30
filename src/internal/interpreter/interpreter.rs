@@ -1,8 +1,8 @@
-use super::ast::{Expr, Program, Stmt};
-use super::environment::Environment;
-use super::runtime_error::RuntimeError;
-use super::token::{Literal, Token};
-use super::token_type::TokenType;
+use crate::internal::ast::{Expr, Program, Stmt};
+use crate::internal::environment::Environment;
+use crate::internal::runtime_error::RuntimeError;
+use crate::internal::token::{Literal, Token};
+use crate::internal::token_type::TokenType;
 
 #[derive(Default)]
 pub struct Interpreter {

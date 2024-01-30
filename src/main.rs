@@ -8,7 +8,7 @@ use rustyline::DefaultEditor;
 mod cli;
 mod internal;
 
-use internal::*;
+use internal::{interpreter, lexer, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
