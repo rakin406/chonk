@@ -109,14 +109,14 @@ impl Interpreter {
 
                 let function = ChonkFunction::new(*callee_literal);
                 if args.len() != function.arity().into() {
-                    self.token_error(
+                    return Err(RuntimeError::new(
                         *paren,
                         &format!(
                             "Expected {} arguments but got {}",
                             function.arity(),
                             args.len()
                         ),
-                    );
+                    ));
                 }
 
                 Ok(function.call(self, args))
