@@ -9,7 +9,11 @@ pub struct RuntimeError {
 
 impl fmt::Debug for RuntimeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[line {}] {:?}: {}", self.token.line, self, self.message)
+        write!(
+            f,
+            "[line {}] RuntimeError: {}",
+            self.token.line, self.message
+        )
     }
 }
 
