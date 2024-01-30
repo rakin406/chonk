@@ -1,4 +1,4 @@
-use super::ast::{Expr, Program, Stmt, Visitor};
+use super::ast::{Expr, Program, Stmt};
 use super::environment::Environment;
 use super::error_reporter::{ErrorReporter, ErrorType};
 use super::token::Literal;
@@ -70,6 +70,58 @@ impl Interpreter {
         }
     }
 
+    fn visit_expr(&mut self, expr: &Expr) -> Literal {
+        match expr {
+            Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
+            Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
+            Expr::Grouping(e) => self.visit_expr(e),
+            Expr::Assign(name, e) => {
+                let value = &self.visit_expr(e);
+                self.environment
+                    .set(name.lexeme.to_owned(), value.to_owned());
+                value.to_owned()
+            }
+            Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
+            Expr::Logical(lhs, op, rhs) => {
+                let left = &self.visit_expr(lhs);
+
+                if op.ty == TokenType::DoubleVBar {
+                    if is_truthy(left.to_owned()) {
+                        return left.to_owned();
+                    }
+                } else if !is_truthy(left.to_owned()) {
+                    return left.to_owned();
+                }
+
+                self.visit_expr(rhs)
+            }
+            Expr::Call(callee, paren, arguments) => {
+                let callee_literal = &self.visit_expr(callee);
+
+                let mut args: Vec<Literal> = Vec::new();
+                for arg in arguments.iter() {
+                    args.push(self.visit_expr(arg));
+                }
+
+                let function = ChonkFunction::new(callee_literal.to_owned());
+                if args.len() != function.arity().into() {
+                    self.token_error(
+                        paren.to_owned(),
+                        &format!(
+                            "Expected {} arguments but got {}",
+                            function.arity(),
+                            args.len()
+                        ),
+                    );
+                }
+
+                function.call(self, args)
+            }
+            Expr::Constant(literal) => literal.to_owned(),
+            Expr::Variable(name) => self.environment.get(name),
+        }
+    }
+
     // fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
     //     let previous = self.environment.clone();
     //     self.environment = environment;
@@ -133,60 +185,6 @@ impl Interpreter {
                 false => Literal::Bool(true),
             },
             _ => Literal::Null,
-        }
-    }
-}
-
-impl Visitor<Literal> for Interpreter {
-    fn visit_expr(&mut self, expr: &Expr) -> Literal {
-        match expr {
-            Expr::Binary(lhs, op, rhs) => self.interpret_binary(lhs, op.ty, rhs),
-            Expr::Unary(op, rhs) => self.interpret_unary(op.ty, rhs),
-            Expr::Grouping(e) => self.visit_expr(e),
-            Expr::Assign(name, e) => {
-                let value = &self.visit_expr(e);
-                self.environment
-                    .set(name.lexeme.to_owned(), value.to_owned());
-                value.to_owned()
-            }
-            Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
-            Expr::Logical(lhs, op, rhs) => {
-                let left = &self.visit_expr(lhs);
-
-                if op.ty == TokenType::DoubleVBar {
-                    if is_truthy(left.to_owned()) {
-                        return left.to_owned();
-                    }
-                } else if !is_truthy(left.to_owned()) {
-                    return left.to_owned();
-                }
-
-                self.visit_expr(rhs)
-            }
-            Expr::Call(callee, paren, arguments) => {
-                let callee_literal = &self.visit_expr(callee);
-
-                let mut args: Vec<Literal> = Vec::new();
-                for arg in arguments.iter() {
-                    args.push(self.visit_expr(arg));
-                }
-
-                let function = ChonkFunction::new(callee_literal.to_owned());
-                if args.len() != function.arity().into() {
-                    self.token_error(
-                        paren.to_owned(),
-                        &format!(
-                            "Expected {} arguments but got {}",
-                            function.arity(),
-                            args.len()
-                        ),
-                    );
-                }
-
-                function.call(self, args)
-            }
-            Expr::Constant(literal) => literal.to_owned(),
-            Expr::Variable(name) => self.environment.get(name),
         }
     }
 }

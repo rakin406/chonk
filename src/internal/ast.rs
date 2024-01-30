@@ -61,7 +61,3 @@ impl Program {
         &self.statements
     }
 }
-
-pub trait Visitor<T> {
-    fn visit_expr(&mut self, expr: &Expr) -> T;
-}
