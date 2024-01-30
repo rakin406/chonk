@@ -5,4 +5,3 @@ pub mod lexer;
 pub mod parser;
 pub mod runtime_error;
 pub mod token;
-pub mod token_type;

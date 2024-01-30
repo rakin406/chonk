@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use super::error_reporter::{ErrorReporter, ErrorType};
-use super::token::{Literal, Token};
-use super::token_type::TokenType;
+use super::token::{Literal, Token, TokenType};
 
 pub struct Lexer {
     input: String,

@@ -2,8 +2,7 @@ use std::fmt;
 
 use super::ast::{Expr, Program, Stmt};
 use super::error_reporter::{ErrorReporter, ErrorType};
-use super::token::{Literal, Token};
-use super::token_type::{self, TokenType};
+use super::token::{token_type, Literal, Token, TokenType};
 
 /// All possible error types in `Parser`.
 pub enum ParseError {

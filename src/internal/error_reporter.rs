@@ -1,5 +1,4 @@
-use super::token::Token;
-use super::token_type;
+use super::token::{token_type, Token};
 
 #[derive(Debug)]
 #[allow(dead_code)]
