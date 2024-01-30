@@ -123,7 +123,7 @@ impl Parser {
         if !self.has_type(TokenType::RParen) {
             loop {
                 if params.len() >= 255 {
-                    self.token_error(self.peek().clone(), "Can't have more than 255 parameters");
+                    self.token_error(*self.peek(), "Can't have more than 255 parameters");
                 }
 
                 params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
@@ -210,7 +210,7 @@ impl Parser {
         let expr = self.or()?;
 
         if self.match_type(TokenType::Equal) {
-            let equals: Token = self.previous().clone();
+            let equals: Token = *self.previous();
             let value: Expr = self.assignment()?;
 
             if let Expr::Variable(name) = expr {
@@ -228,7 +228,7 @@ impl Parser {
         let mut expr = self.and()?;
 
         while self.match_type(TokenType::DoubleVBar) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.and()?;
             expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
         }
@@ -241,7 +241,7 @@ impl Parser {
         let mut expr = self.equality()?;
 
         while self.match_type(TokenType::DoubleAmper) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.equality()?;
             expr = Expr::Logical(Box::new(expr), operator, Box::new(right));
         }
@@ -254,7 +254,7 @@ impl Parser {
         let mut expr = self.comparison()?;
 
         while self.match_types(Vec::from([TokenType::BangEqual, TokenType::EqEqual])) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.comparison()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
@@ -272,7 +272,7 @@ impl Parser {
             TokenType::Less,
             TokenType::LessEqual,
         ])) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
@@ -285,7 +285,7 @@ impl Parser {
         let mut expr = self.factor()?;
 
         while self.match_types(Vec::from([TokenType::Minus, TokenType::Plus])) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.factor()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
@@ -302,7 +302,7 @@ impl Parser {
             TokenType::Slash,
             TokenType::Star,
         ])) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             let right: Expr = self.unary()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
@@ -313,7 +313,7 @@ impl Parser {
     /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
         if self.match_types(Vec::from([TokenType::Bang, TokenType::Minus])) {
-            let operator: Token = self.previous().clone();
+            let operator: Token = *self.previous();
             // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
             return Ok(Expr::Unary(operator, Box::new(right)));
@@ -344,7 +344,7 @@ impl Parser {
         if !self.has_type(TokenType::RParen) {
             loop {
                 if arguments.len() >= 255 {
-                    self.token_error(self.peek().clone(), "Can't have more than 255 arguments");
+                    self.token_error(*self.peek(), "Can't have more than 255 arguments");
                 }
 
                 arguments.push(self.expression()?);
@@ -394,10 +394,10 @@ impl Parser {
             return Ok(Expr::Grouping(Box::new(expr)));
         }
         if self.match_type(TokenType::Ident) {
-            return Ok(Expr::Variable(self.previous().clone()));
+            return Ok(Expr::Variable(*self.previous()));
         }
 
-        Err(ParseError::ExpectedExpression(self.peek().to_owned()))
+        Err(ParseError::ExpectedExpression(*self.peek()))
     }
 
     /// Returns `true` if the current token has the given type. If so, it
@@ -441,7 +441,7 @@ impl Parser {
         if !self.is_at_end() {
             self.current += 1;
         }
-        self.previous().clone()
+        *self.previous()
     }
 
     /// Checks to see if the current token is of the expected type and consumes it.
@@ -452,7 +452,7 @@ impl Parser {
 
         Err(ParseError::TokenMismatch {
             expected: ty,
-            found: self.peek().to_owned(),
+            found: *self.peek(),
             message: message.to_string(),
         })
     }
