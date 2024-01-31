@@ -58,7 +58,7 @@ impl Parser {
     /// Creates a new `Parser`.
     pub fn new(input: String) -> Self {
         let mut lexer = Lexer::new(input);
-        let tokens = lexer.scan_tokens();
+        let tokens = lexer.scan_tokens().to_vec();
 
         Self {
             tokens,
@@ -128,7 +128,7 @@ impl Parser {
         if !self.has_type(TokenType::RParen) {
             loop {
                 if params.len() >= 255 {
-                    self.token_error(self.peek().clone(), "Can't have more than 255 parameters");
+                    self.token_error(self.peek(), "Can't have more than 255 parameters");
                 }
 
                 params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
@@ -222,7 +222,7 @@ impl Parser {
                 return Ok(Expr::Assign(name, Box::new(value)));
             }
 
-            self.token_error(equals, "Invalid assignment target");
+            self.token_error(&equals, "Invalid assignment target");
         }
 
         Ok(expr)
@@ -345,7 +345,7 @@ impl Parser {
         if !self.has_type(TokenType::RParen) {
             loop {
                 if arguments.len() >= 255 {
-                    self.token_error(self.peek().clone(), "Can't have more than 255 arguments");
+                    self.token_error(self.peek(), "Can't have more than 255 arguments");
                 }
 
                 arguments.push(self.expression()?);
@@ -398,7 +398,7 @@ impl Parser {
             return Ok(Expr::Variable(self.previous().clone()));
         }
 
-        Err(ParseError::ExpectedExpression(self.peek().to_owned()))
+        Err(ParseError::ExpectedExpression(self.peek().clone()))
     }
 
     /// Returns `true` if the current token has the given type. If so, it
@@ -453,7 +453,7 @@ impl Parser {
 
         Err(ParseError::TokenMismatch {
             expected: ty,
-            found: self.peek().to_owned(),
+            found: self.peek().clone(),
             message: message.to_string(),
         })
     }
