@@ -54,7 +54,7 @@ impl Lexer {
     }
 
     /// Adds tokens from source until character ends.
-    pub fn scan_tokens(&mut self) -> Vec<Token> {
+    pub fn scan_tokens(&mut self) -> &[Token] {
         while !self.is_at_end() {
             // We are at the beginning of the next lexeme
             self.start = self.current;
@@ -63,7 +63,7 @@ impl Lexer {
 
         self.tokens
             .push(Token::new(TokenType::Eof, String::new(), None, self.line));
-        self.tokens.to_owned()
+        &self.tokens
     }
 
     /// Adds token type for the next character.
