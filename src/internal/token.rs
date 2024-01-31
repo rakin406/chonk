@@ -1,8 +1,15 @@
-mod literal;
 pub mod token_type;
 
-pub use literal::Literal;
 pub use token_type::TokenType;
+
+#[derive(Debug, Clone)]
+pub enum Literal {
+    Number(f64),
+    String(String),
+    True,
+    False,
+    Null,
+}
 
 #[derive(Debug, Clone)]
 pub struct Token {
