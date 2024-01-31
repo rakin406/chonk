@@ -93,14 +93,7 @@ impl Interpreter {
             Stmt::Echo(expr) => {
                 let value = self.interpret_expr(expr)?;
                 println!("{}", value);
-            } // Stmt::Block(statements) => {
-              //     // WARNING: I want control blocks to stay in the same outer scope. New
-              //     // environment should only be created inside function blocks.
-              //     // self.execute_block(
-              //     //     statements.clone(),
-              //     //     Environment::new_outer(Box::new(self.environment.clone())),
-              //     // );
-              // }
+            }
         }
 
         Ok(())
