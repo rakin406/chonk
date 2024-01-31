@@ -5,8 +5,8 @@ use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 use environment::Environment;
 
-#[derive(Default)]
 pub struct Interpreter {
+    globals: Environment,
     environment: Environment,
 }
 
@@ -21,6 +21,18 @@ trait Callable {
 
     // TODO: Add missing documentation.
     fn call(&self, interpreter: &mut Interpreter, arguments: &[Literal]) -> Literal;
+}
+
+impl Default for Interpreter {
+    fn default() -> Self {
+        let globals = Environment::default();
+        // TODO: Define global functions.
+
+        Self {
+            globals: globals.to_owned(),
+            environment: globals.to_owned(),
+        }
+    }
 }
 
 impl Interpreter {
