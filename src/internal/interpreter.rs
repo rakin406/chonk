@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::iter::zip;
 // use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::internal::ast::{Expr, Program, Stmt};
@@ -39,21 +40,25 @@ impl Interpreter {
         self.execute_multiple(program.get())
     }
 
-    // fn execute_block(&mut self, statements: Vec<Stmt>, environment: Environment) {
-    //     let previous = self.environment.clone();
-    //     self.environment = environment;
-    //
-    //     for stmt in statements.iter() {
-    //         self.walk_stmt(stmt);
-    //     }
-    //     self.environment = previous;
-    // }
-
     /// Executes a list of statements.
     fn execute_multiple(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
         for stmt in statements.iter() {
             self.execute(stmt)?;
         }
+        Ok(())
+    }
+
+    /// Executes a list of statements in an isolated environment.
+    fn execute_new(
+        &mut self,
+        statements: &[Stmt],
+        environment: Environment,
+    ) -> Result<(), RuntimeError> {
+        let previous = self.environment.clone();
+        self.environment = environment;
+        self.execute_multiple(statements)?;
+        self.environment = previous;
+
         Ok(())
     }
 
@@ -126,7 +131,7 @@ impl Interpreter {
 
                 self.interpret_expr(rhs)
             }
-            Expr::Call(callee, paren, arguments) => self.call(callee, paren, arguments),
+            Expr::Call(callee, paren, arguments) => todo!("self.call(callee, paren, arguments)"),
             Expr::Constant(literal) => Ok(get_value(literal)),
             Expr::Variable(name) => self.environment.get(name),
         }
@@ -179,33 +184,39 @@ impl Interpreter {
         }
     }
 
-    fn call(
-        &mut self,
-        callee: &Expr,
-        paren: &Token,
-        arguments: &[Expr],
-    ) -> Result<Value, RuntimeError> {
-        let callee_value = self.interpret_expr(callee)?;
-
-        let mut args: Vec<Value> = Vec::new();
-        for arg in arguments.iter() {
-            args.push(self.interpret_expr(arg)?);
-        }
-
-        let function = NativeFunction::new(&callee_value);
-        if args.len() != function.arity().into() {
-            return Err(RuntimeError::new(
-                paren.to_owned(),
-                &format!(
-                    "Expected {} arguments but got {}",
-                    function.arity(),
-                    args.len()
-                ),
-            ));
-        }
-
-        function.call(self, &args)
-    }
+    // fn call(
+    //     &mut self,
+    //     callee: &Expr,
+    //     paren: &Token,
+    //     arguments: &[Expr],
+    // ) -> Result<Value, RuntimeError> {
+    //     let callee_value = self.interpret_expr(callee)?;
+    //
+    //     let mut args: Vec<Value> = Vec::new();
+    //     for arg in arguments.iter() {
+    //         args.push(self.interpret_expr(arg)?);
+    //     }
+    //
+    //     self.environment.get(callee_value);
+    //     let function = ChonkFunction {
+    //         name: todo!(),
+    //         arity: 0,
+    //         callable: todo!(),
+    //     };
+    //
+    //     if args.len() != function.arity().into() {
+    //         return Err(RuntimeError::new(
+    //             paren.to_owned(),
+    //             &format!(
+    //                 "Expected {} arguments but got {}",
+    //                 function.arity(),
+    //                 args.len()
+    //             ),
+    //         ));
+    //     }
+    //
+    //     function.call(self, &args)
+    // }
 }
 
 /// Returns `true` if the value is "truthy".
@@ -233,7 +244,7 @@ enum Value {
     Number(f64),
     String(String),
     Bool(bool),
-    NativeFunction(NativeFunction),
+    ChonkFunction(ChonkFunction),
     Null,
 }
 
@@ -243,7 +254,7 @@ impl fmt::Display for Value {
             Value::Number(value) => write!(f, "{value}"),
             Value::String(value) => write!(f, "{value}"),
             Value::Bool(value) => write!(f, "{value}"),
-            Value::NativeFunction(_) => write!(f, "null"),
+            Value::ChonkFunction(_) => write!(f, "null"),
             Value::Null => write!(f, "null"),
         }
     }
@@ -257,10 +268,9 @@ struct Environment {
 
 impl Environment {
     /// Creates a new outer scope.
-    #[allow(dead_code)]
-    pub fn new_outer(outer: Box<Environment>) -> Self {
+    pub fn new_outer(outer: Environment) -> Self {
         Self {
-            outer: Some(outer),
+            outer: Some(Box::new(outer)),
             ..Default::default()
         }
     }
@@ -284,15 +294,15 @@ impl Environment {
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
     pub fn set(&mut self, name: String, value: &Value) {
-        self.store.insert(name, *value);
+        self.store.insert(name, value.to_owned());
     }
 }
 
 #[derive(Clone)]
-struct NativeFunction {
-    // callee: Literal,
-    arity: u8,
-    callable: fn(&mut Interpreter, &[Value]) -> Value,
+struct ChonkFunction {
+    name: Token,
+    params: Vec<Token>,
+    body: Vec<Stmt>,
 }
 
 trait Callable {
@@ -307,24 +317,15 @@ trait Callable {
     ) -> Result<Value, RuntimeError>;
 }
 
-impl NativeFunction {
-    /// Creates a new `NativeFunction`.
-    fn new(
-        // callee: Literal,
-        arity: u8,
-        callable: fn(&mut Interpreter, &[Value]) -> Value,
-    ) -> Self {
-        Self {
-            // callee,
-            arity,
-            callable,
-        }
+impl fmt::Display for ChonkFunction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "<function {}>", self.name.lexeme)
     }
 }
 
-impl Callable for NativeFunction {
+impl Callable for ChonkFunction {
     fn arity(&self) -> u8 {
-        self.arity
+        self.params.len().try_into().unwrap()
     }
 
     fn call(
@@ -332,6 +333,11 @@ impl Callable for NativeFunction {
         interpreter: &mut Interpreter,
         arguments: &[Value],
     ) -> Result<Value, RuntimeError> {
-        Ok((self.callable)(interpreter, arguments))
+        let mut environment = Environment::new_outer(interpreter.globals.clone());
+        for (param, arg) in zip(&self.params, arguments) {
+            environment.set(param.lexeme.clone(), arg);
+        }
+
+        // TODO: Execute block.
     }
 }
