@@ -363,10 +363,10 @@ impl Parser {
     // TODO: Add missing documentation.
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
-            return Ok(Expr::Constant(Literal::Bool(true)));
+            return Ok(Expr::Constant(Literal::True));
         }
         if self.match_type(TokenType::False) {
-            return Ok(Expr::Constant(Literal::Bool(false)));
+            return Ok(Expr::Constant(Literal::False));
         }
         if self.match_type(TokenType::Null) {
             return Ok(Expr::Constant(Literal::Null));

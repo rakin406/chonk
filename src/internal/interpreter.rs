@@ -1,18 +1,10 @@
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::fmt;
+// use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
-
-#[derive(Debug, Clone)]
-enum Value {
-    Number(f64),
-    String(String),
-    Bool(bool),
-    Null,
-    ChonkFunction(ChonkFunction),
-}
 
 pub struct Interpreter {
     globals: Environment,
@@ -21,15 +13,24 @@ pub struct Interpreter {
 
 #[derive(Default, Clone)]
 struct Environment {
-    store: HashMap<String, Literal>,
+    store: HashMap<String, Value>,
     outer: Option<Box<Environment>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct ChonkFunction {
     // callee: Literal,
     arity: u8,
     callable: fn(&mut Interpreter, &[Value]) -> Value,
+}
+
+#[derive(Clone)]
+enum Value {
+    Number(f64),
+    String(String),
+    Bool(bool),
+    ChonkFunction(ChonkFunction),
+    Null,
 }
 
 trait Callable {
@@ -66,6 +67,18 @@ impl Default for Interpreter {
     }
 }
 
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Number(value) => write!(f, "{value}"),
+            Value::String(value) => write!(f, "{value}"),
+            Value::Bool(value) => write!(f, "{value}"),
+            Value::ChonkFunction(_) => write!(f, "null"),
+            Value::Null => write!(f, "null"),
+        }
+    }
+}
+
 impl Interpreter {
     /// Interprets a program.
     pub fn interpret(&mut self, program: Program) -> Result<(), RuntimeError> {
@@ -98,7 +111,7 @@ impl Interpreter {
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
-                while is_truthy(self.interpret_expr(test)?) {
+                while is_truthy(&self.interpret_expr(test)?) {
                     self.execute_multiple(body)?;
                 }
             }
@@ -107,7 +120,7 @@ impl Interpreter {
                 body,
                 or_else,
             } => {
-                if is_truthy(self.interpret_expr(test)?) {
+                if is_truthy(&self.interpret_expr(test)?) {
                     self.execute_multiple(body)?;
                 } else if let Some(else_stmt) = or_else {
                     self.execute_multiple(else_stmt)?;
@@ -138,50 +151,51 @@ impl Interpreter {
     fn interpret_expr(&mut self, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
             Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op.clone(), rhs)?),
-            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.ty, rhs)?),
+            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.clone(), rhs)?),
             Expr::Grouping(e) => self.interpret_expr(e),
             Expr::Assign(name, e) => {
-                let value = &self.interpret_expr(e)?;
-                self.environment.set(name.lexeme.clone(), value.clone());
-                Ok(value.clone())
+                let value = self.interpret_expr(e)?;
+                self.environment.set(name.lexeme.clone(), &value);
+                Ok(value)
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(lhs, op, rhs) => {
-                let left = &self.interpret_expr(lhs)?;
+                let left = self.interpret_expr(lhs)?;
 
                 if op.ty == TokenType::DoubleVBar {
-                    if is_truthy(left.clone()) {
-                        return Ok(left.clone());
+                    if is_truthy(&left) {
+                        return Ok(left);
                     }
-                } else if !is_truthy(left.clone()) {
-                    return Ok(left.clone());
+                } else if !is_truthy(&left) {
+                    return Ok(left);
                 }
 
                 self.interpret_expr(rhs)
             }
             Expr::Call(callee, paren, arguments) => {
-                let callee_literal = &self.interpret_expr(callee)?;
+                let callee_value = self.interpret_expr(callee)?;
 
-                let mut args: Vec<Literal> = Vec::new();
+                let mut args: Vec<Value> = Vec::new();
                 for arg in arguments.iter() {
                     args.push(self.interpret_expr(arg)?);
                 }
 
-                let function = ChonkFunction::new(callee_literal.clone());
-                if args.len() != function.arity().into() {
-                    return Err(RuntimeError::new(
-                        paren.to_owned(),
-                        &format!(
-                            "Expected {} arguments but got {}",
-                            function.arity(),
-                            args.len()
-                        ),
-                    ));
-                }
-
-                Ok(function.call(self, &args))
+                todo!();
+                // let function = ChonkFunction::new(&callee_value);
+                // if args.len() != function.arity().into() {
+                //     return Err(RuntimeError::new(
+                //         paren.to_owned(),
+                //         &format!(
+                //             "Expected {} arguments but got {}",
+                //             function.arity(),
+                //             args.len()
+                //         ),
+                //     ));
+                // }
+                //
+                // function.call(self, &args)
             }
-            Expr::Constant(literal) => Ok(literal.clone()),
+            Expr::Constant(literal) => Ok(get_value(literal)),
             Expr::Variable(name) => self.environment.get(name),
         }
     }
@@ -196,63 +210,58 @@ impl Interpreter {
         let right = self.interpret_expr(rhs)?;
 
         match (left, op.ty, right) {
-            (Literal::Number(n1), TokenType::Greater, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 > n2))
+            (Value::Number(n1), TokenType::Greater, Value::Number(n2)) => Ok(Value::Bool(n1 > n2)),
+            (Value::Number(n1), TokenType::GreaterEqual, Value::Number(n2)) => {
+                Ok(Value::Bool(n1 >= n2))
             }
-            (Literal::Number(n1), TokenType::GreaterEqual, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 >= n2))
+            (Value::Number(n1), TokenType::Less, Value::Number(n2)) => Ok(Value::Bool(n1 < n2)),
+            (Value::Number(n1), TokenType::LessEqual, Value::Number(n2)) => {
+                Ok(Value::Bool(n1 <= n2))
             }
-            (Literal::Number(n1), TokenType::Less, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 < n2))
+            (Value::Number(n1), TokenType::BangEqual, Value::Number(n2)) => {
+                Ok(Value::Bool(n1 != n2))
             }
-            (Literal::Number(n1), TokenType::LessEqual, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 <= n2))
-            }
-            (Literal::Number(n1), TokenType::BangEqual, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 != n2))
-            }
-            (Literal::Number(n1), TokenType::EqEqual, Literal::Number(n2)) => {
-                Ok(Literal::Bool(n1 == n2))
-            }
-            (Literal::Number(n1), TokenType::Minus, Literal::Number(n2)) => {
-                Ok(Literal::Number(n1 - n2))
-            }
-            (Literal::Number(n1), TokenType::Plus, Literal::Number(n2)) => {
-                Ok(Literal::Number(n1 + n2))
-            }
-            (Literal::String(s1), TokenType::Plus, Literal::String(s2)) => {
-                Ok(Literal::String(s1 + &s2))
-            }
-            (Literal::Number(n1), TokenType::Slash, Literal::Number(n2)) => {
-                Ok(Literal::Number(n1 / n2))
-            }
-            (Literal::Number(n1), TokenType::Star, Literal::Number(n2)) => {
-                Ok(Literal::Number(n1 * n2))
-            }
+            (Value::Number(n1), TokenType::EqEqual, Value::Number(n2)) => Ok(Value::Bool(n1 == n2)),
+            (Value::Number(n1), TokenType::Minus, Value::Number(n2)) => Ok(Value::Number(n1 - n2)),
+            (Value::Number(n1), TokenType::Plus, Value::Number(n2)) => Ok(Value::Number(n1 + n2)),
+            (Value::String(s1), TokenType::Plus, Value::String(s2)) => Ok(Value::String(s1 + &s2)),
+            (Value::Number(n1), TokenType::Slash, Value::Number(n2)) => Ok(Value::Number(n1 / n2)),
+            (Value::Number(n1), TokenType::Star, Value::Number(n2)) => Ok(Value::Number(n1 * n2)),
             _ => Err(RuntimeError::new(op, "Invalid operands in binary operator")),
         }
     }
 
-    fn interpret_unary(&mut self, op: TokenType, rhs: &Expr) -> Result<Value, RuntimeError> {
+    fn interpret_unary(&mut self, op: Token, rhs: &Expr) -> Result<Value, RuntimeError> {
         let right = self.interpret_expr(rhs)?;
 
-        match (op, &right) {
-            (TokenType::Minus, Literal::Number(value)) => Ok(Literal::Number(-value)),
-            (TokenType::Bang, _) => match is_truthy(right) {
-                true => Ok(Literal::Bool(false)),
-                false => Ok(Literal::Bool(true)),
+        match (op.ty, right) {
+            (TokenType::Minus, Value::Number(value)) => Ok(Value::Number(-value)),
+            (TokenType::Bang, _) => match is_truthy(&right) {
+                true => Ok(Value::Bool(false)),
+                false => Ok(Value::Bool(true)),
             },
-            _ => Ok(Literal::Null),
+            _ => Err(RuntimeError::new(op, "Invalid operand to unary operator")),
         }
     }
 }
 
-/// Returns `true` if the literal is "truthy".
-fn is_truthy(literal: Literal) -> bool {
-    match literal {
-        Literal::Null => false,
-        Literal::Bool(value) => value,
+/// Returns `true` if the value is "truthy".
+fn is_truthy(value: &Value) -> bool {
+    match value {
+        Value::Null => false,
+        Value::Bool(value) => *value,
         _ => true,
+    }
+}
+
+/// Returns value from literal.
+fn get_value(literal: &Literal) -> Value {
+    match literal {
+        Literal::Number(n) => Value::Number(*n),
+        Literal::String(s) => Value::String(s.clone()),
+        Literal::True => Value::Bool(true),
+        Literal::False => Value::Bool(false),
+        Literal::Null => Value::Null,
     }
 }
 
@@ -266,8 +275,8 @@ impl Environment {
         }
     }
 
-    /// Returns the literal value bound to the name.
-    pub fn get(&self, name: &Token) -> Result<Literal, RuntimeError> {
+    /// Returns the value bound to the name.
+    pub fn get(&self, name: &Token) -> Result<Value, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
             return Ok(value.clone());
         }
@@ -284,11 +293,10 @@ impl Environment {
 
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
-    pub fn set(&mut self, name: String, value: Literal) {
-        self.store.insert(name, value);
+    pub fn set(&mut self, name: String, value: &Value) {
+        self.store.insert(name, *value);
     }
 }
-
 
 impl ChonkFunction {
     /// Creates a new `ChonkFunction`.
