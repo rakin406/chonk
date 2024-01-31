@@ -107,8 +107,8 @@ impl Interpreter {
     /// Interprets expression.
     fn interpret_expr(&mut self, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
-            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op, rhs)?),
-            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op, rhs)?),
+            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op.clone(), rhs)?),
+            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.clone(), rhs)?),
             Expr::Grouping(e) => self.interpret_expr(e),
             Expr::Assign(name, e) => {
                 let value = self.interpret_expr(e)?;
@@ -138,7 +138,7 @@ impl Interpreter {
     fn interpret_binary(
         &mut self,
         lhs: &Expr,
-        op: &Token,
+        op: Token,
         rhs: &Expr,
     ) -> Result<Value, RuntimeError> {
         let left = self.interpret_expr(lhs)?;
@@ -162,14 +162,11 @@ impl Interpreter {
             (Value::String(s1), TokenType::Plus, Value::String(s2)) => Ok(Value::String(s1 + &s2)),
             (Value::Number(n1), TokenType::Slash, Value::Number(n2)) => Ok(Value::Number(n1 / n2)),
             (Value::Number(n1), TokenType::Star, Value::Number(n2)) => Ok(Value::Number(n1 * n2)),
-            _ => Err(RuntimeError::new(
-                *op,
-                "Invalid operands in binary operator",
-            )),
+            _ => Err(RuntimeError::new(op, "Invalid operands in binary operator")),
         }
     }
 
-    fn interpret_unary(&mut self, op: &Token, rhs: &Expr) -> Result<Value, RuntimeError> {
+    fn interpret_unary(&mut self, op: Token, rhs: &Expr) -> Result<Value, RuntimeError> {
         let right = &self.interpret_expr(rhs)?;
 
         match (op.ty, right) {
@@ -178,7 +175,7 @@ impl Interpreter {
                 true => Ok(Value::Bool(false)),
                 false => Ok(Value::Bool(true)),
             },
-            _ => Err(RuntimeError::new(*op, "Invalid operand to unary operator")),
+            _ => Err(RuntimeError::new(op, "Invalid operand to unary operator")),
         }
     }
 
