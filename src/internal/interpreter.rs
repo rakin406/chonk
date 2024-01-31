@@ -11,40 +11,6 @@ pub struct Interpreter {
     environment: Environment,
 }
 
-#[derive(Default, Clone)]
-struct Environment {
-    store: HashMap<String, Value>,
-    outer: Option<Box<Environment>>,
-}
-
-#[derive(Clone)]
-struct ChonkFunction {
-    // callee: Literal,
-    arity: u8,
-    callable: fn(&mut Interpreter, &[Value]) -> Value,
-}
-
-#[derive(Clone)]
-enum Value {
-    Number(f64),
-    String(String),
-    Bool(bool),
-    ChonkFunction(ChonkFunction),
-    Null,
-}
-
-trait Callable {
-    /// Returns the number of arguments of the function.
-    fn arity(&self) -> u8;
-
-    // TODO: Add missing documentation.
-    fn call(
-        &self,
-        interpreter: &mut Interpreter,
-        arguments: &[Value],
-    ) -> Result<Value, RuntimeError>;
-}
-
 impl Default for Interpreter {
     fn default() -> Self {
         let globals = Environment::default();
@@ -52,7 +18,7 @@ impl Default for Interpreter {
 
         // globals.set(
         //     String::from("clock"),
-        //     ChonkFunction::new(0, |_, _| {
+        //     NativeFunction::new(0, |_, _| {
         //         match SystemTime::now().duration_since(UNIX_EPOCH) {
         //             Ok(n) => Literal::Number(n.as_secs().into()),
         //             Err(_) => panic!("Time went backwards!"),
@@ -63,18 +29,6 @@ impl Default for Interpreter {
         Self {
             globals: globals.to_owned(),
             environment: globals.to_owned(),
-        }
-    }
-}
-
-impl fmt::Display for Value {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Value::Number(value) => write!(f, "{value}"),
-            Value::String(value) => write!(f, "{value}"),
-            Value::Bool(value) => write!(f, "{value}"),
-            Value::ChonkFunction(_) => write!(f, "null"),
-            Value::Null => write!(f, "null"),
         }
     }
 }
@@ -238,7 +192,7 @@ impl Interpreter {
             args.push(self.interpret_expr(arg)?);
         }
 
-        let function = ChonkFunction::new(&callee_value);
+        let function = NativeFunction::new(&callee_value);
         if args.len() != function.arity().into() {
             return Err(RuntimeError::new(
                 paren.to_owned(),
@@ -274,6 +228,33 @@ fn get_value(literal: &Literal) -> Value {
     }
 }
 
+#[derive(Clone)]
+enum Value {
+    Number(f64),
+    String(String),
+    Bool(bool),
+    NativeFunction(NativeFunction),
+    Null,
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Number(value) => write!(f, "{value}"),
+            Value::String(value) => write!(f, "{value}"),
+            Value::Bool(value) => write!(f, "{value}"),
+            Value::NativeFunction(_) => write!(f, "null"),
+            Value::Null => write!(f, "null"),
+        }
+    }
+}
+
+#[derive(Default, Clone)]
+struct Environment {
+    store: HashMap<String, Value>,
+    outer: Option<Box<Environment>>,
+}
+
 impl Environment {
     /// Creates a new outer scope.
     #[allow(dead_code)]
@@ -307,12 +288,27 @@ impl Environment {
     }
 }
 
-impl ChonkFunction {
-    /// Creates a new `ChonkFunction`.
-    // fn new(callee: Literal) -> Self {
-    //     Self { callee }
-    // }
+#[derive(Clone)]
+struct NativeFunction {
+    // callee: Literal,
+    arity: u8,
+    callable: fn(&mut Interpreter, &[Value]) -> Value,
+}
 
+trait Callable {
+    /// Returns the number of arguments of the function.
+    fn arity(&self) -> u8;
+
+    /// Calls the chonk function.
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError>;
+}
+
+impl NativeFunction {
+    /// Creates a new `NativeFunction`.
     fn new(
         // callee: Literal,
         arity: u8,
@@ -326,7 +322,7 @@ impl ChonkFunction {
     }
 }
 
-impl Callable for ChonkFunction {
+impl Callable for NativeFunction {
     fn arity(&self) -> u8 {
         self.arity
     }
