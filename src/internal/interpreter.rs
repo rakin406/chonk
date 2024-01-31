@@ -7,6 +7,10 @@ use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
+// TODO: Define native functions.
+// TODO: Variables inside a function should be visible to functions inside that
+// function. Gotta figure out how to implement it.
+
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,

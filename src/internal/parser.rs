@@ -7,6 +7,8 @@ use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
 use lexer::Lexer;
 
+// TODO: Skip newline tokens.
+
 /// All possible error types in `Parser`.
 pub enum ParseError {
     ExpectedExpression(Token),
