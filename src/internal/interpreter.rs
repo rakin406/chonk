@@ -12,6 +12,18 @@ pub struct Interpreter {
     environment: Environment,
 }
 
+trait Callable {
+    /// Returns the number of arguments of the function.
+    fn arity(&self) -> u8;
+
+    /// Calls the chonk function.
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError>;
+}
+
 impl Default for Interpreter {
     fn default() -> Self {
         let globals = Environment::default();
@@ -179,39 +191,41 @@ impl Interpreter {
         }
     }
 
-    // fn call(
-    //     &mut self,
-    //     callee: &Expr,
-    //     paren: &Token,
-    //     arguments: &[Expr],
-    // ) -> Result<Value, RuntimeError> {
-    //     let callee_value = self.interpret_expr(callee)?;
-    //
-    //     let mut args: Vec<Value> = Vec::new();
-    //     for arg in arguments.iter() {
-    //         args.push(self.interpret_expr(arg)?);
-    //     }
-    //
-    //     self.environment.get(callee_value);
-    //     let function = ChonkFunction {
-    //         name: todo!(),
-    //         arity: 0,
-    //         callable: todo!(),
-    //     };
-    //
-    //     if args.len() != function.arity().into() {
-    //         return Err(RuntimeError::new(
-    //             paren.to_owned(),
-    //             &format!(
-    //                 "Expected {} arguments but got {}",
-    //                 function.arity(),
-    //                 args.len()
-    //             ),
-    //         ));
-    //     }
-    //
-    //     function.call(self, &args)
-    // }
+    fn call(
+        &mut self,
+        callee: &Expr,
+        paren: &Token,
+        arguments: &[Expr],
+    ) -> Result<Value, RuntimeError> {
+        let callee_value = self.interpret_expr(callee)?;
+
+        let mut args: Vec<Value> = Vec::new();
+        for arg in arguments.iter() {
+            args.push(self.interpret_expr(arg)?);
+        }
+
+        let function = if let Some(func) = callee_value.as_callable() {
+            func
+        } else {
+            return Err(RuntimeError::new(
+                paren.to_owned(),
+                "Can only call functions",
+            ));
+        };
+
+        if args.len() != function.arity().into() {
+            return Err(RuntimeError::new(
+                paren.to_owned(),
+                &format!(
+                    "Expected {} arguments but got {}",
+                    function.arity(),
+                    args.len()
+                ),
+            ));
+        }
+
+        function.call(self, &args)
+    }
 }
 
 /// Returns `true` if the value is "truthy".
@@ -251,6 +265,15 @@ impl fmt::Display for Value {
             Value::Bool(value) => write!(f, "{value}"),
             Value::ChonkFunction(_) => write!(f, "null"),
             Value::Null => write!(f, "null"),
+        }
+    }
+}
+
+impl Value {
+    fn as_callable(&self) -> Option<&dyn Callable> {
+        match self {
+            Value::ChonkFunction(func) => Some(func),
+            _ => None,
         }
     }
 }
@@ -300,14 +323,6 @@ struct ChonkFunction {
     body: Vec<Stmt>,
 }
 
-trait Callable {
-    /// Returns the number of arguments of the function.
-    fn arity(&self) -> u8;
-
-    /// Calls the chonk function.
-    fn call(&self, interpreter: &mut Interpreter, arguments: &[Value]) -> Result<(), RuntimeError>;
-}
-
 impl fmt::Display for ChonkFunction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "<function {}>", self.name.lexeme)
@@ -326,12 +341,17 @@ impl Callable for ChonkFunction {
         self.params.len().try_into().unwrap()
     }
 
-    fn call(&self, interpreter: &mut Interpreter, arguments: &[Value]) -> Result<(), RuntimeError> {
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError> {
         let mut environment = Environment::new_outer(interpreter.globals.clone());
         for (param, arg) in zip(&self.params, arguments) {
             environment.set(param.lexeme.clone(), arg);
         }
 
-        interpreter.execute_new(&self.body, environment)
+        interpreter.execute_new(&self.body, environment)?;
+        Ok(Value::Null)
     }
 }
