@@ -150,8 +150,8 @@ impl Interpreter {
     /// Interprets expression.
     fn interpret_expr(&mut self, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
-            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op.clone(), rhs)?),
-            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.clone(), rhs)?),
+            Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op, rhs)?),
+            Expr::Unary(op, rhs) => Ok(self.interpret_unary(op, rhs)?),
             Expr::Grouping(e) => self.interpret_expr(e),
             Expr::Assign(name, e) => {
                 let value = self.interpret_expr(e)?;
@@ -172,29 +172,7 @@ impl Interpreter {
 
                 self.interpret_expr(rhs)
             }
-            Expr::Call(callee, paren, arguments) => {
-                let callee_value = self.interpret_expr(callee)?;
-
-                let mut args: Vec<Value> = Vec::new();
-                for arg in arguments.iter() {
-                    args.push(self.interpret_expr(arg)?);
-                }
-
-                todo!();
-                // let function = ChonkFunction::new(&callee_value);
-                // if args.len() != function.arity().into() {
-                //     return Err(RuntimeError::new(
-                //         paren.to_owned(),
-                //         &format!(
-                //             "Expected {} arguments but got {}",
-                //             function.arity(),
-                //             args.len()
-                //         ),
-                //     ));
-                // }
-                //
-                // function.call(self, &args)
-            }
+            Expr::Call(callee, paren, arguments) => self.call(callee, paren, arguments),
             Expr::Constant(literal) => Ok(get_value(literal)),
             Expr::Variable(name) => self.environment.get(name),
         }
@@ -203,7 +181,7 @@ impl Interpreter {
     fn interpret_binary(
         &mut self,
         lhs: &Expr,
-        op: Token,
+        op: &Token,
         rhs: &Expr,
     ) -> Result<Value, RuntimeError> {
         let left = self.interpret_expr(lhs)?;
@@ -227,21 +205,52 @@ impl Interpreter {
             (Value::String(s1), TokenType::Plus, Value::String(s2)) => Ok(Value::String(s1 + &s2)),
             (Value::Number(n1), TokenType::Slash, Value::Number(n2)) => Ok(Value::Number(n1 / n2)),
             (Value::Number(n1), TokenType::Star, Value::Number(n2)) => Ok(Value::Number(n1 * n2)),
-            _ => Err(RuntimeError::new(op, "Invalid operands in binary operator")),
+            _ => Err(RuntimeError::new(
+                *op,
+                "Invalid operands in binary operator",
+            )),
         }
     }
 
-    fn interpret_unary(&mut self, op: Token, rhs: &Expr) -> Result<Value, RuntimeError> {
-        let right = self.interpret_expr(rhs)?;
+    fn interpret_unary(&mut self, op: &Token, rhs: &Expr) -> Result<Value, RuntimeError> {
+        let right = &self.interpret_expr(rhs)?;
 
         match (op.ty, right) {
             (TokenType::Minus, Value::Number(value)) => Ok(Value::Number(-value)),
-            (TokenType::Bang, _) => match is_truthy(&right) {
+            (TokenType::Bang, _) => match is_truthy(right) {
                 true => Ok(Value::Bool(false)),
                 false => Ok(Value::Bool(true)),
             },
-            _ => Err(RuntimeError::new(op, "Invalid operand to unary operator")),
+            _ => Err(RuntimeError::new(*op, "Invalid operand to unary operator")),
         }
+    }
+
+    fn call(
+        &mut self,
+        callee: &Expr,
+        paren: &Token,
+        arguments: &[Expr],
+    ) -> Result<Value, RuntimeError> {
+        let callee_value = self.interpret_expr(callee)?;
+
+        let mut args: Vec<Value> = Vec::new();
+        for arg in arguments.iter() {
+            args.push(self.interpret_expr(arg)?);
+        }
+
+        let function = ChonkFunction::new(&callee_value);
+        if args.len() != function.arity().into() {
+            return Err(RuntimeError::new(
+                paren.to_owned(),
+                &format!(
+                    "Expected {} arguments but got {}",
+                    function.arity(),
+                    args.len()
+                ),
+            ));
+        }
+
+        function.call(self, &args)
     }
 }
 
