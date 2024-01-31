@@ -141,7 +141,7 @@ impl Interpreter {
 
                 self.interpret_expr(rhs)
             }
-            Expr::Call(callee, paren, arguments) => todo!("self.call(callee, paren, arguments)"),
+            Expr::Call(callee, paren, arguments) => self.call(callee, paren, arguments),
             Expr::Constant(literal) => Ok(get_value(literal)),
             Expr::Variable(name) => self.environment.get(name),
         }
