@@ -1,18 +1,35 @@
-mod environment;
+use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
-use environment::Environment;
+
+#[derive(Debug, Clone)]
+enum Value {
+    Number(f64),
+    String(String),
+    Bool(bool),
+    Null,
+    ChonkFunction(ChonkFunction),
+}
 
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,
 }
 
-#[allow(dead_code)]
+#[derive(Default, Clone)]
+struct Environment {
+    store: HashMap<String, Literal>,
+    outer: Option<Box<Environment>>,
+}
+
+#[derive(Debug, Clone)]
 struct ChonkFunction {
-    callee: Literal,
+    // callee: Literal,
+    arity: u8,
+    callable: fn(&mut Interpreter, &[Value]) -> Value,
 }
 
 trait Callable {
@@ -20,13 +37,27 @@ trait Callable {
     fn arity(&self) -> u8;
 
     // TODO: Add missing documentation.
-    fn call(&self, interpreter: &mut Interpreter, arguments: &[Literal]) -> Literal;
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError>;
 }
 
 impl Default for Interpreter {
     fn default() -> Self {
         let globals = Environment::default();
         // TODO: Define global functions.
+
+        // globals.set(
+        //     String::from("clock"),
+        //     ChonkFunction::new(0, |_, _| {
+        //         match SystemTime::now().duration_since(UNIX_EPOCH) {
+        //             Ok(n) => Literal::Number(n.as_secs().into()),
+        //             Err(_) => panic!("Time went backwards!"),
+        //         }
+        //     }),
+        // );
 
         Self {
             globals: globals.to_owned(),
@@ -104,7 +135,7 @@ impl Interpreter {
     }
 
     /// Interprets expression.
-    fn interpret_expr(&mut self, expr: &Expr) -> Result<Literal, RuntimeError> {
+    fn interpret_expr(&mut self, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
             Expr::Binary(lhs, op, rhs) => Ok(self.interpret_binary(lhs, op.clone(), rhs)?),
             Expr::Unary(op, rhs) => Ok(self.interpret_unary(op.ty, rhs)?),
@@ -160,7 +191,7 @@ impl Interpreter {
         lhs: &Expr,
         op: Token,
         rhs: &Expr,
-    ) -> Result<Literal, RuntimeError> {
+    ) -> Result<Value, RuntimeError> {
         let left = self.interpret_expr(lhs)?;
         let right = self.interpret_expr(rhs)?;
 
@@ -202,7 +233,7 @@ impl Interpreter {
         }
     }
 
-    fn interpret_unary(&mut self, op: TokenType, rhs: &Expr) -> Result<Literal, RuntimeError> {
+    fn interpret_unary(&mut self, op: TokenType, rhs: &Expr) -> Result<Value, RuntimeError> {
         let right = self.interpret_expr(rhs)?;
 
         match (op, &right) {
@@ -225,19 +256,69 @@ fn is_truthy(literal: Literal) -> bool {
     }
 }
 
+impl Environment {
+    /// Creates a new outer scope.
+    #[allow(dead_code)]
+    pub fn new_outer(outer: Box<Environment>) -> Self {
+        Self {
+            outer: Some(outer),
+            ..Default::default()
+        }
+    }
+
+    /// Returns the literal value bound to the name.
+    pub fn get(&self, name: &Token) -> Result<Literal, RuntimeError> {
+        if let Some(value) = self.store.get(&name.lexeme) {
+            return Ok(value.clone());
+        }
+
+        if let Some(outer_env) = &self.outer {
+            return outer_env.get(name);
+        }
+
+        Err(RuntimeError::new(
+            name.to_owned(),
+            &format!("Undefined variable \"{}\"", name.lexeme),
+        ))
+    }
+
+    /// Binds a new name to a value. If the name exists, it assigns a new value
+    /// to it.
+    pub fn set(&mut self, name: String, value: Literal) {
+        self.store.insert(name, value);
+    }
+}
+
+
 impl ChonkFunction {
     /// Creates a new `ChonkFunction`.
-    fn new(callee: Literal) -> Self {
-        Self { callee }
+    // fn new(callee: Literal) -> Self {
+    //     Self { callee }
+    // }
+
+    fn new(
+        // callee: Literal,
+        arity: u8,
+        callable: fn(&mut Interpreter, &[Value]) -> Value,
+    ) -> Self {
+        Self {
+            // callee,
+            arity,
+            callable,
+        }
     }
 }
 
 impl Callable for ChonkFunction {
     fn arity(&self) -> u8 {
-        todo!()
+        self.arity
     }
 
-    fn call(&self, _interpreter: &mut Interpreter, _arguments: &[Literal]) -> Literal {
-        todo!()
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError> {
+        Ok((self.callable)(interpreter, arguments))
     }
 }
