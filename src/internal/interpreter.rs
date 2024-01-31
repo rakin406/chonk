@@ -48,7 +48,7 @@ impl Interpreter {
         Ok(())
     }
 
-    /// Executes a list of statements in an isolated environment.
+    /// Executes a list of statements in a new isolated environment.
     fn execute_new(
         &mut self,
         statements: &[Stmt],
@@ -65,7 +65,12 @@ impl Interpreter {
     /// Executes statement.
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
         match stmt {
-            Stmt::Function { .. } => todo!(),
+            Stmt::Function { name, params, body } => {
+                // NOTE: Too many clones here!
+                let function = ChonkFunction::new(name.clone(), params.clone(), body.clone());
+                self.environment
+                    .set(name.lexeme.clone(), &Value::ChonkFunction(function));
+            }
             Stmt::Return(_, _, _) => todo!(),
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
@@ -303,11 +308,7 @@ trait Callable {
     fn arity(&self) -> u8;
 
     /// Calls the chonk function.
-    fn call(
-        &self,
-        interpreter: &mut Interpreter,
-        arguments: &[Value],
-    ) -> Result<Value, RuntimeError>;
+    fn call(&self, interpreter: &mut Interpreter, arguments: &[Value]) -> Result<(), RuntimeError>;
 }
 
 impl fmt::Display for ChonkFunction {
@@ -316,21 +317,24 @@ impl fmt::Display for ChonkFunction {
     }
 }
 
+impl ChonkFunction {
+    /// Creates a new `ChonkFunction`.
+    fn new(name: Token, params: Vec<Token>, body: Vec<Stmt>) -> Self {
+        Self { name, params, body }
+    }
+}
+
 impl Callable for ChonkFunction {
     fn arity(&self) -> u8 {
         self.params.len().try_into().unwrap()
     }
 
-    fn call(
-        &self,
-        interpreter: &mut Interpreter,
-        arguments: &[Value],
-    ) -> Result<Value, RuntimeError> {
+    fn call(&self, interpreter: &mut Interpreter, arguments: &[Value]) -> Result<(), RuntimeError> {
         let mut environment = Environment::new_outer(interpreter.globals.clone());
         for (param, arg) in zip(&self.params, arguments) {
             environment.set(param.lexeme.clone(), arg);
         }
 
-        // TODO: Execute block.
+        interpreter.execute_new(&self.body, environment)
     }
 }
