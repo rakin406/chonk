@@ -54,6 +54,7 @@ pub enum TokenType {
     Null,
     True,
     False,
+    Func,
     If,
     Else,
     Case,

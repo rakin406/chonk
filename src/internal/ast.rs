@@ -3,11 +3,10 @@ use super::token::{Literal, Token};
 #[allow(dead_code)]
 #[derive(Clone)]
 pub enum Stmt {
-    FunctionDef {
-        name: Expr,
-        args: Option<Vec<Expr>>,
-        body: Box<Stmt>,
-        returns: Option<Expr>,
+    Function {
+        name: Token,
+        params: Vec<Token>,
+        body: Vec<Stmt>,
     },
     Return(Token, Option<Expr>, Token),
     Delete(Token, Vec<Expr>),
@@ -18,19 +17,18 @@ pub enum Stmt {
     },
     While {
         test: Expr,
-        body: Box<Stmt>,
+        body: Vec<Stmt>,
     },
     If {
         test: Expr,
-        body: Box<Stmt>,
-        or_else: Option<Box<Stmt>>,
+        body: Vec<Stmt>,
+        or_else: Option<Vec<Stmt>>,
     },
 
     Expr(Expr),
     Break,
     Continue,
     Echo(Expr),
-    Block(Vec<Stmt>),
 }
 
 #[allow(dead_code)]
@@ -62,8 +60,4 @@ impl Program {
     pub fn get(&self) -> &Vec<Stmt> {
         &self.statements
     }
-}
-
-pub trait Visitor<T> {
-    fn visit_expr(&mut self, expr: &Expr) -> T;
 }

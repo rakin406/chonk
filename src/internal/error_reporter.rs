@@ -1,7 +1,7 @@
-use super::token::Token;
-use super::token_type;
+use super::token::{token_type, Token};
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum ErrorType {
     SyntaxError,
     RuntimeError,
@@ -16,7 +16,7 @@ pub trait ErrorReporter {
     }
 
     /// Reports a token error.
-    fn token_error(&self, token: Token, message: &str) {
+    fn token_error(&self, token: &Token, message: &str) {
         if token_type::is_eof(token.ty) {
             self.report(token.line, " at end", message);
         } else {

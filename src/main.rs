@@ -8,7 +8,7 @@ use rustyline::DefaultEditor;
 mod cli;
 mod internal;
 
-use internal::*;
+use internal::{interpreter, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -89,21 +89,14 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
 
 /// Runs `Chonk` code.
 fn run(interpreter: &mut interpreter::Interpreter, input: String) {
-    // I know this looks weird :/
-    let mut lexer = lexer::Lexer::new(input);
-    let tokens = lexer.scan_tokens();
+    let mut parser = parser::Parser::new(input);
 
-    // NOTE: This snippet is purely for printing the tokens.
-    // Print the tokens
-    // for token in tokens.iter() {
-    //     println!("{:#?}", token);
-    // }
-
-    let mut parser = parser::Parser::new(tokens);
-
-    // Check for parser error
     match parser.parse() {
-        Ok(program) => interpreter.interpret(program),
+        Ok(program) => {
+            if let Err(error) = interpreter.interpret(program) {
+                eprintln!("{error:?}");
+            }
+        }
         Err(error) => eprintln!("{error:?}"),
     }
 }
