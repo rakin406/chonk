@@ -7,7 +7,7 @@ use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
 use lexer::Lexer;
 
-// TODO: Skip newline tokens.
+// TODO: Find a way to skip newline tokens except for specific statements.
 
 /// All possible error types in `Parser`.
 pub enum ParseError {
@@ -125,6 +125,7 @@ impl Parser {
     fn function_statement(&mut self) -> Result<Stmt, ParseError> {
         let name: Token = self.consume(TokenType::Ident, "Expected function name")?;
         self.consume(TokenType::LParen, "Expected '(' after function name")?;
+        let _ = self.match_type(TokenType::Newline); // optional newline
         let mut params: Vec<Token> = Vec::new();
 
         if !self.has_type(TokenType::RParen) {
@@ -134,14 +135,18 @@ impl Parser {
                 }
 
                 params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
-                if !self.match_type(TokenType::Comma) {
+
+                if self.match_type(TokenType::Comma) {
+                    let _ = self.match_type(TokenType::Newline);
+                } else {
                     break;
                 }
             }
         }
 
+        let _ = self.match_type(TokenType::Newline);
         self.consume(TokenType::RParen, "Expected ')' after parameters")?;
-        let _ = self.match_type(TokenType::Newline); // optional newline
+        let _ = self.match_type(TokenType::Newline);
         let body: Vec<Stmt> = self.block()?;
 
         Ok(Stmt::Function { name, params, body })
@@ -180,14 +185,14 @@ impl Parser {
     /// Parses expression statement.
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = self.expression()?;
-        self.consume_newline("Expected newline after expression")?;
+        self.consume(TokenType::Newline, "Expected newline after expression")?;
         Ok(Stmt::Expr(expr))
     }
 
     /// Parses echo statement.
     fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
         let value = self.expression()?;
-        self.consume_newline("Expected newline after value")?;
+        self.consume(TokenType::Newline, "Expected newline after value")?;
         Ok(Stmt::Echo(value))
     }
 
@@ -195,7 +200,7 @@ impl Parser {
     fn block(&mut self) -> Result<Vec<Stmt>, ParseError> {
         self.consume(TokenType::LBrace, "Expected '{' before block")?;
         // Enter block after newline
-        self.consume_newline("Expected newline after '{'")?;
+        self.consume(TokenType::Newline, "Expected newline after '{'")?;
         let mut statements: Vec<Stmt> = Vec::new();
 
         while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
@@ -343,6 +348,7 @@ impl Parser {
     /// Finishes function call expression.
     fn finish_call(&mut self, callee: Expr) -> Result<Expr, ParseError> {
         let mut arguments: Vec<Expr> = Vec::new();
+        let _ = self.match_type(TokenType::Newline); // optional newline
 
         if !self.has_type(TokenType::RParen) {
             loop {
@@ -351,12 +357,16 @@ impl Parser {
                 }
 
                 arguments.push(self.expression()?);
-                if !self.match_type(TokenType::Comma) {
+
+                if self.match_type(TokenType::Comma) {
+                    let _ = self.match_type(TokenType::Newline);
+                } else {
                     break;
                 }
             }
         }
 
+        let _ = self.match_type(TokenType::Newline);
         let paren: Token = self.consume(TokenType::RParen, "Expected ')' after arguments")?;
 
         Ok(Expr::Call(Box::new(callee), paren, arguments))
@@ -406,8 +416,6 @@ impl Parser {
     /// Returns `true` if the current token has the given type. If so, it
     /// consumes the token.
     fn match_type(&mut self, ty: TokenType) -> bool {
-        // self.skip_newlines();
-
         if self.has_type(ty) {
             self.advance();
             return true;
@@ -441,26 +449,18 @@ impl Parser {
         token_type::is_eof(self.peek().ty)
     }
 
-    /// Skips newline tokens until the current token is a different one.
-    #[allow(dead_code)]
-    fn skip_newlines(&mut self) {
-        while self.has_type(TokenType::Newline) {
-            self.advance();
-        }
-    }
-
     /// Consumes the current token and returns it.
-    fn advance(&mut self) -> Token {
+    fn advance(&mut self) -> &Token {
         if !self.is_at_end() {
             self.current += 1;
         }
-        self.previous().clone()
+        self.previous()
     }
 
     /// Checks to see if the current token is of the expected type and consumes it.
     fn consume(&mut self, ty: TokenType, message: &str) -> Result<Token, ParseError> {
         if self.has_type(ty) {
-            return Ok(self.advance());
+            return Ok(self.advance().clone());
         }
 
         Err(ParseError::TokenMismatch {
@@ -468,22 +468,6 @@ impl Parser {
             found: self.peek().clone(),
             message: message.to_string(),
         })
-    }
-
-    /// Consumes newline token.
-    fn consume_newline(&mut self, message: &str) -> Result<(), ParseError> {
-        if self.is_at_end() || self.has_type(TokenType::Newline) {
-            self.advance();
-        } else {
-            // TODO: Create a new error type.
-            return Err(ParseError::TokenMismatch {
-                expected: TokenType::Newline,
-                found: self.peek().clone(),
-                message: message.to_string(),
-            });
-        }
-
-        Ok(())
     }
 
     /// Returns the current token which is yet to consume.
