@@ -13,6 +13,7 @@ use crate::internal::token::{Literal, Token, TokenType};
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,
+    retval: Option<Value>,
 }
 
 trait Callable {
@@ -44,8 +45,9 @@ impl Default for Interpreter {
         );
 
         Self {
-            globals: globals.to_owned(),
-            environment: globals.to_owned(),
+            globals: globals.clone(),
+            environment: globals.clone(),
+            retval: None,
         }
     }
 }
@@ -80,6 +82,11 @@ impl Interpreter {
 
     /// Executes statement.
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
+        // TODO: This code stops the program after first return. Change things up!
+        if self.retval.is_some() {
+            return Ok(());
+        }
+
         match stmt {
             Stmt::Function { name, params, body } => {
                 // NOTE: Too many clones here!
@@ -88,9 +95,10 @@ impl Interpreter {
                     .set(name.lexeme.clone(), &Value::ChonkFunction(function));
             }
             Stmt::Return { keyword: _, value } => {
-                if let Some(expr) = value {
-                    self.interpret_expr(expr)?;
-                }
+                self.retval = Some(match value {
+                    Some(expr) => self.interpret_expr(expr)?,
+                    None => Value::Null,
+                });
             }
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
@@ -215,15 +223,12 @@ impl Interpreter {
         let function = if let Some(func) = callee_value.as_callable() {
             func
         } else {
-            return Err(RuntimeError::new(
-                paren.to_owned(),
-                "Can only call functions",
-            ));
+            return Err(RuntimeError::new(paren.clone(), "Can only call functions"));
         };
 
         if args.len() != function.arity().into() {
             return Err(RuntimeError::new(
-                paren.to_owned(),
+                paren.clone(),
                 &format!(
                     "Expected {} arguments but got {}",
                     function.arity(),
@@ -315,7 +320,7 @@ impl Environment {
         }
 
         Err(RuntimeError::new(
-            name.to_owned(),
+            name.clone(),
             &format!("Undefined variable \"{}\"", name.lexeme),
         ))
     }
@@ -323,7 +328,7 @@ impl Environment {
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
     pub fn set(&mut self, name: String, value: &Value) {
-        self.store.insert(name, value.to_owned());
+        self.store.insert(name, value.clone());
     }
 }
 
@@ -390,6 +395,9 @@ impl Callable for ChonkFunction {
         }
 
         interpreter.execute_new(&self.body, environment)?;
-        Ok(Value::Null)
+        match &interpreter.retval {
+            Some(value) => Ok(value.clone()),
+            None => Ok(Value::Null),
+        }
     }
 }
