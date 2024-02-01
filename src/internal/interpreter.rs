@@ -321,6 +321,33 @@ impl Environment {
 }
 
 #[derive(Clone)]
+struct NativeFunction {
+    name: String,
+    arity: u8,
+    callable: fn(&mut Interpreter, &[Value]) -> Result<Value, RuntimeError>,
+}
+
+impl fmt::Display for NativeFunction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "<native function {}>", self.name)
+    }
+}
+
+impl Callable for NativeFunction {
+    fn arity(&self) -> u8 {
+        self.arity
+    }
+
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError> {
+        (self.callable)(interpreter, arguments)
+    }
+}
+
+#[derive(Clone)]
 struct ChonkFunction {
     name: Token,
     params: Vec<Token>,
