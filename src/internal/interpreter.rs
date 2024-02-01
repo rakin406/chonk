@@ -267,7 +267,7 @@ impl fmt::Display for Value {
             Value::Number(value) => write!(f, "{value}"),
             Value::String(value) => write!(f, "{value}"),
             Value::Bool(value) => write!(f, "{value}"),
-            Value::ChonkFunction(_) => write!(f, "null"),
+            Value::ChonkFunction(func) => write!(f, "{func}"),
             Value::Null => write!(f, "null"),
         }
     }
