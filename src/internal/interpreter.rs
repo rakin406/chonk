@@ -89,8 +89,13 @@ impl Interpreter {
 
         match stmt {
             Stmt::Function { name, params, body } => {
-                // NOTE: Too many clones here!
-                let function = ChonkFunction::new(name.clone(), params.clone(), body.clone());
+                let function = ChonkFunction {
+                    // NOTE: Too many clones here!
+                    name: name.clone(),
+                    params: params.clone(),
+                    body: body.clone(),
+                    closure: self.environment.clone(),
+                };
                 self.environment
                     .set(name.lexeme.clone(), &Value::ChonkFunction(function));
             }
@@ -364,18 +369,12 @@ struct ChonkFunction {
     name: Token,
     params: Vec<Token>,
     body: Vec<Stmt>,
+    closure: Environment,
 }
 
 impl fmt::Display for ChonkFunction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "<function {}>", self.name.lexeme)
-    }
-}
-
-impl ChonkFunction {
-    /// Creates a new `ChonkFunction`.
-    fn new(name: Token, params: Vec<Token>, body: Vec<Stmt>) -> Self {
-        Self { name, params, body }
     }
 }
 
@@ -389,7 +388,7 @@ impl Callable for ChonkFunction {
         interpreter: &mut Interpreter,
         arguments: &[Value],
     ) -> Result<Value, RuntimeError> {
-        let mut environment = Environment::new_outer(interpreter.globals.clone());
+        let mut environment = Environment::new_outer(self.closure.clone());
         for (param, arg) in zip(&self.params, arguments) {
             environment.set(param.lexeme.clone(), arg);
         }
