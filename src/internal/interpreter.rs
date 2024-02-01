@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::iter::zip;
-// use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
-// TODO: Define native functions.
 // TODO: Variables inside a function should be visible to functions inside that
 // function. Gotta figure out how to implement it.
 
@@ -30,18 +29,19 @@ trait Callable {
 
 impl Default for Interpreter {
     fn default() -> Self {
-        let globals = Environment::default();
-        // TODO: Define global functions.
+        let mut globals = Environment::default();
 
-        // globals.set(
-        //     String::from("clock"),
-        //     NativeFunction::new(0, |_, _| {
-        //         match SystemTime::now().duration_since(UNIX_EPOCH) {
-        //             Ok(n) => Literal::Number(n.as_secs().into()),
-        //             Err(_) => panic!("Time went backwards!"),
-        //         }
-        //     }),
-        // );
+        globals.set(
+            String::from("clock"),
+            &Value::NativeFunction(NativeFunction {
+                name: String::from("clock"),
+                arity: 0,
+                callable: |_, _| match SystemTime::now().duration_since(UNIX_EPOCH) {
+                    Ok(n) => Ok(Value::Number(n.as_secs_f64())),
+                    Err(_) => panic!("Time went backwards!"),
+                },
+            }),
+        );
 
         Self {
             globals: globals.to_owned(),
@@ -257,6 +257,7 @@ enum Value {
     Number(f64),
     String(String),
     Bool(bool),
+    NativeFunction(NativeFunction),
     ChonkFunction(ChonkFunction),
     Null,
 }
@@ -267,6 +268,7 @@ impl fmt::Display for Value {
             Value::Number(value) => write!(f, "{value}"),
             Value::String(value) => write!(f, "{value}"),
             Value::Bool(value) => write!(f, "{value}"),
+            Value::NativeFunction(func) => write!(f, "{func}"),
             Value::ChonkFunction(func) => write!(f, "{func}"),
             Value::Null => write!(f, "null"),
         }
@@ -276,6 +278,7 @@ impl fmt::Display for Value {
 impl Value {
     fn as_callable(&self) -> Option<&dyn Callable> {
         match self {
+            Value::NativeFunction(func) => Some(func),
             Value::ChonkFunction(func) => Some(func),
             _ => None,
         }
@@ -317,6 +320,33 @@ impl Environment {
     /// to it.
     pub fn set(&mut self, name: String, value: &Value) {
         self.store.insert(name, value.to_owned());
+    }
+}
+
+#[derive(Clone)]
+struct NativeFunction {
+    name: String,
+    arity: u8,
+    callable: fn(&mut Interpreter, &[Value]) -> Result<Value, RuntimeError>,
+}
+
+impl fmt::Display for NativeFunction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "<native function {}>", self.name)
+    }
+}
+
+impl Callable for NativeFunction {
+    fn arity(&self) -> u8 {
+        self.arity
+    }
+
+    fn call(
+        &self,
+        interpreter: &mut Interpreter,
+        arguments: &[Value],
+    ) -> Result<Value, RuntimeError> {
+        (self.callable)(interpreter, arguments)
     }
 }
 
