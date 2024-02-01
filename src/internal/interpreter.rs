@@ -87,7 +87,11 @@ impl Interpreter {
                 self.environment
                     .set(name.lexeme.clone(), &Value::ChonkFunction(function));
             }
-            Stmt::Return(_, _, _) => todo!(),
+            Stmt::Return { keyword: _, value } => {
+                if let Some(expr) = value {
+                    self.interpret_expr(expr)?;
+                }
+            }
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
