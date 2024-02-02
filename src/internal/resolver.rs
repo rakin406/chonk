@@ -27,6 +27,10 @@ impl Resolver {
         }
     }
 
+    fn begin_scope(&mut self) {
+        self.scopes.push(HashMap::new());
+    }
+
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::Function { name, params, body } => {}
@@ -45,4 +49,18 @@ impl Resolver {
             Stmt::Echo(expr) => {}
         }
     }
+
+    // fn visit_expr(&mut self, expr: &Expr) {
+    //     match expr {
+    //         Expr::Binary(lhs, op, rhs) => todo!(),
+    //         Expr::Unary(op, rhs) => todo!(),
+    //         Expr::Grouping(e) => todo!(),
+    //         Expr::Assign(name, e) => todo!(),
+    //         Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
+    //         Expr::Logical(lhs, op, rhs) => todo!(),
+    //         Expr::Call(callee, paren, arguments) => todo!(),
+    //         Expr::Constant(literal) => todo!(),
+    //         Expr::Variable(name) => todo!(),
+    //     }
+    // }
 }
