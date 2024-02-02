@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::internal::ast::{Expr, Stmt};
 use crate::internal::interpreter::Interpreter;
+use crate::internal::token::Token;
 
 #[allow(dead_code)]
 #[derive(Default)]
@@ -33,6 +34,14 @@ impl Resolver {
 
     fn end_scope(&mut self) {
         self.scopes.pop();
+    }
+
+    fn assign(&mut self, name: &Token) {
+        if !self.scopes.is_empty() {
+            if let Some(map) = self.scopes.first_mut() {
+                map.insert(name.lexeme.to_owned(), true);
+            }
+        }
     }
 
     fn walk_stmt(&mut self, stmt: &Stmt) {
