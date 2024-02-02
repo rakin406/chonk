@@ -98,7 +98,10 @@ impl Resolver {
 
     fn resolve_expr(&mut self, expr: &Expr) {
         match expr {
-            Expr::Binary(lhs, op, rhs) => todo!(),
+            Expr::Binary(lhs, _, rhs) => {
+                self.resolve_expr(lhs);
+                self.resolve_expr(rhs);
+            }
             Expr::Unary(op, rhs) => todo!(),
             Expr::Grouping(e) => todo!(),
             Expr::Assign(name, e) => {
