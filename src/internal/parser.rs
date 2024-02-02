@@ -7,8 +7,6 @@ use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
 use lexer::Lexer;
 
-// TODO: Find a way to skip newline tokens except for specific statements.
-
 /// All possible error types in `Parser`.
 pub enum ParseError {
     ExpectedExpression(Token),
@@ -85,7 +83,7 @@ impl Parser {
         self.advance();
 
         while !self.is_at_end() {
-            if self.previous().ty == TokenType::Newline {
+            if self.previous().ty == TokenType::Semicolon {
                 break;
             }
 
@@ -128,7 +126,6 @@ impl Parser {
     fn function_statement(&mut self) -> Result<Stmt, ParseError> {
         let name: Token = self.consume(TokenType::Ident, "Expected function name")?;
         self.consume(TokenType::LParen, "Expected '(' after function name")?;
-        let _ = self.match_type(TokenType::Newline); // optional newline
         let mut params: Vec<Token> = Vec::new();
 
         if !self.has_type(TokenType::RParen) {
@@ -139,17 +136,13 @@ impl Parser {
 
                 params.push(self.consume(TokenType::Ident, "Expected parameter name")?);
 
-                if self.match_type(TokenType::Comma) {
-                    let _ = self.match_type(TokenType::Newline);
-                } else {
+                if !self.match_type(TokenType::Comma) {
                     break;
                 }
             }
         }
 
-        let _ = self.match_type(TokenType::Newline);
         self.consume(TokenType::RParen, "Expected ')' after parameters")?;
-        let _ = self.match_type(TokenType::Newline);
         let body: Vec<Stmt> = self.block()?;
 
         Ok(Stmt::Function { name, params, body })
@@ -158,34 +151,29 @@ impl Parser {
     /// Parses return statement.
     fn return_statement(&mut self) -> Result<Stmt, ParseError> {
         let keyword: Token = self.previous().clone();
-        let value = if !self.has_type(TokenType::Newline) {
+        let value = if !self.has_type(TokenType::Semicolon) {
             Some(self.expression()?)
         } else {
             None
         };
 
-        self.consume(TokenType::Newline, "Expected newline after return value")?;
+        self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
         Ok(Stmt::Return { keyword, value })
     }
 
     /// Parses while statement.
     fn while_statement(&mut self) -> Result<Stmt, ParseError> {
         let test = self.expression()?;
-        let _ = self.match_type(TokenType::Newline); // optional newline
         let body: Vec<Stmt> = self.block()?;
-
         Ok(Stmt::While { test, body })
     }
 
     /// Parses if statement.
     fn if_statement(&mut self) -> Result<Stmt, ParseError> {
         let test = self.expression()?;
-        // Optional newline after condition
-        let _ = self.match_type(TokenType::Newline);
 
         let body: Vec<Stmt> = self.block()?;
         let or_else = if self.match_type(TokenType::Else) {
-            let _ = self.match_type(TokenType::Newline);
             Some(self.block()?)
         } else {
             None
@@ -201,22 +189,20 @@ impl Parser {
     /// Parses expression statement.
     fn expression_statement(&mut self) -> Result<Stmt, ParseError> {
         let expr = self.expression()?;
-        self.consume(TokenType::Newline, "Expected newline after expression")?;
+        self.consume(TokenType::Semicolon, "Expected ';' after expression")?;
         Ok(Stmt::Expr(expr))
     }
 
     /// Parses echo statement.
     fn echo_statement(&mut self) -> Result<Stmt, ParseError> {
         let value = self.expression()?;
-        self.consume(TokenType::Newline, "Expected newline after value")?;
+        self.consume(TokenType::Semicolon, "Expected ';' after value")?;
         Ok(Stmt::Echo(value))
     }
 
     /// Parses a block of statements.
     fn block(&mut self) -> Result<Vec<Stmt>, ParseError> {
         self.consume(TokenType::LBrace, "Expected '{' before block")?;
-        // Enter block after newline
-        self.consume(TokenType::Newline, "Expected newline after '{'")?;
         let mut statements: Vec<Stmt> = Vec::new();
 
         while !self.has_type(TokenType::RBrace) && !self.is_at_end() {
@@ -224,7 +210,6 @@ impl Parser {
         }
 
         self.consume(TokenType::RBrace, "Expected '}' after block")?;
-        let _ = self.match_type(TokenType::Newline); // optional newline
         Ok(statements)
     }
 
@@ -364,7 +349,6 @@ impl Parser {
     /// Finishes function call expression.
     fn finish_call(&mut self, callee: Expr) -> Result<Expr, ParseError> {
         let mut arguments: Vec<Expr> = Vec::new();
-        let _ = self.match_type(TokenType::Newline); // optional newline
 
         if !self.has_type(TokenType::RParen) {
             loop {
@@ -374,15 +358,12 @@ impl Parser {
 
                 arguments.push(self.expression()?);
 
-                if self.match_type(TokenType::Comma) {
-                    let _ = self.match_type(TokenType::Newline);
-                } else {
+                if !self.match_type(TokenType::Comma) {
                     break;
                 }
             }
         }
 
-        let _ = self.match_type(TokenType::Newline);
         let paren: Token = self.consume(TokenType::RParen, "Expected ')' after arguments")?;
 
         Ok(Expr::Call(Box::new(callee), paren, arguments))
