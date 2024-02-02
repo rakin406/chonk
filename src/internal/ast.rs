@@ -13,11 +13,6 @@ pub enum Stmt {
         value: Option<Expr>,
     },
     Delete(Token, Vec<Expr>),
-
-    For {
-        target: Expr,
-        body: Box<Stmt>,
-    },
     While {
         test: Expr,
         body: Vec<Stmt>,
@@ -27,7 +22,6 @@ pub enum Stmt {
         body: Vec<Stmt>,
         or_else: Option<Vec<Stmt>>,
     },
-
     Expr(Expr),
     Break,
     Continue,
