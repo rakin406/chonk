@@ -27,14 +27,14 @@ fn main() {
         );
         run_prompt(&mut interpreter);
     } else if let Some(file) = args.file {
-        run_file(&mut interpreter, file);
+        run_file(&mut interpreter, &file);
     }
 }
 
 /// Reads a source file and executes it.
-fn run_file(interpreter: &mut interpreter::Interpreter, path: String) {
+fn run_file(interpreter: &mut interpreter::Interpreter, path: &str) {
     let contents = fs::read_to_string(path).expect("Unable to read file");
-    run(interpreter, contents);
+    run(interpreter, &contents);
 }
 
 /// Runs the interpreter interactively.
@@ -74,7 +74,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
                 // This is to prevent the parser failing to find newline token
                 line.push('\n');
 
-                run(interpreter, line);
+                run(interpreter, &line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
@@ -88,7 +88,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
 }
 
 /// Runs `Chonk` code.
-fn run(interpreter: &mut interpreter::Interpreter, input: String) {
+fn run(interpreter: &mut interpreter::Interpreter, input: &str) {
     let mut parser = parser::Parser::new(input);
 
     match parser.parse() {
