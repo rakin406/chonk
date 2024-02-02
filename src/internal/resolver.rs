@@ -102,7 +102,9 @@ impl Resolver {
                 self.resolve_expr(lhs);
                 self.resolve_expr(rhs);
             }
-            Expr::Unary(op, rhs) => todo!(),
+            Expr::Unary(_, rhs) => {
+                self.resolve_expr(rhs);
+            }
             Expr::Grouping(e) => {
                 self.resolve_expr(e);
             }
