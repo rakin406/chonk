@@ -81,6 +81,7 @@ impl Lexer {
             '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
+            ';' => self.add_token(Semicolon),
 
             '+' => {
                 if self.match_char('+') {
