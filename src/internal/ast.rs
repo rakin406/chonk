@@ -8,7 +8,10 @@ pub enum Stmt {
         params: Vec<Token>,
         body: Vec<Stmt>,
     },
-    Return(Token, Option<Expr>, Token),
+    Return {
+        keyword: Token,
+        value: Option<Expr>,
+    },
     Delete(Token, Vec<Expr>),
 
     For {

@@ -13,6 +13,7 @@ use crate::internal::token::{Literal, Token, TokenType};
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,
+    retval: Option<Value>,
 }
 
 trait Callable {
@@ -44,8 +45,9 @@ impl Default for Interpreter {
         );
 
         Self {
-            globals: globals.to_owned(),
-            environment: globals.to_owned(),
+            globals: globals.clone(),
+            environment: globals.clone(),
+            retval: None,
         }
     }
 }
@@ -80,14 +82,29 @@ impl Interpreter {
 
     /// Executes statement.
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
+        // TODO: This code stops the program after first return. Change things up!
+        if self.retval.is_some() {
+            return Ok(());
+        }
+
         match stmt {
             Stmt::Function { name, params, body } => {
-                // NOTE: Too many clones here!
-                let function = ChonkFunction::new(name.clone(), params.clone(), body.clone());
+                let function = ChonkFunction {
+                    // NOTE: Too many clones here!
+                    name: name.clone(),
+                    params: params.clone(),
+                    body: body.clone(),
+                    closure: self.environment.clone(),
+                };
                 self.environment
                     .set(name.lexeme.clone(), &Value::ChonkFunction(function));
             }
-            Stmt::Return(_, _, _) => todo!(),
+            Stmt::Return { keyword: _, value } => {
+                self.retval = Some(match value {
+                    Some(expr) => self.interpret_expr(expr)?,
+                    None => Value::Null,
+                });
+            }
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
@@ -211,15 +228,12 @@ impl Interpreter {
         let function = if let Some(func) = callee_value.as_callable() {
             func
         } else {
-            return Err(RuntimeError::new(
-                paren.to_owned(),
-                "Can only call functions",
-            ));
+            return Err(RuntimeError::new(paren.clone(), "Can only call functions"));
         };
 
         if args.len() != function.arity().into() {
             return Err(RuntimeError::new(
-                paren.to_owned(),
+                paren.clone(),
                 &format!(
                     "Expected {} arguments but got {}",
                     function.arity(),
@@ -311,7 +325,7 @@ impl Environment {
         }
 
         Err(RuntimeError::new(
-            name.to_owned(),
+            name.clone(),
             &format!("Undefined variable \"{}\"", name.lexeme),
         ))
     }
@@ -319,7 +333,7 @@ impl Environment {
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
     pub fn set(&mut self, name: String, value: &Value) {
-        self.store.insert(name, value.to_owned());
+        self.store.insert(name, value.clone());
     }
 }
 
@@ -355,18 +369,12 @@ struct ChonkFunction {
     name: Token,
     params: Vec<Token>,
     body: Vec<Stmt>,
+    closure: Environment,
 }
 
 impl fmt::Display for ChonkFunction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "<function {}>", self.name.lexeme)
-    }
-}
-
-impl ChonkFunction {
-    /// Creates a new `ChonkFunction`.
-    fn new(name: Token, params: Vec<Token>, body: Vec<Stmt>) -> Self {
-        Self { name, params, body }
     }
 }
 
@@ -380,12 +388,15 @@ impl Callable for ChonkFunction {
         interpreter: &mut Interpreter,
         arguments: &[Value],
     ) -> Result<Value, RuntimeError> {
-        let mut environment = Environment::new_outer(interpreter.globals.clone());
+        let mut environment = Environment::new_outer(self.closure.clone());
         for (param, arg) in zip(&self.params, arguments) {
             environment.set(param.lexeme.clone(), arg);
         }
 
         interpreter.execute_new(&self.body, environment)?;
-        Ok(Value::Null)
+        match &interpreter.retval {
+            Some(value) => Ok(value.clone()),
+            None => Ok(Value::Null),
+        }
     }
 }

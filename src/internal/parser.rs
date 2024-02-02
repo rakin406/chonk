@@ -108,6 +108,9 @@ impl Parser {
         if self.match_type(TokenType::Func) {
             return self.function_statement();
         }
+        if self.match_type(TokenType::Return) {
+            return self.return_statement();
+        }
         if self.match_type(TokenType::While) {
             return self.while_statement();
         }
@@ -150,6 +153,19 @@ impl Parser {
         let body: Vec<Stmt> = self.block()?;
 
         Ok(Stmt::Function { name, params, body })
+    }
+
+    /// Parses return statement.
+    fn return_statement(&mut self) -> Result<Stmt, ParseError> {
+        let keyword: Token = self.previous().clone();
+        let value = if !self.has_type(TokenType::Newline) {
+            Some(self.expression()?)
+        } else {
+            None
+        };
+
+        self.consume(TokenType::Newline, "Expected newline after return value")?;
+        Ok(Stmt::Return { keyword, value })
     }
 
     /// Parses while statement.
