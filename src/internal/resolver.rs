@@ -37,7 +37,11 @@ impl Resolver {
 
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
-            Stmt::Function { name, params, body } => {}
+            Stmt::Function { name, params, body } => {
+                self.begin_scope();
+                self.resolve(body);
+                self.end_scope();
+            }
             Stmt::Return { keyword: _, value } => {}
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
