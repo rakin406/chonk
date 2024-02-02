@@ -111,14 +111,17 @@ impl Resolver {
                 self.resolve_local(expr, name);
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
-            Expr::Logical(lhs, op, rhs) => todo!(),
+            Expr::Logical(lhs, _, rhs) => {
+                self.resolve_expr(lhs);
+                self.resolve_expr(rhs);
+            }
             Expr::Call(callee, _, arguments) => {
                 self.resolve_expr(callee);
                 for arg in arguments.iter() {
                     self.resolve_expr(arg);
                 }
             }
-            Expr::Constant(literal) => todo!(),
+            Expr::Constant(_) => {}
             Expr::Variable(name) => {
                 // Gotta love this nesting...
                 if !self.scopes.is_empty() {
