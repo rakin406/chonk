@@ -63,7 +63,11 @@ impl Resolver {
                 self.define(name);
                 self.resolve_function(params, body);
             }
-            Stmt::Return { keyword: _, value } => {}
+            Stmt::Return { keyword: _, value } => {
+                if let Some(expr) = value {
+                    self.resolve_expr(expr);
+                }
+            }
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {}
