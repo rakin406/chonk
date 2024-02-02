@@ -71,7 +71,13 @@ impl Resolver {
                 test,
                 body,
                 or_else,
-            } => {}
+            } => {
+                self.walk_expr(test);
+                self.resolve(body);
+                if let Some(value) = or_else {
+                    self.resolve(value);
+                }
+            }
             Stmt::Expr(expr) => {
                 self.walk_expr(expr);
             }
