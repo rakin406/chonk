@@ -36,7 +36,7 @@ impl Resolver {
         self.scopes.pop();
     }
 
-    fn assign(&mut self, name: &Token) {
+    fn define(&mut self, name: &Token) {
         if !self.scopes.is_empty() {
             if let Some(map) = self.scopes.first_mut() {
                 map.insert(name.lexeme.to_owned(), true);
@@ -48,12 +48,20 @@ impl Resolver {
         todo!();
     }
 
+    fn resolve_function(&mut self, params: &[Token], body: &[Stmt]) {
+        self.begin_scope();
+        for param in params.iter() {
+            self.define(param);
+        }
+        self.resolve(body);
+        self.end_scope();
+    }
+
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::Function { name, params, body } => {
-                self.begin_scope();
-                self.resolve(body);
-                self.end_scope();
+                self.define(name);
+                self.resolve_function(params, body);
             }
             Stmt::Return { keyword: _, value } => {}
             Stmt::Delete(_, _) => todo!(),
