@@ -1,16 +1,23 @@
+use std::collections::HashMap;
+
 use crate::internal::ast::{Expr, Stmt};
 use crate::internal::interpreter::Interpreter;
 
 #[allow(dead_code)]
+#[derive(Default)]
 struct Resolver {
     interpreter: Interpreter,
+    scopes: Vec<HashMap<String, bool>>,
 }
 
 #[allow(dead_code)]
 impl Resolver {
     /// Creates a new `Resolver`.
     fn new(interpreter: Interpreter) -> Self {
-        Self { interpreter }
+        Self {
+            interpreter,
+            ..Default::default()
+        }
     }
 
     /// Resolves a list of statements.
