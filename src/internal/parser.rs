@@ -58,7 +58,7 @@ impl fmt::Debug for ParseError {
 
 impl Parser {
     /// Creates a new `Parser`.
-    pub fn new(input: String) -> Self {
+    pub fn new(input: &str) -> Self {
         let mut lexer = Lexer::new(input);
         let tokens = lexer.scan_tokens().to_vec();
 

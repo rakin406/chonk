@@ -46,9 +46,9 @@ impl Default for Lexer {
 
 impl Lexer {
     /// Creates a new `Lexer`.
-    pub fn new(input: String) -> Self {
+    pub fn new(input: &str) -> Self {
         Self {
-            input,
+            input: input.to_string(),
             ..Default::default()
         }
     }

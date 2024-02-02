@@ -10,6 +10,7 @@ use crate::internal::token::{Literal, Token, TokenType};
 // TODO: Variables inside a function should be visible to functions inside that
 // function. Gotta figure out how to implement it.
 
+#[allow(dead_code)]
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,
@@ -33,7 +34,7 @@ impl Default for Interpreter {
         let mut globals = Environment::default();
 
         globals.set(
-            String::from("clock"),
+            "clock",
             &Value::NativeFunction(NativeFunction {
                 name: String::from("clock"),
                 arity: 0,
@@ -97,7 +98,7 @@ impl Interpreter {
                     closure: self.environment.clone(),
                 };
                 self.environment
-                    .set(name.lexeme.clone(), &Value::ChonkFunction(function));
+                    .set(&name.lexeme, &Value::ChonkFunction(function));
             }
             Stmt::Return { keyword: _, value } => {
                 self.retval = Some(match value {
@@ -145,7 +146,7 @@ impl Interpreter {
             Expr::Grouping(e) => self.interpret_expr(e),
             Expr::Assign(name, e) => {
                 let value = self.interpret_expr(e)?;
-                self.environment.set(name.lexeme.clone(), &value);
+                self.environment.set(&name.lexeme, &value);
                 Ok(value)
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
@@ -332,8 +333,8 @@ impl Environment {
 
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
-    pub fn set(&mut self, name: String, value: &Value) {
-        self.store.insert(name, value.clone());
+    pub fn set(&mut self, name: &str, value: &Value) {
+        self.store.insert(name.to_string(), value.clone());
     }
 }
 
@@ -390,7 +391,7 @@ impl Callable for ChonkFunction {
     ) -> Result<Value, RuntimeError> {
         let mut environment = Environment::new_outer(self.closure.clone());
         for (param, arg) in zip(&self.params, arguments) {
-            environment.set(param.lexeme.clone(), arg);
+            environment.set(&param.lexeme, arg);
         }
 
         interpreter.execute_new(&self.body, environment)?;
