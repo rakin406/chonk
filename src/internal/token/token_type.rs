@@ -59,8 +59,8 @@ pub enum TokenType {
     LBrace,    // {
     RBrace,    // }
     Comma,     // ,
-    Dot,       // .
     Semicolon, // ;
+    DoubleDot, // ..
 
     // Keywords
     Null,
@@ -73,6 +73,7 @@ pub enum TokenType {
     Default,
     While,
     For,
+    In,
     Break,
     Continue,
     Return,
