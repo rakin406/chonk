@@ -72,7 +72,9 @@ impl Resolver {
                 body,
                 or_else,
             } => {}
-            Stmt::Expr(expr) => {}
+            Stmt::Expr(expr) => {
+                self.walk_expr(expr);
+            }
             Stmt::Break => todo!(),
             Stmt::Continue => todo!(),
             Stmt::Echo(expr) => {}
