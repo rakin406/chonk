@@ -70,7 +70,10 @@ impl Resolver {
             }
             Stmt::Delete(_, _) => todo!(),
             Stmt::For { .. } => todo!(),
-            Stmt::While { test, body } => {}
+            Stmt::While { test, body } => {
+                self.resolve_expr(test);
+                self.resolve(body);
+            }
             Stmt::If {
                 test,
                 body,
