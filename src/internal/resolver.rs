@@ -76,7 +76,10 @@ impl Resolver {
             Expr::Binary(lhs, op, rhs) => todo!(),
             Expr::Unary(op, rhs) => todo!(),
             Expr::Grouping(e) => todo!(),
-            Expr::Assign(name, e) => todo!(),
+            Expr::Assign(name, e) => {
+                self.walk_expr(e);
+                self.resolve_local(expr, name);
+            }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(lhs, op, rhs) => todo!(),
             Expr::Call(callee, paren, arguments) => todo!(),
