@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{Literal, Token, TokenType};
 
+/// A lexer for Chonk source code.
 pub struct Lexer {
     input: String,
     tokens: Vec<Token>,
@@ -80,6 +81,7 @@ impl Lexer {
             '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
             '.' => self.add_token(Dot),
+            ';' => self.add_token(Semicolon),
 
             '+' => {
                 if self.match_char('+') {
@@ -204,18 +206,7 @@ impl Lexer {
             }
 
             ' ' | '\t' => {}
-            '\n' | '\r' => {
-                // Add newline token if last token was not newline.
-                // NOTE: The reason I am only taking one newline token at a time
-                // is because multiple newline tokens are unnecessary.
-                if let Some(token) = self.tokens.last() {
-                    if token.ty != Newline {
-                        self.add_token(Newline);
-                    }
-                }
-
-                self.line += 1;
-            }
+            '\n' | '\r' => self.line += 1,
 
             '\'' => self.add_string('\''),
             '"' => self.add_string('"'),

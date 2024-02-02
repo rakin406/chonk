@@ -1,56 +1,68 @@
 /// Token types
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
+    // Special token
     Eof,
-    Ident,
-    Number,
-    String,
-    Newline,
 
-    LParen,          // '('
-    RParen,          // ')'
-    LBracket,        // '['
-    RBracket,        // ']'
-    LBrace,          // '{'
-    RBrace,          // '}'
-    Comma,           // ','
-    Plus,            // '+'
-    Minus,           // '-'
-    Star,            // '*'
-    Slash,           // '/'
-    VBar,            // '|'
-    Amper,           // '&'
-    Less,            // '<'
-    Greater,         // '>'
-    Equal,           // '='
-    Dot,             // '.'
-    Percent,         // '%'
-    Bang,            // '!'
-    EqEqual,         // '=='
-    BangEqual,       // '!='
-    LessEqual,       // '<='
-    GreaterEqual,    // '>='
-    DoubleVBar,      // '||'
-    DoubleAmper,     // '&&'
-    Tilde,           // '~'
-    Caret,           // '^'
-    LeftShift,       // '<<'
-    RightShift,      // '>>'
-    DoubleStar,      // '**'
-    PlusEqual,       // '+='
-    MinEqual,        // '-='
-    StarEqual,       // '*='
-    SlashEqual,      // '/='
-    PercentEqual,    // '%='
-    AmperEqual,      // '&='
-    VBarEqual,       // '|='
-    CaretEqual,      // '^='
-    LeftShiftEqual,  // '<<='
-    RightShiftEqual, // '>>='
-    DoubleStarEqual, // '**='
-    DoublePlus,      // '++'
-    DoubleMinus,     // '--'
+    // Identifiers and literals
+    Ident,  // variable
+    Number, // 123
+    String, // "Hello World"
 
+    // Operators
+    Plus,       // +
+    Minus,      // -
+    Star,       // *
+    Slash,      // /
+    Percent,    // %
+    DoubleStar, // **
+
+    Amper,      // &
+    VBar,       // |
+    Caret,      // ^
+    Tilde,      // ~
+    LeftShift,  // <<
+    RightShift, // >>
+
+    PlusEqual,    // +=
+    MinEqual,     // -=
+    StarEqual,    // *=
+    SlashEqual,   // /=
+    PercentEqual, // %=
+
+    AmperEqual,      // &=
+    VBarEqual,       // |=
+    CaretEqual,      // ^=
+    LeftShiftEqual,  // <<=
+    RightShiftEqual, // >>=
+    DoubleStarEqual, // **=
+
+    DoubleAmper, // &&
+    DoubleVBar,  // ||
+    DoublePlus,  // ++
+    DoubleMinus, // --
+
+    EqEqual, // ==
+    Less,    // <
+    Greater, // >
+    Equal,   // =
+    Bang,    // !
+
+    BangEqual,    // !=
+    LessEqual,    // <=
+    GreaterEqual, // >=
+
+    LParen,    // (
+    RParen,    // )
+    LBracket,  // [
+    RBracket,  // ]
+    LBrace,    // {
+    RBrace,    // }
+    Comma,     // ,
+    Dot,       // .
+    Semicolon, // ;
+
+    // Keywords
     Null,
     True,
     False,

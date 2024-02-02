@@ -71,9 +71,6 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
                     continue;
                 }
 
-                // This is to prevent the parser failing to find newline token
-                line.push('\n');
-
                 run(interpreter, &line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
