@@ -44,7 +44,7 @@ impl Resolver {
         }
     }
 
-    fn resolve_local(&mut self, expr: &Expr, name: &Token) {
+    fn resolve_local(&mut self, _expr: &Expr, _name: &Token) {
         todo!();
     }
 

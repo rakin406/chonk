@@ -14,6 +14,7 @@ use crate::internal::token::{Literal, Token, TokenType};
 pub struct Interpreter {
     globals: Environment,
     environment: Environment,
+    locals: HashMap<Expr, usize>,
     retval: Option<Value>,
 }
 
@@ -48,6 +49,7 @@ impl Default for Interpreter {
         Self {
             globals: globals.clone(),
             environment: globals.clone(),
+            locals: HashMap::new(),
             retval: None,
         }
     }
@@ -244,6 +246,15 @@ impl Interpreter {
         }
 
         function.call(self, &args)
+    }
+
+    #[allow(dead_code)]
+    fn lookup_variable(&mut self, _name: &Token, _expr: &Expr) -> Result<Value, RuntimeError> {
+        // TODO: I need to derive Hash, Eq and PartialEq traits for Expr but I
+        // can't because Literal enum and Token struct can't implement them.
+        // What other way can I get value from the "locals" hashmap?
+        // let distance = self.locals.get();
+        todo!();
     }
 }
 
