@@ -110,7 +110,12 @@ impl Resolver {
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(lhs, op, rhs) => todo!(),
-            Expr::Call(callee, paren, arguments) => todo!(),
+            Expr::Call(callee, _, arguments) => {
+                self.resolve_expr(callee);
+                for arg in arguments.iter() {
+                    self.resolve_expr(arg);
+                }
+            }
             Expr::Constant(literal) => todo!(),
             Expr::Variable(name) => {
                 // Gotta love this nesting...
