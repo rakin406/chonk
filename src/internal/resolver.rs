@@ -44,6 +44,10 @@ impl Resolver {
         }
     }
 
+    fn resolve_local(&mut self, expr: &Expr, name: &Token) {
+        todo!();
+    }
+
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::Function { name, params, body } => {
@@ -67,17 +71,30 @@ impl Resolver {
         }
     }
 
-    // fn visit_expr(&mut self, expr: &Expr) {
-    //     match expr {
-    //         Expr::Binary(lhs, op, rhs) => todo!(),
-    //         Expr::Unary(op, rhs) => todo!(),
-    //         Expr::Grouping(e) => todo!(),
-    //         Expr::Assign(name, e) => todo!(),
-    //         Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
-    //         Expr::Logical(lhs, op, rhs) => todo!(),
-    //         Expr::Call(callee, paren, arguments) => todo!(),
-    //         Expr::Constant(literal) => todo!(),
-    //         Expr::Variable(name) => todo!(),
-    //     }
-    // }
+    fn walk_expr(&mut self, expr: &Expr) {
+        match expr {
+            Expr::Binary(lhs, op, rhs) => todo!(),
+            Expr::Unary(op, rhs) => todo!(),
+            Expr::Grouping(e) => todo!(),
+            Expr::Assign(name, e) => todo!(),
+            Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
+            Expr::Logical(lhs, op, rhs) => todo!(),
+            Expr::Call(callee, paren, arguments) => todo!(),
+            Expr::Constant(literal) => todo!(),
+            Expr::Variable(name) => {
+                // Gotta love this nesting...
+                if !self.scopes.is_empty() {
+                    if let Some(map) = self.scopes.first() {
+                        if let Some(value) = map.get(&name.lexeme) {
+                            if !value {
+                                todo!("report error");
+                            }
+                        }
+                    }
+                }
+
+                self.resolve_local(expr, name);
+            }
+        }
+    }
 }
