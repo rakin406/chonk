@@ -31,6 +31,10 @@ impl Resolver {
         self.scopes.push(HashMap::new());
     }
 
+    fn end_scope(&mut self) {
+        self.scopes.pop();
+    }
+
     fn walk_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::Function { name, params, body } => {}
