@@ -1,10 +1,8 @@
 /// Token types
 #[derive(Eq, PartialEq, Debug, Copy, Clone)]
 pub enum TokenType {
-    // Special tokens
-    Illegal,
+    // Special token
     Eof,
-    Newline, // TODO: Remove this
 
     // Identifiers and literals
     Ident,  // variable
