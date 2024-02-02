@@ -24,7 +24,7 @@ impl Resolver {
     /// Resolves a list of statements.
     fn resolve(&mut self, statements: &[Stmt]) {
         for stmt in statements.iter() {
-            self.walk_stmt(stmt);
+            self.resolve_stmt(stmt);
         }
     }
 
@@ -57,7 +57,7 @@ impl Resolver {
         self.end_scope();
     }
 
-    fn walk_stmt(&mut self, stmt: &Stmt) {
+    fn resolve_stmt(&mut self, stmt: &Stmt) {
         match stmt {
             Stmt::Function { name, params, body } => {
                 self.define(name);
@@ -72,28 +72,30 @@ impl Resolver {
                 body,
                 or_else,
             } => {
-                self.walk_expr(test);
+                self.resolve_expr(test);
                 self.resolve(body);
                 if let Some(value) = or_else {
                     self.resolve(value);
                 }
             }
             Stmt::Expr(expr) => {
-                self.walk_expr(expr);
+                self.resolve_expr(expr);
             }
             Stmt::Break => todo!(),
             Stmt::Continue => todo!(),
-            Stmt::Echo(expr) => {}
+            Stmt::Echo(expr) => {
+                self.resolve_expr(expr);
+            }
         }
     }
 
-    fn walk_expr(&mut self, expr: &Expr) {
+    fn resolve_expr(&mut self, expr: &Expr) {
         match expr {
             Expr::Binary(lhs, op, rhs) => todo!(),
             Expr::Unary(op, rhs) => todo!(),
             Expr::Grouping(e) => todo!(),
             Expr::Assign(name, e) => {
-                self.walk_expr(e);
+                self.resolve_expr(e);
                 self.resolve_local(expr, name);
             }
             Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
