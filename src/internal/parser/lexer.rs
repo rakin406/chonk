@@ -31,8 +31,6 @@ impl Default for Lexer {
                 ("case", TokenType::Case),
                 ("default", TokenType::Default),
                 ("while", TokenType::While),
-                ("for", TokenType::For),
-                ("in", TokenType::In),
                 ("break", TokenType::Break),
                 ("continue", TokenType::Continue),
                 ("return", TokenType::Return),
@@ -82,11 +80,6 @@ impl Lexer {
             '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
             ';' => self.add_token(Semicolon),
-            '.' => {
-                if self.match_char('.') {
-                    self.add_token(DoubleDot);
-                }
-            }
 
             '+' => {
                 if self.match_char('+') {

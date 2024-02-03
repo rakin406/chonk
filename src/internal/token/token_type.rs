@@ -60,7 +60,6 @@ pub enum TokenType {
     RBrace,    // }
     Comma,     // ,
     Semicolon, // ;
-    DoubleDot, // ..
 
     // Keywords
     Null,
@@ -72,8 +71,6 @@ pub enum TokenType {
     Case,
     Default,
     While,
-    For,
-    In,
     Break,
     Continue,
     Return,
