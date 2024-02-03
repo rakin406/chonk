@@ -174,14 +174,14 @@ impl Parser {
             Some(self.expression_statement()?)
         };
 
-        let maybe_condition = if self.match_type(TokenType::Semicolon) {
+        let maybe_condition = if self.has_type(TokenType::Semicolon) {
             None
         } else {
             Some(self.expression()?)
         };
         self.consume(TokenType::Semicolon, "Expected ';' after loop condition")?;
 
-        let step = if self.match_type(TokenType::RParen) {
+        let step = if self.has_type(TokenType::RParen) {
             None
         } else {
             Some(self.expression()?)
