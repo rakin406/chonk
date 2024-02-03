@@ -89,11 +89,7 @@ impl Parser {
 
             match self.peek().ty {
                 // TODO: Add function and variable here.
-                TokenType::While
-                | TokenType::For
-                | TokenType::If
-                | TokenType::Echo
-                | TokenType::Return => break,
+                TokenType::While | TokenType::If | TokenType::Echo | TokenType::Return => break,
                 _ => {}
             }
 
