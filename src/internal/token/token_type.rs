@@ -17,24 +17,11 @@ pub enum TokenType {
     Percent,    // %
     DoubleStar, // **
 
-    Amper,      // &
-    VBar,       // |
-    Caret,      // ^
-    Tilde,      // ~
-    LeftShift,  // <<
-    RightShift, // >>
-
-    PlusEqual,    // +=
-    MinEqual,     // -=
-    StarEqual,    // *=
-    SlashEqual,   // /=
-    PercentEqual, // %=
-
-    AmperEqual,      // &=
-    VBarEqual,       // |=
-    CaretEqual,      // ^=
-    LeftShiftEqual,  // <<=
-    RightShiftEqual, // >>=
+    PlusEqual,       // +=
+    MinEqual,        // -=
+    StarEqual,       // *=
+    SlashEqual,      // /=
+    PercentEqual,    // %=
     DoubleStarEqual, // **=
 
     DoubleAmper, // &&
@@ -68,8 +55,6 @@ pub enum TokenType {
     Func,
     If,
     Else,
-    Case,
-    Default,
     While,
     Break,
     Continue,
