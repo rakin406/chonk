@@ -150,11 +150,15 @@ impl Lexer {
             '&' => {
                 if self.match_char('&') {
                     self.add_token(DoubleAmper);
+                } else {
+                    self.error(self.line, "Expected another '&'");
                 }
             }
             '|' => {
                 if self.match_char('|') {
                     self.add_token(DoubleVBar);
+                } else {
+                    self.error(self.line, "Expected another '|'");
                 }
             }
 
