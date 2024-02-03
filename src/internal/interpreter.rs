@@ -193,6 +193,7 @@ impl Interpreter {
             (Value::Number(n1), TokenType::Minus, Value::Number(n2)) => Ok(Value::Number(n1 - n2)),
             (Value::Number(n1), TokenType::Plus, Value::Number(n2)) => Ok(Value::Number(n1 + n2)),
             (Value::String(s1), TokenType::Plus, Value::String(s2)) => Ok(Value::String(s1 + &s2)),
+            (Value::Number(n1), TokenType::Percent, Value::Number(n2)) => Ok(Value::Number(n1 % n2)),
             (Value::Number(n1), TokenType::Slash, Value::Number(n2)) => Ok(Value::Number(n1 / n2)),
             (Value::Number(n1), TokenType::Star, Value::Number(n2)) => Ok(Value::Number(n1 * n2)),
             _ => Err(RuntimeError::new(op, "Invalid operands in binary operator")),
