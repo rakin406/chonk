@@ -28,8 +28,6 @@ impl Default for Lexer {
                 ("func", TokenType::Func),
                 ("if", TokenType::If),
                 ("else", TokenType::Else),
-                ("case", TokenType::Case),
-                ("default", TokenType::Default),
                 ("while", TokenType::While),
                 ("break", TokenType::Break),
                 ("continue", TokenType::Continue),
@@ -74,8 +72,6 @@ impl Lexer {
         match c {
             '(' => self.add_token(LParen),
             ')' => self.add_token(RParen),
-            '[' => self.add_token(LBracket),
-            ']' => self.add_token(RBracket),
             '{' => self.add_token(LBrace),
             '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
@@ -100,13 +96,7 @@ impl Lexer {
                 }
             }
             '*' => {
-                if self.match_char('*') {
-                    if self.match_char('=') {
-                        self.add_token(DoubleStarEqual);
-                    } else {
-                        self.add_token(DoubleStar);
-                    }
-                } else if self.match_char('=') {
+                if self.match_char('=') {
                     self.add_token(StarEqual);
                 } else {
                     self.add_token(Star);
@@ -143,26 +133,14 @@ impl Lexer {
             }
 
             '>' => {
-                if self.match_char('>') {
-                    if self.match_char('=') {
-                        self.add_token(RightShiftEqual);
-                    } else {
-                        self.add_token(RightShift);
-                    }
-                } else if self.match_char('=') {
+                if self.match_char('=') {
                     self.add_token(GreaterEqual);
                 } else {
                     self.add_token(Greater);
                 }
             }
             '<' => {
-                if self.match_char('<') {
-                    if self.match_char('=') {
-                        self.add_token(LeftShiftEqual);
-                    } else {
-                        self.add_token(LeftShift);
-                    }
-                } else if self.match_char('=') {
+                if self.match_char('=') {
                     self.add_token(LessEqual);
                 } else {
                     self.add_token(Less);
@@ -172,29 +150,13 @@ impl Lexer {
             '&' => {
                 if self.match_char('&') {
                     self.add_token(DoubleAmper);
-                } else if self.match_char('=') {
-                    self.add_token(AmperEqual);
-                } else {
-                    self.add_token(Amper);
                 }
             }
             '|' => {
                 if self.match_char('|') {
                     self.add_token(DoubleVBar);
-                } else if self.match_char('=') {
-                    self.add_token(VBarEqual);
-                } else {
-                    self.add_token(VBar);
                 }
             }
-            '^' => {
-                if self.match_char('=') {
-                    self.add_token(CaretEqual);
-                } else {
-                    self.add_token(Caret);
-                }
-            }
-            '~' => self.add_token(Tilde),
 
             '#' => {
                 // A comment goes until the end of the line

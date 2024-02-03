@@ -10,32 +10,17 @@ pub enum TokenType {
     String, // "Hello World"
 
     // Operators
-    Plus,       // +
-    Minus,      // -
-    Star,       // *
-    Slash,      // /
-    Percent,    // %
-    DoubleStar, // **
-
-    Amper,      // &
-    VBar,       // |
-    Caret,      // ^
-    Tilde,      // ~
-    LeftShift,  // <<
-    RightShift, // >>
+    Plus,    // +
+    Minus,   // -
+    Star,    // *
+    Slash,   // /
+    Percent, // %
 
     PlusEqual,    // +=
     MinEqual,     // -=
     StarEqual,    // *=
     SlashEqual,   // /=
     PercentEqual, // %=
-
-    AmperEqual,      // &=
-    VBarEqual,       // |=
-    CaretEqual,      // ^=
-    LeftShiftEqual,  // <<=
-    RightShiftEqual, // >>=
-    DoubleStarEqual, // **=
 
     DoubleAmper, // &&
     DoubleVBar,  // ||
@@ -54,8 +39,6 @@ pub enum TokenType {
 
     LParen,    // (
     RParen,    // )
-    LBracket,  // [
-    RBracket,  // ]
     LBrace,    // {
     RBrace,    // }
     Comma,     // ,
@@ -68,8 +51,6 @@ pub enum TokenType {
     Func,
     If,
     Else,
-    Case,
-    Default,
     While,
     Break,
     Continue,

@@ -289,7 +289,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses binary term expression.
     fn term(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.factor()?;
 
@@ -302,7 +302,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses binary factor expression.
     fn factor(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.unary()?;
 
@@ -317,9 +317,8 @@ impl Parser {
 
     /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
-        if self.match_types(&[TokenType::Bang, TokenType::Minus]) {
+        if self.match_types(&[TokenType::Bang, TokenType::Minus, TokenType::Plus]) {
             let operator: Token = self.previous().clone();
-            // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
             return Ok(Expr::Unary(operator, Box::new(right)));
         }
@@ -365,7 +364,7 @@ impl Parser {
         Ok(Expr::Call(Box::new(callee), paren, arguments))
     }
 
-    // TODO: Add missing documentation.
+    /// Parses primary expression.
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
             return Ok(Expr::Constant(Literal::True));
