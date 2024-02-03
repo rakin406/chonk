@@ -17,7 +17,7 @@ pub enum TokenType {
     Percent, // %
 
     PlusEqual,    // +=
-    MinEqual,     // -=
+    MinusEqual,   // -=
     StarEqual,    // *=
     SlashEqual,   // /=
     PercentEqual, // %=

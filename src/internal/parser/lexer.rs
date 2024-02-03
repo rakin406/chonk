@@ -90,7 +90,7 @@ impl Lexer {
                 if self.match_char('-') {
                     self.add_token(DoubleMinus);
                 } else if self.match_char('=') {
-                    self.add_token(MinEqual);
+                    self.add_token(MinusEqual);
                 } else {
                     self.add_token(Minus);
                 }
