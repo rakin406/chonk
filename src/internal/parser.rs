@@ -199,10 +199,7 @@ impl Parser {
         };
 
         if let Some(stmt) = initializer {
-            // All this just to prepend to a vector...
-            let old_body = body;
-            body = Vec::from([stmt]);
-            body.extend(old_body);
+            body.insert(0, stmt);
         }
 
         Ok(Stmt::While {
