@@ -41,8 +41,6 @@ pub enum TokenType {
 
     LParen,    // (
     RParen,    // )
-    LBracket,  // [
-    RBracket,  // ]
     LBrace,    // {
     RBrace,    // }
     Comma,     // ,

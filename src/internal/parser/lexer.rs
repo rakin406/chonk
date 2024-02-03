@@ -72,8 +72,6 @@ impl Lexer {
         match c {
             '(' => self.add_token(LParen),
             ')' => self.add_token(RParen),
-            '[' => self.add_token(LBracket),
-            ']' => self.add_token(RBracket),
             '{' => self.add_token(LBrace),
             '}' => self.add_token(RBrace),
             ',' => self.add_token(Comma),
