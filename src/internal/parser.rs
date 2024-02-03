@@ -273,7 +273,7 @@ impl Parser {
 
     /// Matches an equality operator.
     fn comparison(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.bit_shift()?;
+        let mut expr = self.term()?;
 
         while self.match_types(&[
             TokenType::Greater,
@@ -282,19 +282,6 @@ impl Parser {
             TokenType::LessEqual,
         ]) {
             let operator: Token = self.previous().clone();
-            let right: Expr = self.bit_shift()?;
-            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
-        }
-
-        Ok(expr)
-    }
-
-    // TODO: Add missing documentation.
-    fn bit_shift(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.term()?;
-
-        while self.match_types(&[TokenType::RightShift, TokenType::LeftShift]) {
-            let operator: Token = self.previous().clone();
             let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
         }
@@ -302,7 +289,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses binary term expression.
     fn term(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.factor()?;
 
@@ -315,7 +302,7 @@ impl Parser {
         Ok(expr)
     }
 
-    // TODO: Add missing documentation.
+    /// Parses binary factor expression.
     fn factor(&mut self) -> Result<Expr, ParseError> {
         let mut expr = self.unary()?;
 
@@ -377,7 +364,7 @@ impl Parser {
         Ok(Expr::Call(Box::new(callee), paren, arguments))
     }
 
-    // TODO: Add missing documentation.
+    /// Parses primary expression.
     fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_type(TokenType::True) {
             return Ok(Expr::Constant(Literal::True));
