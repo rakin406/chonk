@@ -148,7 +148,6 @@ impl Interpreter {
                 self.environment.set(&name.lexeme, &value);
                 Ok(value)
             }
-            Expr::AugAssign(_lhs, _op, _rhs) => todo!(),
             Expr::Logical(lhs, op, rhs) => {
                 let left = self.interpret_expr(lhs)?;
 
@@ -165,6 +164,16 @@ impl Interpreter {
             Expr::Call(callee, paren, arguments) => self.call(callee, paren, arguments),
             Expr::Constant(literal) => Ok(get_value(literal)),
             Expr::Variable(name) => self.environment.get(name),
+            Expr::AugAssign {
+                name,
+                operator,
+                value,
+            } => {
+                let target = self.environment.get(name)?;
+                let result = self.interpret_aug_assign(&target, operator.clone(), value)?;
+                self.environment.set(&name.lexeme, &result);
+                Ok(result)
+            }
         }
     }
 
@@ -247,6 +256,40 @@ impl Interpreter {
         }
 
         function.call(self, &args)
+    }
+
+    fn interpret_aug_assign(
+        &mut self,
+        target: &Value,
+        operator: Token,
+        value: &Expr,
+    ) -> Result<Value, RuntimeError> {
+        let rhs = self.interpret_expr(value)?;
+
+        match (target, operator.ty, rhs) {
+            (Value::Number(n1), TokenType::MinusEqual, Value::Number(n2)) => {
+                Ok(Value::Number(n1 - n2))
+            }
+            (Value::Number(n1), TokenType::PlusEqual, Value::Number(n2)) => {
+                Ok(Value::Number(n1 + n2))
+            }
+            (Value::String(s1), TokenType::PlusEqual, Value::String(s2)) => {
+                Ok(Value::String(s1.to_owned() + &s2))
+            }
+            (Value::Number(n1), TokenType::PercentEqual, Value::Number(n2)) => {
+                Ok(Value::Number(n1 % n2))
+            }
+            (Value::Number(n1), TokenType::SlashEqual, Value::Number(n2)) => {
+                Ok(Value::Number(n1 / n2))
+            }
+            (Value::Number(n1), TokenType::StarEqual, Value::Number(n2)) => {
+                Ok(Value::Number(n1 * n2))
+            }
+            _ => Err(RuntimeError::new(
+                operator,
+                "Invalid value in assignment operator",
+            )),
+        }
     }
 }
 

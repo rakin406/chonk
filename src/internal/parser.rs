@@ -216,7 +216,7 @@ impl Parser {
 
     /// Parses assignment expression.
     fn assignment(&mut self) -> Result<Expr, ParseError> {
-        let expr = self.or()?;
+        let expr = self.aug_assignment()?;
 
         if self.match_type(TokenType::Equal) {
             let equals: Token = self.previous().clone();
@@ -227,6 +227,34 @@ impl Parser {
             }
 
             self.token_error(&equals, "Invalid assignment target");
+        }
+
+        Ok(expr)
+    }
+
+    /// Parses augmented assignment expression.
+    fn aug_assignment(&mut self) -> Result<Expr, ParseError> {
+        let expr = self.or()?;
+
+        if self.match_types(&[
+            TokenType::MinusEqual,
+            TokenType::PlusEqual,
+            TokenType::PercentEqual,
+            TokenType::SlashEqual,
+            TokenType::StarEqual,
+        ]) {
+            let operator: Token = self.previous().clone();
+            let value: Expr = self.or()?;
+
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::AugAssign {
+                    name,
+                    operator,
+                    value: Box::new(value),
+                });
+            }
+
+            self.token_error(&operator, "Invalid assignment target");
         }
 
         Ok(expr)
