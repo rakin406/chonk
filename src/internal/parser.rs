@@ -273,7 +273,7 @@ impl Parser {
 
     /// Matches an equality operator.
     fn comparison(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.term()?;
+        let mut expr = self.bit_shift()?;
 
         while self.match_types(&[
             TokenType::Greater,
@@ -281,6 +281,19 @@ impl Parser {
             TokenType::Less,
             TokenType::LessEqual,
         ]) {
+            let operator: Token = self.previous().clone();
+            let right: Expr = self.bit_shift()?;
+            expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
+        }
+
+        Ok(expr)
+    }
+
+    // TODO: Add missing documentation.
+    fn bit_shift(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.term()?;
+
+        while self.match_types(&[TokenType::RightShift, TokenType::LeftShift]) {
             let operator: Token = self.previous().clone();
             let right: Expr = self.term()?;
             expr = Expr::Binary(Box::new(expr), operator, Box::new(right));
