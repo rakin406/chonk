@@ -10,19 +10,17 @@ pub enum TokenType {
     String, // "Hello World"
 
     // Operators
-    Plus,       // +
-    Minus,      // -
-    Star,       // *
-    Slash,      // /
-    Percent,    // %
-    DoubleStar, // **
+    Plus,    // +
+    Minus,   // -
+    Star,    // *
+    Slash,   // /
+    Percent, // %
 
-    PlusEqual,       // +=
-    MinEqual,        // -=
-    StarEqual,       // *=
-    SlashEqual,      // /=
-    PercentEqual,    // %=
-    DoubleStarEqual, // **=
+    PlusEqual,    // +=
+    MinEqual,     // -=
+    StarEqual,    // *=
+    SlashEqual,   // /=
+    PercentEqual, // %=
 
     DoubleAmper, // &&
     DoubleVBar,  // ||

@@ -96,13 +96,7 @@ impl Lexer {
                 }
             }
             '*' => {
-                if self.match_char('*') {
-                    if self.match_char('=') {
-                        self.add_token(DoubleStarEqual);
-                    } else {
-                        self.add_token(DoubleStar);
-                    }
-                } else if self.match_char('=') {
+                if self.match_char('=') {
                     self.add_token(StarEqual);
                 } else {
                     self.add_token(Star);
