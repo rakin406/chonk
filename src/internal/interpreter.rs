@@ -107,7 +107,6 @@ impl Interpreter {
                 });
             }
             Stmt::Delete(_, _) => todo!(),
-            Stmt::For { .. } => todo!(),
             Stmt::While { test, body } => {
                 while is_truthy(&self.interpret_expr(test)?) {
                     self.execute_multiple(body)?;

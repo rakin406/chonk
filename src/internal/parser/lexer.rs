@@ -262,16 +262,16 @@ impl Lexer {
 
     /// Adds number literal token.
     fn add_number(&mut self) {
-        while self.peek().is_numeric() {
+        while self.peek().is_ascii_digit() {
             self.advance();
         }
 
         // Look for a fractional part
-        if self.peek() == '.' && self.peek_next().is_numeric() {
+        if self.peek() == '.' && self.peek_next().is_ascii_digit() {
             // Consume the dot
             self.advance();
 
-            while self.peek().is_numeric() {
+            while self.peek().is_ascii_digit() {
                 self.advance();
             }
         }

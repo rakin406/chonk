@@ -109,6 +109,9 @@ impl Parser {
         if self.match_type(TokenType::Return) {
             return self.return_statement();
         }
+        if self.match_type(TokenType::For) {
+            return self.for_statement();
+        }
         if self.match_type(TokenType::While) {
             return self.while_statement();
         }
@@ -159,6 +162,50 @@ impl Parser {
 
         self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
         Ok(Stmt::Return { keyword, value })
+    }
+
+    /// Parses for statement.
+    fn for_statement(&mut self) -> Result<Stmt, ParseError> {
+        self.consume(TokenType::LParen, "Expected '(' after \"for\"")?;
+
+        let initializer = if self.match_type(TokenType::Semicolon) {
+            None
+        } else {
+            Some(self.expression_statement()?)
+        };
+
+        let maybe_condition = if self.has_type(TokenType::Semicolon) {
+            None
+        } else {
+            Some(self.expression()?)
+        };
+        self.consume(TokenType::Semicolon, "Expected ';' after loop condition")?;
+
+        let step = if self.has_type(TokenType::RParen) {
+            None
+        } else {
+            Some(self.expression()?)
+        };
+        self.consume(TokenType::RParen, "Expected ')' after for clauses")?;
+        let mut body: Vec<Stmt> = self.block()?;
+
+        if let Some(expr) = step {
+            body.push(Stmt::Expr(expr));
+        }
+
+        let condition = match maybe_condition {
+            Some(expr) => expr,
+            None => Expr::Constant(Literal::True),
+        };
+
+        if let Some(stmt) = initializer {
+            body.insert(0, stmt);
+        }
+
+        Ok(Stmt::While {
+            test: condition,
+            body,
+        })
     }
 
     /// Parses while statement.
