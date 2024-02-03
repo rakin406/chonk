@@ -203,6 +203,7 @@ impl Interpreter {
         let right = &self.interpret_expr(rhs)?;
 
         match (op.ty, right) {
+            (TokenType::Plus, Value::Number(value)) => Ok(Value::Number(*value)),
             (TokenType::Minus, Value::Number(value)) => Ok(Value::Number(-value)),
             (TokenType::Bang, _) => match is_truthy(right) {
                 true => Ok(Value::Bool(false)),

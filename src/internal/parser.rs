@@ -317,9 +317,8 @@ impl Parser {
 
     /// Parses unary expression.
     fn unary(&mut self) -> Result<Expr, ParseError> {
-        if self.match_types(&[TokenType::Bang, TokenType::Minus]) {
+        if self.match_types(&[TokenType::Bang, TokenType::Minus, TokenType::Plus]) {
             let operator: Token = self.previous().clone();
-            // TODO: Avoid recursion.
             let right: Expr = self.unary()?;
             return Ok(Expr::Unary(operator, Box::new(right)));
         }
