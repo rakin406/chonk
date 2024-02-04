@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::{interpreter::Interpreter, parser::Parser};
+use crate::internal::{interpreter::Interpreter, parser::Parser};
 
 /// Reads a source file and executes it.
 pub fn run_file(path: &str) {
