@@ -15,7 +15,9 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    if args.file.is_none() {
+    if let Some(file) = args.file {
+        runner::run_file(&file);
+    } else {
         let version = env!("CARGO_PKG_VERSION");
 
         // TODO: Create a template for `help` command.
@@ -27,8 +29,6 @@ fn main() -> Result<()> {
             version
         );
         repl::start()?;
-    } else if let Some(file) = args.file {
-        runner::run_file(&file);
     }
 
     Ok(())
