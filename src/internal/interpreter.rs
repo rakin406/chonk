@@ -7,6 +7,9 @@ use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
+// TODO: Remove the useless "Program" struct and create a "Mode" enum with "File"
+// and "Repl" variants. Pass a Mode parameter in interpret() method.
+
 #[allow(dead_code)]
 pub struct Interpreter {
     globals: Environment,
