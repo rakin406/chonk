@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-02-04
+
+### Added
+
+- Add support for increment/decrement prefix and suffix operations.
+- Add support for augmented assignment operations.
+
+### Changed
+
+- Use semicolon as statement terminator instead of newline.
+
 ## [0.4.0] - 2024-02-01
 
 ### Added
