@@ -3,7 +3,10 @@ use std::path::Path;
 
 use clap::Parser;
 use rustyline::error::ReadlineError;
-use rustyline::DefaultEditor;
+use rustyline::highlight::MatchingBracketHighlighter;
+use rustyline::validate::MatchingBracketValidator;
+use rustyline::Editor;
+use rustyline::{Completer, Helper, Highlighter, Hinter, Validator};
 
 mod internal;
 use internal::{interpreter, parser};
@@ -15,6 +18,14 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 struct Args {
     /// Path of the script file to run
     file: Option<String>,
+}
+
+#[derive(Completer, Helper, Highlighter, Hinter, Validator)]
+struct InputValidator {
+    #[rustyline(Validator)]
+    brackets: MatchingBracketValidator,
+    #[rustyline(Highlighter)]
+    highlighter: MatchingBracketHighlighter,
 }
 
 fn main() -> rustyline::Result<()> {
@@ -46,8 +57,12 @@ fn run_file(interpreter: &mut interpreter::Interpreter, path: &str) {
 
 /// Runs the interpreter interactively.
 fn run_prompt(interpreter: &mut interpreter::Interpreter) -> rustyline::Result<()> {
-    let mut running = true;
-    let mut rl = DefaultEditor::new()?;
+    let helper = InputValidator {
+        brackets: MatchingBracketValidator::new(),
+        highlighter: MatchingBracketHighlighter::new(),
+    };
+    let mut rl = Editor::new()?;
+    rl.set_helper(Some(helper));
 
     let mut history_path = String::new();
     if let Some(path) = home::home_dir() {
@@ -59,6 +74,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) -> rustyline::Result<(
         rl.load_history(&history_path)?;
     }
 
+    let mut running = true;
     while running {
         let readline = rl.readline(">> ");
         match readline {
@@ -93,7 +109,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) -> rustyline::Result<(
     Ok(())
 }
 
-/// Runs `Chonk` code.
+/// Runs Chonk code.
 fn run(interpreter: &mut interpreter::Interpreter, input: &str) {
     let mut parser = parser::Parser::new(input);
 
