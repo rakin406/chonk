@@ -44,6 +44,10 @@ pub enum Expr {
         operator: Token,
         value: Box<Expr>,
     },
+    Prefix {
+        operator: Token,
+        name: Token,
+    },
 }
 
 #[derive(Default)]
