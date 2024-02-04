@@ -25,7 +25,7 @@ fn main() -> rustyline::Result<()> {
             ",
             version
         );
-        repl::run_prompt()?;
+        repl::start()?;
     } else if let Some(file) = args.file {
         runner::run_file(&file);
     }

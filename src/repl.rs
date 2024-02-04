@@ -18,7 +18,7 @@ struct InputValidator {
 }
 
 /// Runs the interpreter interactively.
-pub fn run_prompt() -> rustyline::Result<()> {
+pub fn start() -> rustyline::Result<()> {
     let mut interpreter = Interpreter::default();
 
     let helper = InputValidator {
