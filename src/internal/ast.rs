@@ -8,11 +8,6 @@ pub enum Stmt {
         params: Vec<Token>,
         body: Vec<Stmt>,
     },
-    Return {
-        keyword: Token,
-        value: Option<Expr>,
-    },
-    Delete(Token, Vec<Expr>),
     While {
         test: Expr,
         body: Vec<Stmt>,
@@ -22,13 +17,14 @@ pub enum Stmt {
         body: Vec<Stmt>,
         or_else: Option<Vec<Stmt>>,
     },
+    Return(Option<Expr>),
+    Delete(Token, Vec<Expr>),
     Expr(Expr),
     Break,
     Continue,
     Echo(Expr),
 }
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),

@@ -100,13 +100,6 @@ impl Interpreter {
                 self.environment
                     .set(&name.lexeme, &Value::ChonkFunction(function));
             }
-            Stmt::Return { keyword: _, value } => {
-                self.retval = Some(match value {
-                    Some(expr) => self.interpret_expr(expr)?,
-                    None => Value::Null,
-                });
-            }
-            Stmt::Delete(_, _) => todo!(),
             Stmt::While { test, body } => {
                 while is_truthy(&self.interpret_expr(test)?) {
                     self.execute_multiple(body)?;
@@ -123,6 +116,13 @@ impl Interpreter {
                     self.execute_multiple(else_stmt)?;
                 }
             }
+            Stmt::Return(value) => {
+                self.retval = Some(match value {
+                    Some(expr) => self.interpret_expr(expr)?,
+                    None => Value::Null,
+                });
+            }
+            Stmt::Delete(_, _) => todo!(),
             Stmt::Expr(expr) => {
                 self.interpret_expr(expr)?;
             }
