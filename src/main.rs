@@ -12,7 +12,7 @@ use internal::{interpreter, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-fn main() {
+fn main() -> rustyline::Result<()> {
     let args = cli::Cli::parse();
     let mut interpreter = interpreter::Interpreter::default();
 
@@ -25,10 +25,12 @@ fn main() {
             ",
             VERSION
         );
-        run_prompt(&mut interpreter);
+        run_prompt(&mut interpreter)?;
     } else if let Some(file) = args.file {
         run_file(&mut interpreter, &file);
     }
+
+    Ok(())
 }
 
 /// Reads a source file and executes it.
@@ -38,9 +40,9 @@ fn run_file(interpreter: &mut interpreter::Interpreter, path: &str) {
 }
 
 /// Runs the interpreter interactively.
-fn run_prompt(interpreter: &mut interpreter::Interpreter) {
+fn run_prompt(interpreter: &mut interpreter::Interpreter) -> rustyline::Result<()> {
     let mut running = true;
-    let mut rl = DefaultEditor::new().unwrap();
+    let mut rl = DefaultEditor::new()?;
 
     let mut history_path = String::new();
     if let Some(path) = home::home_dir() {
@@ -62,8 +64,8 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
                 }
 
                 // Save REPL history
-                rl.add_history_entry(&line).unwrap();
-                rl.save_history(&history_path).unwrap();
+                rl.add_history_entry(&line)?;
+                rl.save_history(&history_path)?;
 
                 // Commands
                 match line.as_str() {
@@ -82,6 +84,8 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
             }
         }
     }
+
+    Ok(())
 }
 
 /// Runs `Chonk` code.
