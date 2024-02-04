@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-02-04
+
+### Added
+
+- Add del(delete) statements.
+
 ## [0.4.1] - 2024-02-04
 
 ### Added
