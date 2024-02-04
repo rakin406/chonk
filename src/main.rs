@@ -1,4 +1,5 @@
 use clap::Parser;
+use rustyline::Result;
 
 mod internal;
 mod repl;
@@ -11,7 +12,7 @@ struct Args {
     file: Option<String>,
 }
 
-fn main() -> rustyline::Result<()> {
+fn main() -> Result<()> {
     let args = Args::parse();
 
     if args.file.is_none() {

@@ -3,8 +3,8 @@ use std::path::Path;
 use rustyline::error::ReadlineError;
 use rustyline::highlight::MatchingBracketHighlighter;
 use rustyline::validate::MatchingBracketValidator;
-use rustyline::Editor;
 use rustyline::{Completer, Helper, Highlighter, Hinter, Validator};
+use rustyline::{Editor, Result};
 
 use crate::internal::interpreter::Interpreter;
 use crate::runner;
@@ -18,7 +18,7 @@ struct InputValidator {
 }
 
 /// Runs the interpreter interactively.
-pub fn start() -> rustyline::Result<()> {
+pub fn start() -> Result<()> {
     let mut interpreter = Interpreter::default();
 
     let helper = InputValidator {
