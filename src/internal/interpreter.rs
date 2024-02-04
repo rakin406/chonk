@@ -371,7 +371,7 @@ struct Environment {
 
 impl Environment {
     /// Creates a new outer scope.
-    pub fn new_outer(outer: Environment) -> Self {
+    fn new_outer(outer: Environment) -> Self {
         Self {
             outer: Some(Box::new(outer)),
             ..Default::default()
@@ -379,7 +379,7 @@ impl Environment {
     }
 
     /// Returns the value bound to the name.
-    pub fn get(&self, name: &Token) -> Result<Value, RuntimeError> {
+    fn get(&self, name: &Token) -> Result<Value, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
             return Ok(value.clone());
         }
@@ -396,12 +396,12 @@ impl Environment {
 
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
-    pub fn set(&mut self, name: &str, value: &Value) {
+    fn set(&mut self, name: &str, value: &Value) {
         self.store.insert(name.to_string(), value.clone());
     }
 
     /// Removes a name-value pair.
-    pub fn pop(&mut self, name: &Token) -> Result<(), RuntimeError> {
+    fn pop(&mut self, name: &Token) -> Result<(), RuntimeError> {
         if self.store.remove(&name.lexeme).is_none() {
             if let Some(ref mut outer_env) = self.outer {
                 outer_env.pop(name)?;
