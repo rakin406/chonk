@@ -56,7 +56,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) -> rustyline::Result<(
 
     // Load REPL history
     if Path::new(&history_path).try_exists().is_ok() {
-        let _ = rl.load_history(&history_path);
+        rl.load_history(&history_path)?;
     }
 
     while running {
