@@ -122,7 +122,7 @@ impl Interpreter {
                     None => Value::Null,
                 });
             }
-            Stmt::Delete(_) => todo!(),
+            Stmt::Delete(targets) => for target in targets.iter() {},
             Stmt::Expr(expr) => {
                 self.interpret_expr(expr)?;
             }
@@ -398,6 +398,22 @@ impl Environment {
     /// to it.
     pub fn set(&mut self, name: &str, value: &Value) {
         self.store.insert(name.to_string(), value.clone());
+    }
+
+    /// Removes a name-value pair.
+    pub fn pop(&mut self, name: &Token) -> Result<(), RuntimeError> {
+        if self.store.remove(&name.lexeme).is_none() {
+            if let Some(ref mut outer_env) = self.outer {
+                outer_env.pop(name)?;
+            }
+
+            return Err(RuntimeError::new(
+                name.clone(),
+                &format!("Undefined variable \"{}\"", name.lexeme),
+            ));
+        }
+
+        Ok(())
     }
 }
 
