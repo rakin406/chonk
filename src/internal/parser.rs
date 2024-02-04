@@ -351,12 +351,28 @@ impl Parser {
             return Ok(Expr::Unary(operator, Box::new(right)));
         }
 
+        self.prefix()
+    }
+
+    /// Parses prefix expression.
+    fn prefix(&mut self) -> Result<Expr, ParseError> {
+        if self.match_types(&[TokenType::DoubleMinus, TokenType::DoublePlus]) {
+            let operator: Token = self.previous().clone();
+            let expr = self.call()?;
+
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::Prefix { operator, name });
+            }
+
+            self.token_error(&operator, "Invalid target in prefix operation");
+        }
+
         self.call()
     }
 
     /// Parses function call expression.
     fn call(&mut self) -> Result<Expr, ParseError> {
-        let mut expr = self.primary()?;
+        let mut expr = self.suffix()?;
 
         loop {
             if self.match_type(TokenType::LParen) {
@@ -390,6 +406,26 @@ impl Parser {
         let paren: Token = self.consume(TokenType::RParen, "Expected ')' after arguments")?;
 
         Ok(Expr::Call(Box::new(callee), paren, arguments))
+    }
+
+    // NOTE: This does not create a suffix AST node. It just desugars the suffix
+    // expression into a prefix expression. The reason is that only increment/
+    // decrement suffixes are available (also function calls but that is already
+    // handled above), so it would be unnecessary to create a new suffix node.
+    /// Parses suffix expression.
+    fn suffix(&mut self) -> Result<Expr, ParseError> {
+        let expr = self.primary()?;
+
+        if self.match_types(&[TokenType::DoubleMinus, TokenType::DoublePlus]) {
+            let operator: Token = self.previous().clone();
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::Prefix { operator, name });
+            }
+
+            self.token_error(&operator, "Invalid target in suffix operation");
+        }
+
+        Ok(expr)
     }
 
     /// Parses primary expression.

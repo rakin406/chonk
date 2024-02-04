@@ -174,6 +174,12 @@ impl Interpreter {
                 self.environment.set(&name.lexeme, &result);
                 Ok(result)
             }
+            Expr::Prefix { operator, name } => {
+                let target = self.environment.get(name)?;
+                let value = self.interpret_prefix(operator.clone(), &target)?;
+                self.environment.set(&name.lexeme, &value);
+                Ok(value)
+            }
         }
     }
 
@@ -288,6 +294,17 @@ impl Interpreter {
             _ => Err(RuntimeError::new(
                 operator,
                 "Invalid value in assignment operator",
+            )),
+        }
+    }
+
+    fn interpret_prefix(&mut self, operator: Token, target: &Value) -> Result<Value, RuntimeError> {
+        match (operator.ty, target) {
+            (TokenType::DoubleMinus, Value::Number(n)) => Ok(Value::Number(n - 1.0)),
+            (TokenType::DoublePlus, Value::Number(n)) => Ok(Value::Number(n + 1.0)),
+            _ => Err(RuntimeError::new(
+                operator,
+                "Invalid value to prefix operator",
             )),
         }
     }
