@@ -7,9 +7,6 @@ use crate::internal::ast::{Expr, Program, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
-// TODO: Variables inside a function should be visible to functions inside that
-// function. Gotta figure out how to implement it.
-
 #[allow(dead_code)]
 pub struct Interpreter {
     globals: Environment,
@@ -100,13 +97,6 @@ impl Interpreter {
                 self.environment
                     .set(&name.lexeme, &Value::ChonkFunction(function));
             }
-            Stmt::Return { keyword: _, value } => {
-                self.retval = Some(match value {
-                    Some(expr) => self.interpret_expr(expr)?,
-                    None => Value::Null,
-                });
-            }
-            Stmt::Delete(_, _) => todo!(),
             Stmt::While { test, body } => {
                 while is_truthy(&self.interpret_expr(test)?) {
                     self.execute_multiple(body)?;
@@ -121,6 +111,17 @@ impl Interpreter {
                     self.execute_multiple(body)?;
                 } else if let Some(else_stmt) = or_else {
                     self.execute_multiple(else_stmt)?;
+                }
+            }
+            Stmt::Return(value) => {
+                self.retval = Some(match value {
+                    Some(expr) => self.interpret_expr(expr)?,
+                    None => Value::Null,
+                });
+            }
+            Stmt::Delete(targets) => {
+                for target in targets.iter() {
+                    self.environment.pop(target)?;
                 }
             }
             Stmt::Expr(expr) => {
@@ -371,7 +372,7 @@ struct Environment {
 
 impl Environment {
     /// Creates a new outer scope.
-    pub fn new_outer(outer: Environment) -> Self {
+    fn new_outer(outer: Environment) -> Self {
         Self {
             outer: Some(Box::new(outer)),
             ..Default::default()
@@ -379,7 +380,7 @@ impl Environment {
     }
 
     /// Returns the value bound to the name.
-    pub fn get(&self, name: &Token) -> Result<Value, RuntimeError> {
+    fn get(&self, name: &Token) -> Result<Value, RuntimeError> {
         if let Some(value) = self.store.get(&name.lexeme) {
             return Ok(value.clone());
         }
@@ -396,8 +397,24 @@ impl Environment {
 
     /// Binds a new name to a value. If the name exists, it assigns a new value
     /// to it.
-    pub fn set(&mut self, name: &str, value: &Value) {
+    fn set(&mut self, name: &str, value: &Value) {
         self.store.insert(name.to_string(), value.clone());
+    }
+
+    /// Removes a name-value pair.
+    fn pop(&mut self, name: &Token) -> Result<(), RuntimeError> {
+        if self.store.remove(&name.lexeme).is_none() {
+            if let Some(ref mut outer_env) = self.outer {
+                outer_env.pop(name)?;
+            }
+
+            return Err(RuntimeError::new(
+                name.clone(),
+                &format!("Undefined variable \"{}\"", name.lexeme),
+            ));
+        }
+
+        Ok(())
     }
 }
 

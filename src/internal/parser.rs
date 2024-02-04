@@ -105,6 +105,9 @@ impl Parser {
         if self.match_type(TokenType::Return) {
             return self.return_statement();
         }
+        if self.match_type(TokenType::Delete) {
+            return self.delete_statement();
+        }
         if self.match_type(TokenType::While) {
             return self.while_statement();
         }
@@ -146,7 +149,6 @@ impl Parser {
 
     /// Parses return statement.
     fn return_statement(&mut self) -> Result<Stmt, ParseError> {
-        let keyword: Token = self.previous().clone();
         let value = if !self.has_type(TokenType::Semicolon) {
             Some(self.expression()?)
         } else {
@@ -154,7 +156,22 @@ impl Parser {
         };
 
         self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
-        Ok(Stmt::Return { keyword, value })
+        Ok(Stmt::Return(value))
+    }
+
+    /// Parses delete statement.
+    fn delete_statement(&mut self) -> Result<Stmt, ParseError> {
+        let mut targets: Vec<Token> = Vec::new();
+        loop {
+            targets.push(self.consume(TokenType::Ident, "Expected variable name")?);
+
+            if !self.match_type(TokenType::Comma) {
+                break;
+            }
+        }
+
+        self.consume(TokenType::Semicolon, "Expected ';' after del statement")?;
+        Ok(Stmt::Delete(targets))
     }
 
     /// Parses while statement.
