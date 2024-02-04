@@ -122,7 +122,7 @@ impl Interpreter {
                     None => Value::Null,
                 });
             }
-            Stmt::Delete(_, _) => todo!(),
+            Stmt::Delete(_) => todo!(),
             Stmt::Expr(expr) => {
                 self.interpret_expr(expr)?;
             }

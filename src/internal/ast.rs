@@ -18,7 +18,7 @@ pub enum Stmt {
         or_else: Option<Vec<Stmt>>,
     },
     Return(Option<Expr>),
-    Delete(Token, Vec<Expr>),
+    Delete(Vec<Token>),
     Expr(Expr),
     Break,
     Continue,
