@@ -351,6 +351,22 @@ impl Parser {
             return Ok(Expr::Unary(operator, Box::new(right)));
         }
 
+        self.prefix()
+    }
+
+    /// Parses prefix expression.
+    fn prefix(&mut self) -> Result<Expr, ParseError> {
+        if self.match_types(&[TokenType::DoubleMinus, TokenType::DoublePlus]) {
+            let operator: Token = self.previous().clone();
+            let expr = self.call()?;
+
+            if let Expr::Variable(name) = expr {
+                return Ok(Expr::Prefix { operator, name });
+            }
+
+            self.token_error(&operator, "Invalid expression in prefix operation");
+        }
+
         self.call()
     }
 
