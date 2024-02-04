@@ -119,7 +119,11 @@ impl Interpreter {
                     None => Value::Null,
                 });
             }
-            Stmt::Delete(targets) => for target in targets.iter() {},
+            Stmt::Delete(targets) => {
+                for target in targets.iter() {
+                    self.environment.pop(target)?;
+                }
+            }
             Stmt::Expr(expr) => {
                 self.interpret_expr(expr)?;
             }
