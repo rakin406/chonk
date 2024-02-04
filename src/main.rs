@@ -5,18 +5,23 @@ use clap::Parser;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
-mod cli;
 mod internal;
-
 use internal::{interpreter, parser};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+#[derive(Parser)]
+#[command(version)]
+struct Args {
+    /// Path of the script file to run
+    file: Option<String>,
+}
+
 fn main() -> rustyline::Result<()> {
-    let args = cli::Cli::parse();
+    let args = Args::parse();
     let mut interpreter = interpreter::Interpreter::default();
 
-    if args.is_empty() {
+    if args.file.is_none() {
         // TODO: Create a template for `help` command.
         println!(
             "\
