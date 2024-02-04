@@ -65,13 +65,13 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
                 rl.add_history_entry(&line).unwrap();
                 rl.save_history(&history_path).unwrap();
 
-                // Terminate program on exit command
-                if line == ".exit" {
-                    running = false;
-                    continue;
+                // Commands
+                match line.as_str() {
+                    ".clear" => todo!(),
+                    ".exit" => running = false,
+                    ".help" => todo!(),
+                    code => run(interpreter, code),
                 }
-
-                run(interpreter, &line);
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 running = false;
