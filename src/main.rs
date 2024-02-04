@@ -67,7 +67,7 @@ fn run_prompt(interpreter: &mut interpreter::Interpreter) {
 
                 // Commands
                 match line.as_str() {
-                    ".clear" => todo!(),
+                    ".clear" => *interpreter = interpreter::Interpreter::default(),
                     ".exit" => running = false,
                     ".help" => todo!(),
                     code => run(interpreter, code),
