@@ -162,13 +162,11 @@ impl Parser {
     /// Parses delete statement.
     fn delete_statement(&mut self) -> Result<Stmt, ParseError> {
         let mut targets: Vec<Token> = Vec::new();
-        if !self.has_type(TokenType::Semicolon) {
-            loop {
-                targets.push(self.consume(TokenType::Ident, "Expected variable name")?);
+        loop {
+            targets.push(self.consume(TokenType::Ident, "Expected variable name")?);
 
-                if !self.match_type(TokenType::Comma) {
-                    break;
-                }
+            if !self.match_type(TokenType::Comma) {
+                break;
             }
         }
 
