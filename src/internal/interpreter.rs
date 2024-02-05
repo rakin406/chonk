@@ -3,9 +3,11 @@ use std::fmt;
 use std::iter::zip;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+mod runtime_error;
+
 use crate::internal::ast::{Expr, Stmt};
-use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
+use runtime_error::RuntimeError;
 
 /// Chonk interpreter.
 pub struct Interpreter {
