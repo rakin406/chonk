@@ -60,7 +60,8 @@ pub fn start() -> Result<()> {
                     code => runner::run(code, &mut interpreter),
                 }
             }
-            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
+            Err(ReadlineError::Interrupted) => eprintln!("{}", ReadlineError::Interrupted),
+            Err(ReadlineError::Eof) => {
                 running = false;
             }
             Err(error) => {
