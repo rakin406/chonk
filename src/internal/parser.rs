@@ -18,6 +18,7 @@ pub enum ParseError {
     },
 }
 
+/// A parser for Chonk source code.
 #[derive(Default)]
 pub struct Parser {
     tokens: Vec<Token>,
