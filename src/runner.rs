@@ -14,8 +14,8 @@ pub fn run(input: &str, interpreter: &mut Interpreter) {
     let mut parser = Parser::new(input);
 
     match parser.parse() {
-        Ok(program) => {
-            if let Err(error) = interpreter.interpret(program) {
+        Ok(statements) => {
+            if let Err(error) = interpreter.interpret(&statements) {
                 eprintln!("{error:?}");
             }
         }

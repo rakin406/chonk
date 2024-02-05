@@ -3,7 +3,7 @@ use std::fmt;
 use std::iter::zip;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::internal::ast::{Expr, Program, Stmt};
+use crate::internal::ast::{Expr, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
@@ -54,13 +54,8 @@ impl Default for Interpreter {
 }
 
 impl Interpreter {
-    /// Interprets a program.
-    pub fn interpret(&mut self, program: Program) -> Result<(), RuntimeError> {
-        self.execute_multiple(program.get())
-    }
-
-    /// Executes a list of statements.
-    fn execute_multiple(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
+    /// Interprets a list of statements.
+    pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
         for stmt in statements.iter() {
             self.execute(stmt)?;
         }
@@ -75,7 +70,7 @@ impl Interpreter {
     ) -> Result<(), RuntimeError> {
         let previous = self.environment.clone();
         self.environment = environment;
-        self.execute_multiple(statements)?;
+        self.interpret(statements)?;
         self.environment = previous;
 
         Ok(())
@@ -102,7 +97,7 @@ impl Interpreter {
             }
             Stmt::While { test, body } => {
                 while is_truthy(&self.interpret_expr(test)?) {
-                    self.execute_multiple(body)?;
+                    self.interpret(body)?;
                 }
             }
             Stmt::If {
@@ -111,9 +106,9 @@ impl Interpreter {
                 or_else,
             } => {
                 if is_truthy(&self.interpret_expr(test)?) {
-                    self.execute_multiple(body)?;
+                    self.interpret(body)?;
                 } else if let Some(else_stmt) = or_else {
-                    self.execute_multiple(else_stmt)?;
+                    self.interpret(else_stmt)?;
                 }
             }
             Stmt::Return(value) => {
