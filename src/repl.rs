@@ -57,8 +57,15 @@ pub fn start() -> Result<()> {
                     ".clear" => interpreter = Interpreter::default(),
                     ".exit" => running = false,
                     ".help" => todo!(),
-                    code => runner::run(code, &mut interpreter),
+                    _ => {}
                 }
+
+                // Automatically add a missing semicolon
+                if !line.ends_with(';') && !line.ends_with('}') {
+                    line.push(';');
+                }
+
+                runner::run(&line, &mut interpreter);
             }
             Err(ReadlineError::Interrupted) => eprintln!("{}", ReadlineError::Interrupted),
             Err(ReadlineError::Eof) => {
