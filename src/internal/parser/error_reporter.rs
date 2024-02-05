@@ -1,4 +1,4 @@
-use super::token::{token_type, Token};
+use crate::internal::token::{token_type, Token};
 
 #[derive(Debug)]
 #[allow(dead_code)]

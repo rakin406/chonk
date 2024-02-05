@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::internal::error_reporter::{ErrorReporter, ErrorType};
+use super::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{Literal, Token, TokenType};
 
 /// A lexer for Chonk source code.

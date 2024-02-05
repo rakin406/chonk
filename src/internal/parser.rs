@@ -1,10 +1,11 @@
 use std::fmt;
 
+mod error_reporter;
 mod lexer;
 
 use crate::internal::ast::{Expr, Stmt};
-use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
+use error_reporter::{ErrorReporter, ErrorType};
 use lexer::Lexer;
 
 /// All possible error types in `Parser`.
