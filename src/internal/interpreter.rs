@@ -45,8 +45,8 @@ impl Default for Interpreter {
 
         Self {
             is_interactive: false,
-            globals: globals.clone(),
-            environment: globals.clone(),
+            globals,
+            environment: Default::default(),
             retval: None,
         }
     }
