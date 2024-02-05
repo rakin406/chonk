@@ -130,7 +130,10 @@ impl Interpreter {
                 }
             }
             Stmt::Expr(expr) => {
-                self.interpret_expr(expr)?;
+                let value = self.interpret_expr(expr)?;
+                if self.is_interactive {
+                    println!("{}", value);
+                }
             }
             Stmt::Break => todo!(),
             Stmt::Continue => todo!(),
