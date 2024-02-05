@@ -5,7 +5,7 @@ mod lexer;
 
 use crate::internal::ast::{Expr, Stmt};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
-use error_reporter::{ErrorReporter, ErrorType};
+use error_reporter::ErrorReporter;
 use lexer::Lexer;
 
 /// All possible error types in `Parser`.
@@ -30,10 +30,8 @@ impl fmt::Debug for ParseError {
             ParseError::ExpectedExpression(token) => {
                 write!(
                     f,
-                    "[line {}] {:#?}: Expected expression, but found token {:#?}",
-                    token.line,
-                    ErrorType::SyntaxError,
-                    token.ty
+                    "[line {}] SyntaxError: Expected expression, but found token {:#?}",
+                    token.line, token.ty
                 )
             }
             ParseError::TokenMismatch {
@@ -43,12 +41,8 @@ impl fmt::Debug for ParseError {
             } => {
                 write!(
                     f,
-                    "[line {}] {:#?}: Expected token {:#?} but found {:#?}: {}",
-                    found.line,
-                    ErrorType::SyntaxError,
-                    expected,
-                    found.ty,
-                    message
+                    "[line {}] SyntaxError: Expected token {:#?} but found {:#?}: {}",
+                    found.line, expected, found.ty, message
                 )
             }
         }
@@ -534,6 +528,4 @@ impl Parser {
     }
 }
 
-impl ErrorReporter for Parser {
-    const ERROR_TYPE: ErrorType = ErrorType::SyntaxError;
-}
+impl ErrorReporter for Parser {}

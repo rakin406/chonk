@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::error_reporter::{ErrorReporter, ErrorType};
+use super::error_reporter::ErrorReporter;
 use crate::internal::token::{Literal, Token, TokenType};
 
 /// A lexer for Chonk source code.
@@ -306,6 +306,4 @@ fn is_potential_identifier_char(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
 }
 
-impl ErrorReporter for Lexer {
-    const ERROR_TYPE: ErrorType = ErrorType::SyntaxError;
-}
+impl ErrorReporter for Lexer {}
