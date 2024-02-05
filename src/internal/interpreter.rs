@@ -127,7 +127,14 @@ impl Interpreter {
                     self.interpret(else_stmt)?;
                 }
             }
-            Stmt::Return(value) => {
+            Stmt::Return { keyword, value } => {
+                if self.environment.outer.is_none() {
+                    return Err(RuntimeError::new(
+                        keyword.clone(),
+                        "Cannot use \"return\" outside function",
+                    ));
+                }
+
                 self.retval = Some(match value {
                     Some(expr) => self.interpret_expr(expr)?,
                     None => Value::Null,
