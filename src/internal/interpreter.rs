@@ -92,7 +92,6 @@ impl Interpreter {
         match stmt {
             Stmt::Function { name, params, body } => {
                 let function = ChonkFunction {
-                    // NOTE: Too many clones here!
                     name: name.clone(),
                     params: params.clone(),
                     body: body.clone(),
