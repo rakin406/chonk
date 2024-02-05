@@ -76,26 +76,6 @@ impl Parser {
         Ok(statements)
     }
 
-    /// Discards tokens until it finds a statement boundary.
-    #[allow(dead_code)]
-    fn synchronize(&mut self) {
-        self.advance();
-
-        while !self.is_at_end() {
-            if self.previous().ty == TokenType::Semicolon {
-                break;
-            }
-
-            match self.peek().ty {
-                // TODO: Add function and variable here.
-                TokenType::While | TokenType::If | TokenType::Echo | TokenType::Return => break,
-                _ => {}
-            }
-
-            self.advance();
-        }
-    }
-
     /// Parses statements.
     fn statement(&mut self) -> Result<Stmt, ParseError> {
         if self.match_type(TokenType::Func) {
