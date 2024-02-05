@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-02-05
+
+### Added
+
+- Add support for multi-line input inside REPL.
+
+### Changed
+
+- Print value of expression just by typing it (for REPL).
+- Automatically insert a missing semicolon in REPL.
+
 ## [0.5.0] - 2024-02-04
 
 ### Added
