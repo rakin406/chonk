@@ -1,53 +1,18 @@
-use std::fmt;
-
 mod error_reporter;
 mod lexer;
+mod parse_error;
 
 use crate::internal::ast::{Expr, Stmt};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
 use error_reporter::ErrorReporter;
 use lexer::Lexer;
-
-/// All possible error types in `Parser`.
-pub enum ParseError {
-    ExpectedExpression(Token),
-    TokenMismatch {
-        expected: TokenType,
-        found: Token,
-        message: String,
-    },
-}
+use parse_error::ParseError;
 
 /// A parser for Chonk source code.
 #[derive(Default)]
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
-}
-
-impl fmt::Debug for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ParseError::ExpectedExpression(token) => {
-                write!(
-                    f,
-                    "[line {}] SyntaxError: Expected expression, but found token {:#?}",
-                    token.line, token.ty
-                )
-            }
-            ParseError::TokenMismatch {
-                expected,
-                found,
-                message,
-            } => {
-                write!(
-                    f,
-                    "[line {}] SyntaxError: Expected token {:#?} but found {:#?}: {}",
-                    found.line, expected, found.ty, message
-                )
-            }
-        }
-    }
 }
 
 impl Parser {
