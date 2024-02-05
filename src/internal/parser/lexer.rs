@@ -29,8 +29,6 @@ impl Default for Lexer {
                 ("if", TokenType::If),
                 ("else", TokenType::Else),
                 ("while", TokenType::While),
-                ("break", TokenType::Break),
-                ("continue", TokenType::Continue),
                 ("return", TokenType::Return),
                 ("del", TokenType::Delete),
                 ("echo", TokenType::Echo),

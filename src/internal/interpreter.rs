@@ -133,8 +133,6 @@ impl Interpreter {
                     println!("{}", value);
                 }
             }
-            Stmt::Break => todo!(),
-            Stmt::Continue => todo!(),
             Stmt::Echo(expr) => {
                 let value = self.interpret_expr(expr)?;
                 println!("{}", value);
