@@ -63,7 +63,7 @@ impl Interpreter {
 
     /// Interprets a list of statements.
     pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
-        for stmt in statements.iter() {
+        for stmt in statements {
             self.execute(stmt)?;
         }
         Ok(())
@@ -125,7 +125,7 @@ impl Interpreter {
                 });
             }
             Stmt::Delete(targets) => {
-                for target in targets.iter() {
+                for target in targets {
                     self.environment.pop(target)?;
                 }
             }
@@ -249,7 +249,7 @@ impl Interpreter {
         let callee_value = self.interpret_expr(callee)?;
 
         let mut args: Vec<Value> = Vec::new();
-        for arg in arguments.iter() {
+        for arg in arguments {
             args.push(self.interpret_expr(arg)?);
         }
 
