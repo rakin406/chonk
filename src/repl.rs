@@ -9,6 +9,15 @@ use rustyline::{Editor, Result};
 use crate::internal::interpreter::Interpreter;
 use crate::runner;
 
+// This help template is from node :)
+const HELP_TEMPLATE: &str = "\
+.clear    Resets the REPL context\n\
+.exit     Exit the REPL\n\
+.help     Print this help message\n\n\
+\
+Press Ctrl+C to abort current expression, Ctrl+D to exit the REPL\
+";
+
 #[derive(Completer, Helper, Highlighter, Hinter, Validator)]
 struct InputValidator {
     #[rustyline(Validator)]
@@ -56,16 +65,16 @@ pub fn start() -> Result<()> {
                 match line.as_str() {
                     ".clear" => interpreter = Interpreter::new(true),
                     ".exit" => running = false,
-                    ".help" => todo!(),
-                    _ => {}
-                }
+                    ".help" => println!("{}", HELP_TEMPLATE),
+                    _ => {
+                        // Automatically add a missing semicolon
+                        if !line.ends_with(';') && !line.ends_with('}') {
+                            line.push(';');
+                        }
 
-                // Automatically add a missing semicolon
-                if !line.ends_with(';') && !line.ends_with('}') {
-                    line.push(';');
+                        runner::run(&line, &mut interpreter);
+                    }
                 }
-
-                runner::run(&line, &mut interpreter);
             }
             Err(ReadlineError::Interrupted) => eprintln!("{}", ReadlineError::Interrupted),
             Err(ReadlineError::Eof) => {
