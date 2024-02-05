@@ -1,15 +1,6 @@
-use super::token::{token_type, Token};
-
-#[derive(Debug)]
-#[allow(dead_code)]
-pub enum ErrorType {
-    SyntaxError,
-    RuntimeError,
-}
+use crate::internal::token::{token_type, Token};
 
 pub trait ErrorReporter {
-    const ERROR_TYPE: ErrorType;
-
     /// Reports an error.
     fn error(&self, line: usize, message: &str) {
         self.report(line, "", message);
@@ -26,12 +17,6 @@ pub trait ErrorReporter {
 
     /// Pretty prints an error with the given information.
     fn report(&self, line: usize, location: &str, message: &str) {
-        eprintln!(
-            "[line {}] {:#?}{}: {}",
-            line,
-            Self::ERROR_TYPE,
-            location,
-            message
-        );
+        eprintln!("[line {}] SyntaxError{}: {}", line, location, message);
     }
 }

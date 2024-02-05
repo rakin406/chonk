@@ -1,57 +1,18 @@
-use std::fmt;
-
+mod error_reporter;
 mod lexer;
+mod parse_error;
 
 use crate::internal::ast::{Expr, Stmt};
-use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
+use error_reporter::ErrorReporter;
 use lexer::Lexer;
+use parse_error::ParseError;
 
-/// All possible error types in `Parser`.
-pub enum ParseError {
-    ExpectedExpression(Token),
-    TokenMismatch {
-        expected: TokenType,
-        found: Token,
-        message: String,
-    },
-}
-
+/// A parser for Chonk source code.
 #[derive(Default)]
 pub struct Parser {
     tokens: Vec<Token>,
     current: usize,
-}
-
-impl fmt::Debug for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ParseError::ExpectedExpression(token) => {
-                write!(
-                    f,
-                    "[line {}] {:#?}: Expected expression, but found token {:#?}",
-                    token.line,
-                    ErrorType::SyntaxError,
-                    token.ty
-                )
-            }
-            ParseError::TokenMismatch {
-                expected,
-                found,
-                message,
-            } => {
-                write!(
-                    f,
-                    "[line {}] {:#?}: Expected token {:#?} but found {:#?}: {}",
-                    found.line,
-                    ErrorType::SyntaxError,
-                    expected,
-                    found.ty,
-                    message
-                )
-            }
-        }
-    }
 }
 
 impl Parser {
@@ -74,26 +35,6 @@ impl Parser {
         }
 
         Ok(statements)
-    }
-
-    /// Discards tokens until it finds a statement boundary.
-    #[allow(dead_code)]
-    fn synchronize(&mut self) {
-        self.advance();
-
-        while !self.is_at_end() {
-            if self.previous().ty == TokenType::Semicolon {
-                break;
-            }
-
-            match self.peek().ty {
-                // TODO: Add function and variable here.
-                TokenType::While | TokenType::If | TokenType::Echo | TokenType::Return => break,
-                _ => {}
-            }
-
-            self.advance();
-        }
     }
 
     /// Parses statements.
@@ -148,6 +89,7 @@ impl Parser {
 
     /// Parses return statement.
     fn return_statement(&mut self) -> Result<Stmt, ParseError> {
+        let keyword: Token = self.previous().clone();
         let value = if !self.has_type(TokenType::Semicolon) {
             Some(self.expression()?)
         } else {
@@ -155,7 +97,7 @@ impl Parser {
         };
 
         self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
-        Ok(Stmt::Return(value))
+        Ok(Stmt::Return { keyword, value })
     }
 
     /// Parses delete statement.
@@ -553,6 +495,4 @@ impl Parser {
     }
 }
 
-impl ErrorReporter for Parser {
-    const ERROR_TYPE: ErrorType = ErrorType::SyntaxError;
-}
+impl ErrorReporter for Parser {}

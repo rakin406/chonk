@@ -52,8 +52,6 @@ pub enum TokenType {
     If,
     Else,
     While,
-    Break,
-    Continue,
     Return,
     Delete,
     Echo,

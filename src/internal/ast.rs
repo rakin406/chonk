@@ -1,6 +1,5 @@
 use super::token::{Literal, Token};
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub enum Stmt {
     Function {
@@ -17,11 +16,12 @@ pub enum Stmt {
         body: Vec<Stmt>,
         or_else: Option<Vec<Stmt>>,
     },
-    Return(Option<Expr>),
+    Return {
+        keyword: Token,
+        value: Option<Expr>,
+    },
     Delete(Vec<Token>),
     Expr(Expr),
-    Break,
-    Continue,
     Echo(Expr),
 }
 

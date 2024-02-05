@@ -3,11 +3,13 @@ use std::fmt;
 use std::iter::zip;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::internal::ast::{Expr, Stmt};
-use crate::internal::runtime_error::RuntimeError;
-use crate::internal::token::{Literal, Token, TokenType};
+mod runtime_error;
 
-#[allow(dead_code)]
+use crate::internal::ast::{Expr, Stmt};
+use crate::internal::token::{Literal, Token, TokenType};
+use runtime_error::RuntimeError;
+
+/// Chonk interpreter.
 pub struct Interpreter {
     is_interactive: bool,
     globals: Environment,
@@ -45,8 +47,8 @@ impl Default for Interpreter {
 
         Self {
             is_interactive: false,
-            globals: globals.clone(),
-            environment: globals.clone(),
+            globals,
+            environment: Default::default(),
             retval: None,
         }
     }
@@ -67,6 +69,15 @@ impl Interpreter {
             self.execute(stmt)?;
         }
         Ok(())
+    }
+
+    /// Looks up the variable in the current environment. If not found, check
+    /// the `globals` environment instead.
+    fn lookup(&self, name: &Token) -> Result<Value, RuntimeError> {
+        match self.environment.get(name) {
+            Ok(value) => Ok(value),
+            Err(_) => self.globals.get(name),
+        }
     }
 
     /// Executes a list of statements in a new isolated environment.
@@ -116,7 +127,14 @@ impl Interpreter {
                     self.interpret(else_stmt)?;
                 }
             }
-            Stmt::Return(value) => {
+            Stmt::Return { keyword, value } => {
+                if self.environment.outer.is_none() {
+                    return Err(RuntimeError::new(
+                        keyword.clone(),
+                        "Cannot use \"return\" outside function",
+                    ));
+                }
+
                 self.retval = Some(match value {
                     Some(expr) => self.interpret_expr(expr)?,
                     None => Value::Null,
@@ -133,8 +151,6 @@ impl Interpreter {
                     println!("{}", value);
                 }
             }
-            Stmt::Break => todo!(),
-            Stmt::Continue => todo!(),
             Stmt::Echo(expr) => {
                 let value = self.interpret_expr(expr)?;
                 println!("{}", value);
@@ -170,19 +186,19 @@ impl Interpreter {
             }
             Expr::Call(callee, paren, arguments) => self.call(callee, paren, arguments),
             Expr::Constant(literal) => Ok(get_value(literal)),
-            Expr::Variable(name) => self.environment.get(name),
+            Expr::Variable(name) => self.lookup(name),
             Expr::AugAssign {
                 name,
                 operator,
                 value,
             } => {
-                let target = self.environment.get(name)?;
+                let target = self.lookup(name)?;
                 let result = self.interpret_aug_assign(&target, operator.clone(), value)?;
                 self.environment.set(&name.lexeme, &result);
                 Ok(result)
             }
             Expr::Prefix { operator, name } => {
-                let target = self.environment.get(name)?;
+                let target = self.lookup(name)?;
                 let value = self.interpret_prefix(operator.clone(), &target)?;
                 self.environment.set(&name.lexeme, &value);
                 Ok(value)
@@ -330,7 +346,7 @@ fn is_truthy(value: &Value) -> bool {
 fn get_value(literal: &Literal) -> Value {
     match literal {
         Literal::Number(n) => Value::Number(*n),
-        Literal::String(s) => Value::String(s.clone()),
+        Literal::String(s) => Value::String(s.to_owned()),
         Literal::True => Value::Bool(true),
         Literal::False => Value::Bool(false),
         Literal::Null => Value::Null,

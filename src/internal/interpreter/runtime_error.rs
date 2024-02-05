@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::token::Token;
+use crate::internal::token::Token;
 
 pub struct RuntimeError {
     token: Token,
