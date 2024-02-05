@@ -89,6 +89,7 @@ impl Parser {
 
     /// Parses return statement.
     fn return_statement(&mut self) -> Result<Stmt, ParseError> {
+        let keyword: Token = self.previous().clone();
         let value = if !self.has_type(TokenType::Semicolon) {
             Some(self.expression()?)
         } else {
@@ -96,7 +97,7 @@ impl Parser {
         };
 
         self.consume(TokenType::Semicolon, "Expected ';' after return value")?;
-        Ok(Stmt::Return(value))
+        Ok(Stmt::Return { keyword, value })
     }
 
     /// Parses delete statement.
