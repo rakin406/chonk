@@ -499,7 +499,7 @@ impl Parser {
     /// Returns `true` if the current token has any of the given types. If so,
     /// it consumes the token.
     fn match_types(&mut self, types: &[TokenType]) -> bool {
-        for ty in types.iter() {
+        for ty in types {
             if self.match_type(*ty) {
                 return true;
             }

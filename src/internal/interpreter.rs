@@ -63,7 +63,7 @@ impl Interpreter {
 
     /// Interprets a list of statements.
     pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
-        for stmt in statements.iter() {
+        for stmt in statements {
             self.execute(stmt)?;
         }
         Ok(())
@@ -85,7 +85,6 @@ impl Interpreter {
 
     /// Executes statement.
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
-        // TODO: This code stops the program after first return. Change things up!
         if self.retval.is_some() {
             return Ok(());
         }
@@ -125,7 +124,7 @@ impl Interpreter {
                 });
             }
             Stmt::Delete(targets) => {
-                for target in targets.iter() {
+                for target in targets {
                     self.environment.pop(target)?;
                 }
             }
@@ -249,7 +248,7 @@ impl Interpreter {
         let callee_value = self.interpret_expr(callee)?;
 
         let mut args: Vec<Value> = Vec::new();
-        for arg in arguments.iter() {
+        for arg in arguments {
             args.push(self.interpret_expr(arg)?);
         }
 
@@ -482,9 +481,13 @@ impl Callable for ChonkFunction {
             environment.set(&param.lexeme, arg);
         }
 
+        let saved_retval = interpreter.retval.clone();
         interpreter.execute_new(&self.body, environment)?;
-        match &interpreter.retval {
-            Some(value) => Ok(value.clone()),
+        let retval = interpreter.retval.clone();
+        interpreter.retval = saved_retval;
+
+        match retval {
+            Some(value) => Ok(value),
             None => Ok(Value::Null),
         }
     }

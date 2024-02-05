@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2024-02-05
+
+### Fixed
+
+- Allow multiple returns from different function calls.
+
 ## [0.6.1] - 2024-02-05
 
 ### Added
