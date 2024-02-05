@@ -11,7 +11,7 @@ use crate::runner;
 
 // This help template is from node :)
 const HELP_TEMPLATE: &str = "\
-.clear    Resets the REPL context\n\
+.clear    Reset the REPL context\n\
 .exit     Exit the REPL\n\
 .help     Print this help message\n\n\
 \
