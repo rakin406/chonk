@@ -2,7 +2,7 @@ use std::fmt;
 
 mod lexer;
 
-use crate::internal::ast::{Expr, Program, Stmt};
+use crate::internal::ast::{Expr, Stmt};
 use crate::internal::error_reporter::{ErrorReporter, ErrorType};
 use crate::internal::token::{token_type, Literal, Token, TokenType};
 use lexer::Lexer;
@@ -66,15 +66,14 @@ impl Parser {
         }
     }
 
-    /// Parses statements and returns program.
-    pub fn parse(&mut self) -> Result<Program, ParseError> {
-        let mut program = Program::default();
-
+    /// Parses statements.
+    pub fn parse(&mut self) -> Result<Vec<Stmt>, ParseError> {
+        let mut statements: Vec<Stmt> = Vec::new();
         while !self.is_at_end() {
-            program.add(self.statement()?);
+            statements.push(self.statement()?);
         }
 
-        Ok(program)
+        Ok(statements)
     }
 
     /// Discards tokens until it finds a statement boundary.
