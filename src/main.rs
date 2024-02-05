@@ -20,7 +20,6 @@ fn main() -> Result<()> {
     } else {
         let version = env!("CARGO_PKG_VERSION");
 
-        // TODO: Create a template for `help` command.
         println!(
             "\
             Welcome to Chonk {}.\n\
