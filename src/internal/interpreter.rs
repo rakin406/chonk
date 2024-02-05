@@ -7,11 +7,9 @@ use crate::internal::ast::{Expr, Stmt};
 use crate::internal::runtime_error::RuntimeError;
 use crate::internal::token::{Literal, Token, TokenType};
 
-// TODO: Remove the useless "Program" struct and create a "Mode" enum with "File"
-// and "Repl" variants. Pass a Mode parameter in interpret() method.
-
 #[allow(dead_code)]
 pub struct Interpreter {
+    is_interactive: bool,
     globals: Environment,
     environment: Environment,
     retval: Option<Value>,
@@ -46,6 +44,7 @@ impl Default for Interpreter {
         );
 
         Self {
+            is_interactive: false,
             globals: globals.clone(),
             environment: globals.clone(),
             retval: None,
@@ -54,6 +53,14 @@ impl Default for Interpreter {
 }
 
 impl Interpreter {
+    /// Creates a new `Interpreter`.
+    pub fn new(is_interactive: bool) -> Self {
+        Self {
+            is_interactive,
+            ..Default::default()
+        }
+    }
+
     /// Interprets a list of statements.
     pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), RuntimeError> {
         for stmt in statements.iter() {

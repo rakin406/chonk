@@ -19,7 +19,7 @@ struct InputValidator {
 
 /// Runs the interpreter interactively.
 pub fn start() -> Result<()> {
-    let mut interpreter = Interpreter::default();
+    let mut interpreter = Interpreter::new(true);
 
     let helper = InputValidator {
         brackets: MatchingBracketValidator::new(),
@@ -54,7 +54,7 @@ pub fn start() -> Result<()> {
 
                 // Commands
                 match line.as_str() {
-                    ".clear" => interpreter = Interpreter::default(),
+                    ".clear" => interpreter = Interpreter::new(true),
                     ".exit" => running = false,
                     ".help" => todo!(),
                     _ => {}
