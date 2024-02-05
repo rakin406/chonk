@@ -85,7 +85,6 @@ impl Interpreter {
 
     /// Executes statement.
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
-        // TODO: This code stops the program after first return. Change things up!
         if self.retval.is_some() {
             return Ok(());
         }
@@ -482,9 +481,13 @@ impl Callable for ChonkFunction {
             environment.set(&param.lexeme, arg);
         }
 
+        let saved_retval = interpreter.retval.clone();
         interpreter.execute_new(&self.body, environment)?;
-        match &interpreter.retval {
-            Some(value) => Ok(value.clone()),
+        let retval = interpreter.retval.clone();
+        interpreter.retval = saved_retval;
+
+        match retval {
+            Some(value) => Ok(value),
             None => Ok(Value::Null),
         }
     }
