@@ -16,7 +16,10 @@ pub enum Stmt {
         body: Vec<Stmt>,
         or_else: Option<Vec<Stmt>>,
     },
-    Return(Option<Expr>),
+    Return {
+        keyword: Token,
+        value: Option<Expr>,
+    },
     Delete(Vec<Token>),
     Expr(Expr),
     Echo(Expr),
