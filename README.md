@@ -72,6 +72,63 @@ Chonk.
 a = 5;  # This is also allowed
 ```
 
+### Expressions
+
+Chonk supports 5 arithmetic operations: addition, subtraction, multiplication,
+division and modulo.
+```py
+3 + 2;   # 5
+10 - 3;  # 7
+7 * 10;  # 70
+70 / 7;  # 10
+500 % 3; # 2
+```
+
+Expressions can be grouped inside parentheses.
+```py
+(5 * (2 + 4)); # 30
+```
+
+In Chonk, variables cannot be declared like in other programming languages.
+Instead, to create a variable, you just assign a value to it.
+
+Assignment is done with an equal sign (=).
+
+```py
+a = 5;
+```
+
+Augmented assignment is used to replace a variable's value. It can be done by
+appending an equal sign to any of the arithmetic operators, like "+=", "-=" and
+so on.
+```py
+a = 10;
+a += 5; # 15
+```
+
+Chonk provides these unary operators: !, -, +
+```py
+!false; # true
+a = 10;
+-a; # -10
++a; # 10
+```
+
+Prefix increment(++) and decrement(--) operators are allowed on variables. They
+can be suffixes too but are desugared(converted) into prefix expression.
+```py
+a = 5;
+++a;    # 6
+a++;    # 7
+--a;    # 6
+```
+
+Comparison operators are used to compare two values.
+```py
+1 == 1; # true
+1 != 1; # false
+```
+
 ### Statements
 
 The `echo` statement displays the specified message to the screen. The message
