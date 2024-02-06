@@ -3,15 +3,17 @@
 This is the main source code repository for Chonk. It is a simple interpreted
 programming language based on the book [Crafting Interpreters](https://craftinginterpreters.com/).
 
-<details>
+<details open>
 
 <summary>Table of Contents</summary>
 
 - [About Chonk](#about-chonk)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+- [Syntax and Semantics](#syntax-and-semantics)
+  - [Expressions](#expressions)
+  - [Statements](#statements)
 - [Contributing](#contributing)
 - [Acknowledgments](#acknowledgments)
 - [Contact](#contact)
