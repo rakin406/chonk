@@ -179,14 +179,20 @@ function.
 
 The `return` keyword is used to exit a function and return a value.
 
+A function can be called just like in other programming languages. The number of
+arguments has to match the number of parameters of the function.
+
 ```go
 func add(a, b) {
     return a + b;
 }
+
+echo add(3, 2);
 ```
+Currently, there is only one native function named "clock", which displays the
+current time in seconds.
 
 The `del` keyword is used to delete variables.
-
 ```py
 a = 5;
 del a;
