@@ -496,3 +496,140 @@ impl Parser {
 }
 
 impl ErrorReporter for Parser {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse() -> Result<(), ParseError> {
+        let input = "\
+            a = 5;
+            b = 10;
+
+            func add(a, b) {
+                return a + b;
+            }
+
+            result = add(a, b);
+            echo result;
+        ";
+
+        let statements = Vec::from([
+            Stmt::Expr(Expr::Assign(
+                Token {
+                    ty: TokenType::Ident,
+                    lexeme: String::from("a"),
+                    literal: None,
+                    line: 1,
+                },
+                Box::new(Expr::Constant(Literal::Number(5.0))),
+            )),
+            Stmt::Expr(Expr::Assign(
+                Token {
+                    ty: TokenType::Ident,
+                    lexeme: String::from("b"),
+                    literal: None,
+                    line: 2,
+                },
+                Box::new(Expr::Constant(Literal::Number(10.0))),
+            )),
+            Stmt::Function {
+                name: Token {
+                    ty: TokenType::Ident,
+                    lexeme: String::from("add"),
+                    literal: None,
+                    line: 4,
+                },
+                params: Vec::from([
+                    Token {
+                        ty: TokenType::Ident,
+                        lexeme: String::from("a"),
+                        literal: None,
+                        line: 4,
+                    },
+                    Token {
+                        ty: TokenType::Ident,
+                        lexeme: String::from("b"),
+                        literal: None,
+                        line: 4,
+                    },
+                ]),
+                body: Vec::from([Stmt::Return {
+                    keyword: Token {
+                        ty: TokenType::Return,
+                        lexeme: String::from("return"),
+                        literal: None,
+                        line: 5,
+                    },
+                    value: Some(Expr::Binary(
+                        Box::new(Expr::Variable(Token {
+                            ty: TokenType::Ident,
+                            lexeme: String::from("a"),
+                            literal: None,
+                            line: 5,
+                        })),
+                        Token {
+                            ty: TokenType::Plus,
+                            lexeme: String::from("+"),
+                            literal: None,
+                            line: 5,
+                        },
+                        Box::new(Expr::Variable(Token {
+                            ty: TokenType::Ident,
+                            lexeme: String::from("b"),
+                            literal: None,
+                            line: 5,
+                        })),
+                    )),
+                }]),
+            },
+            Stmt::Expr(Expr::Assign(
+                Token {
+                    ty: TokenType::Ident,
+                    lexeme: String::from("result"),
+                    literal: None,
+                    line: 8,
+                },
+                Box::new(Expr::Call(
+                    Box::new(Expr::Variable(Token {
+                        ty: TokenType::Ident,
+                        lexeme: String::from("add"),
+                        literal: None,
+                        line: 8,
+                    })),
+                    Token {
+                        ty: TokenType::RParen,
+                        lexeme: String::from(")"),
+                        literal: None,
+                        line: 8,
+                    },
+                    Vec::from([
+                        Expr::Variable(Token {
+                            ty: TokenType::Ident,
+                            lexeme: String::from("a"),
+                            literal: None,
+                            line: 8,
+                        }),
+                        Expr::Variable(Token {
+                            ty: TokenType::Ident,
+                            lexeme: String::from("b"),
+                            literal: None,
+                            line: 8,
+                        }),
+                    ]),
+                )),
+            )),
+            Stmt::Echo(Expr::Variable(Token {
+                ty: TokenType::Ident,
+                lexeme: String::from("result"),
+                literal: None,
+                line: 9,
+            })),
+        ]);
+
+        let mut parser = Parser::new(input);
+        assert_eq!(parser.parse()?, statements);
+        Ok(())
+    }
+}

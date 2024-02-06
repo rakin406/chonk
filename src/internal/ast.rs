@@ -1,6 +1,6 @@
 use super::token::{Literal, Token};
 
-#[derive(Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Stmt {
     Function {
         name: Token,
@@ -25,7 +25,7 @@ pub enum Stmt {
     Echo(Expr),
 }
 
-#[derive(Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Expr {
     Binary(Box<Expr>, Token, Box<Expr>),
     Unary(Token, Box<Expr>),

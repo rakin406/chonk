@@ -507,3 +507,32 @@ impl Callable for ChonkFunction {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::internal::parser::Parser;
+
+    #[test]
+    fn test_interpret() -> Result<(), RuntimeError> {
+        let input = "\
+            a = 5;
+            b = 10;
+
+            func add(a, b) {
+                return a + b;
+            }
+
+            result = add(a, b);
+            echo result;
+            del result;
+        ";
+
+        let mut parser = Parser::new(input);
+        let statements = parser.parse().unwrap();
+
+        let mut interpreter = Interpreter::new(false);
+        assert!(interpreter.interpret(&statements).is_ok());
+        Ok(())
+    }
+}
