@@ -310,12 +310,12 @@ impl ErrorReporter for Lexer {}
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
     use super::*;
 
     #[test]
     fn test_scan_tokens() {
-        use std::collections::BTreeMap;
-
         use TokenType::*;
 
         let input = "
