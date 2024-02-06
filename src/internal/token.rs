@@ -2,7 +2,7 @@ pub mod token_type;
 
 pub use token_type::TokenType;
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Literal {
     Number(f64),
     String(String),
@@ -11,7 +11,7 @@ pub enum Literal {
     Null,
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Token {
     pub ty: TokenType,
     pub lexeme: String,
