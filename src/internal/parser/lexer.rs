@@ -307,3 +307,103 @@ fn is_potential_identifier_char(c: char) -> bool {
 }
 
 impl ErrorReporter for Lexer {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_scan_tokens() {
+        use std::collections::BTreeMap;
+
+        use TokenType::*;
+
+        let input = "
+            a = 5;
+            b = 10;
+
+            func add(a, b) {
+                return a + b;
+            }
+
+            result = add(a, b);
+
+            if a < b {
+                return true;
+            } else {
+                return false;
+            }
+            10 == 10;
+            a != b;
+            \"foobar\"
+        ";
+
+        let test_tokens = BTreeMap::from([
+            (Ident, "a"),
+            (Equal, "="),
+            (Number, "5"),
+            (Semicolon, ";"),
+            (Ident, "b"),
+            (Equal, "="),
+            (Number, "10"),
+            (Semicolon, ";"),
+            (Func, "func"),
+            (Ident, "add"),
+            (LParen, "("),
+            (Ident, "a"),
+            (Comma, ","),
+            (Ident, "b"),
+            (RParen, ")"),
+            (LBrace, "{"),
+            (Return, "return"),
+            (Ident, "a"),
+            (Plus, "+"),
+            (Ident, "b"),
+            (Semicolon, ";"),
+            (RBrace, "}"),
+            (Ident, "result"),
+            (Equal, "="),
+            (Ident, "add"),
+            (LParen, "("),
+            (Ident, "a"),
+            (Comma, ","),
+            (Ident, "b"),
+            (RParen, ")"),
+            (Semicolon, ";"),
+            (If, "if"),
+            (Ident, "a"),
+            (Less, "<"),
+            (Ident, "b"),
+            (LBrace, "{"),
+            (Return, "return"),
+            (True, "true"),
+            (Semicolon, ";"),
+            (RBrace, "}"),
+            (Else, "else"),
+            (LBrace, "{"),
+            (Return, "return"),
+            (False, "false"),
+            (Semicolon, ";"),
+            (RBrace, "}"),
+            (Number, "10"),
+            (EqEqual, "=="),
+            (Number, "10"),
+            (Semicolon, ";"),
+            (Ident, "a"),
+            (BangEqual, "!="),
+            (Ident, "b"),
+            (Semicolon, ";"),
+            (String, "\"foobar\""),
+            (Eof, ""),
+        ]);
+
+        let mut lexer = Lexer::new(input);
+        let mut scanned_tokens = BTreeMap::new();
+
+        for token in lexer.scan_tokens() {
+            scanned_tokens.insert(token.ty, token.lexeme.as_str());
+        }
+
+        assert_eq!(scanned_tokens, test_tokens);
+    }
+}
