@@ -1,5 +1,5 @@
 /// Token types
-#[derive(Eq, PartialEq, Debug, Copy, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Copy, Clone)]
 pub enum TokenType {
     // Special token
     Eof,
